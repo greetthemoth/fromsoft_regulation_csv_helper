@@ -1,0 +1,7 @@
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\bin\Debug\EldenRingCSVHelper.exe.config
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\bin\Debug\EldenRingCSVHelper.exe
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\bin\Debug\EldenRingCSVHelper.pdb
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\obj\Debug\EldenRingCSVHelper.csprojAssemblyReference.cache
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\obj\Debug\EldenRingCSVHelper.csproj.CoreCompileInputs.cache
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\obj\Debug\EldenRingCSVHelper.exe
+C:\CODING\Souls Modding\ModdingTools\EldenRingCSVHelper\obj\Debug\EldenRingCSVHelper.pdb
