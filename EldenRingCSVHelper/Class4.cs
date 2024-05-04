@@ -40,6 +40,29 @@ namespace EldenRingCSVHelper
             line.SetField(chanceFIs[lotIndex - 1], chance);
             line.SetField(affectByLuckFIs[lotIndex - 1], affectByLuck);
         }
+
+        public bool LineHasLotItem(Line line, bool sharesLotInfo)
+        {
+            for(int lotIndex = 1; lotIndex <= idFIs.Length; lotIndex++)
+            {
+                LotHasLotItem(line, lotIndex, sharesLotInfo);
+            }
+        }
+        public bool LotHasLotItem(Line line, int lotIndex, bool sharesLotInfo)
+        {
+            if(id == line.GetFieldAsInt(idFIs[lotIndex - 1]) && category == line.GetFieldAsInt(categoryFIs[lotIndex - 1]))
+            {
+                if (sharesLotInfo)
+                    return
+                    chance      == line.GetFieldAsInt(chanceFIs[lotIndex - 1]) &&
+                    amount      == line.GetFieldAsInt(amountFIs[lotIndex - 1]) &&
+                    affectByLuck== (line.GetFieldAsInt(affectByLuckFIs[lotIndex - 1]) == 1);
+                else
+                    return true;
+            }
+            return false;
+        }
+
         public LotItem(int category, int id, int amount = 1, int chance = 1000, bool affectByLuck = false)
         {
             this.category = category;

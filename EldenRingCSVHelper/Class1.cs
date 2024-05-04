@@ -445,6 +445,35 @@ namespace EldenRingCSVHelper
             }
         }
 
+
+        public class HasLotItem : Condition
+        {
+            LotItem[] lotItems;
+            int lotIndex = -1;
+            bool sharesLineInfo = false;
+            public HasLotItem(LotItem lotItem, int lotIndex = -1, bool sharesLineInfo = false)
+            {
+                lotItems = new LotItem[] { lotItem };
+                this.lotIndex = lotIndex;
+                this.sharesLineInfo = sharesLineInfo;
+            }
+            public HasLotItem(LotItem[] lotItems, int lotIndex = -1, bool sharesLineInfo = false)
+            {
+                this.lotItems = lotItems;
+                this.lotIndex = lotIndex;
+                this.sharesLineInfo = sharesLineInfo;
+            }
+            public override Pass(Line line)
+            {
+                foreach(LotItem lotItem in lotItems)
+                {
+                    if (lotIndex == -1)
+                        lotItem.LineHasLotItem(line, sharesLineInfo);
+                    else
+                        lotItem.LotHasLotItem(line, lotIndex, sharesLineInfo);
+                }
+            }
+        }
     }
 
 
@@ -453,6 +482,20 @@ namespace EldenRingCSVHelper
     public abstract class LineModifier
     {
         public abstract void Operate(Line line);
+    }
+    public class SetLotItem: LineModifier
+    {
+        LotItem lotItem;
+        int lotIndex = 1;
+        public SetLotItem(LotItem lotItem, int lotIndex)
+        {
+            this.lotItem = lotItem;
+            this.lotIndex = lotIndex;
+        }
+        public override void Operate(Line line)
+        {
+            lotItem.SetLotItemToLine(line, lotIndex);
+        }
     }
     public abstract class FieldModifier : LineModifier
     {

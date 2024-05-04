@@ -366,10 +366,27 @@ namespace EldenRingCSVHelper
 
 
         }
-        static void randomizedOpenWorldWeapons()
+
+
+
+
+
+        static void randomizedWeapons()
         {
             if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map }))
                 return;
+                                                                                                        //specific number
+            var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),    3       , IntFilter.Digit(3, 5),    IntFilter.Digit(0, 8)   , 7, -1, -1, 0);
+            var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),     9                       , 7, -1, -1, 0);
+
+
+            List<int> usedGetItemFlagId;
+            {
+                int _getItemFlagId = ItemLotParam_map.GetFieldIndex("getItemFlagId");
+                var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
+                usedGetItemFlagId = Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
+                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
+            }
 
             LotItem[] roundtableItems = new LotItem[]
             {
@@ -410,6 +427,33 @@ namespace EldenRingCSVHelper
 
                 new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
             };
+
+            const bool createNewRoundtableItems = false;
+            const bool stealItemLotsRoundtable = true;
+            if (createNewRoundtableItemLots)
+            {
+                int roundtableItemsStartId = 0;
+                Line baseline = ItemLotParam_map.GetLineWithId(10000);
+                int lastId = roundtableItemsStartId - 5;
+                int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
+                foreach (LotItem lotItem in roundtableItems)
+                {
+                    Line line = baseline.Copy();
+                    lastId = ItemLotParam_map.GetNextFreeId(lastId + 5, true);
+                    line.SetField(0, lastId);
+                    lotItem.SetLotItemToLine(line, 1);
+                    int currentGetItemFlagId = IntFilter.GetRandomInt(line, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                    usedGetItemFlagId.Add(currentGetItemFlagId);
+                    int getItemFlagFI = ItemLotParam_map.GetFieldIndex();
+                    line.SetField(getItemFlagFI, currentGetItemFlagId);
+                }
+
+            }
+            else if (stealItemLotsForRoundtable)
+            {
+
+            }
+
 
             LotItem[] exceptions = new LotItem[]
             {
@@ -792,9 +836,11 @@ namespace EldenRingCSVHelper
 
 
 
-            LotItem[][] basicItems = new LotItem[][]
+            LotItem[][] lotItemGroupsToRandomize = new LotItem[][]
             {
-                new LotItem[]{
+                deathbirdItems,
+                bloodhoundItems,
+                /*new LotItem[]{
                     new LotItem(LotItem.Category.Weapon, 1000000), //Dagger   //fingermaiden
                     new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe //fingermaiden
                     new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal //fingermaiden
@@ -803,7 +849,7 @@ namespace EldenRingCSVHelper
                     new LotItem(LotItem.Category.Weapon, 5020000), //Rapier //fingermaiden
                     new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear //fingermaiden
                     new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar //fingermaiden
-                },
+                },*/
                 new LotItem[]{
                      new LotItem(LotItem.Category.Weapon, 13010000), //Flail //carriage
                      new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage
@@ -912,6 +958,39 @@ namespace EldenRingCSVHelper
                 new LotItem(LotItem.Category.Weapon, 19000000), //Scythe
                 */
             };
+                                                                                                    
+
+
+            Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
+
+            foreach (LotItem[] lotItemGroup in lotItemGroupsToRandomize)
+            {
+                Lines lines = ItemLotParam_map.GetLinesOnCondition(new Condition.HasLotItem(lotItemGroup, 1, true));
+                for(int i = 0; i < lotItemGroup.Length; i++)
+                {
+                    int lotIndex = i + 1;
+                    var setItemLotOperation = new SetLotItem(lotItemGroup[i], lotIndex);
+                    int getItemFlagFI = ItemLotParam_map.GetFieldIndex("getItemFlagId0" + lotIndex);
+
+                    int currentGetItemFlagId;
+                    if (lotItemToFlagIdDict.ContainsKey(lotItemGroup[i]))
+                    {
+                        currentGetItemFlagId = lotItemToFlagIdDict[lotItemGroup[i]];
+                    }
+                    else
+                    {
+                        currentGetItemFlagId = IntFilter.GetRandomInt(line, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                        usedGetItemFlagId.Add(currentGetItemFlagId);
+                        lotItemToFlagIdDict.Add(lotItemGroup[i], currentGetItemFlagId);
+                    }
+
+                    foreach (Line line in lines.lines)
+                    {
+                        line.Operate(setItemLotOperation);
+                        line.SetField(getItemFlagFI, currentGetItemFlagId);
+                    }
+                }
+            }
 
 
         }
