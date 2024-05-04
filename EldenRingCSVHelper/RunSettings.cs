@@ -21,7 +21,7 @@
         public static bool PrintFile_VerifyFieldCounts_OnlyModifiedLines = false;
 
         //Run Overrides
-        public static bool CreateSmithingStoneMods = false; 
+        public static bool CreateSmithingStoneMods = true; 
 
 
         public static bool PrintOnConsole = false; //print on console or on debug tab

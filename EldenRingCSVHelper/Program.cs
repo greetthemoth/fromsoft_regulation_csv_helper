@@ -80,9 +80,17 @@ namespace EldenRingCSVHelper
 
         public static ParamFile ShopLineupParam = new ParamFile(VanillaFilesPath, "ShopLineupParam.csv");
 
+        public static ParamFile EquipParamCustomWeapon = new ParamFile(VanillaFilesPath, "EquipParamCustomWeapon.csv");
+
 
         static void Main()
         {
+            if (false)
+            {
+                RunSettings.RunIfNull = true;
+                noupgradedweaponsFromNpcs();
+            }
+            else
             if (RunSettings.CreateSmithingStoneMods)
             {
                 RunOverride_CreateSmithingStoneMod();
@@ -297,6 +305,617 @@ namespace EldenRingCSVHelper
 
         }
 
+        static void noupgradedweaponsFromNpcs()
+        {
+            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map, EquipParamCustomWeapon }))
+                return;
+
+            int lotItemCategory01 = ItemLotParam_map.GetFieldIndex("lotItemCategory01");
+            int lotItemId01 = ItemLotParam_enemy.GetFieldIndex("lotItemId01");
+
+            var isWeaponCond = new Condition.FieldEqualTo(lotItemCategory01, "2");
+            var isUpgradedCond = new Condition.FieldEndsWith(lotItemId01, "0").IsFalse;
+            var upgradedWeaponLines = ItemLotParam_map.GetLinesOnCondition(isWeaponCond.AND(isUpgradedCond));
+
+            foreach (Line line in upgradedWeaponLines)
+            {
+                var debugline = line._idName;
+                string name = line.name;
+                string new_name;
+                {
+                    int toplus = name.IndexOf("+");
+                    int tospace = name.Substring(toplus).IndexOf(" ");
+                    if (tospace != -1)
+                        new_name = name.Remove(toplus, tospace+1);
+                    else
+                        new_name = name.Remove(toplus);
+                }
+                var upgradedWeapId = line.GetField(lotItemId01);
+                var newId = upgradedWeapId.Remove(upgradedWeapId.Length - 1);//removes last digit
+                newId += "0"; //adds a 0;
+                line.SetField("lotItemId01", newId).SetField(1, new_name);
+            }
+
+            int[] customWeaponIdsToNotDrop = new int[]{
+                5000,
+                5010
+            };
+
+            var customWeaponsNotToDrop = EquipParamCustomWeapon.GetLinesWithId(customWeaponIdsToNotDrop);
+
+            foreach (Line line in customWeaponsNotToDrop)
+            {
+                string name = line.name;
+                string new_name;
+                {
+                    
+                    int toplus = name.IndexOf("+");
+                    int tospace = name.Substring(toplus).IndexOf(" ");
+                    if (tospace != -1)
+                        new_name = name.Remove(toplus, tospace+1);
+                    else
+                        new_name = name.Remove(toplus);
+                }
+                Line newLine = line.Copy().SetField(0, line.GetNextFreeId()).SetField(1, new_name);
+                EquipParamCustomWeapon.OverrideOrAddLine(newLine);
+
+                var isCustomWeaponCond = new Condition.FieldEqualTo(lotItemCategory01, "6");
+                var dropsThisWeaponIdCond = new Condition.FieldEqualTo(lotItemId01, line.id);
+                ItemLotParam_map.Operate(new SetFieldTo(lotItemId01, newLine.id), isCustomWeaponCond.AND(dropsThisWeaponIdCond));
+            }
+
+
+        }
+        static void randomizedOpenWorldWeapons()
+        {
+            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map }))
+                return;
+
+            LotItem[] roundtableItems = new LotItem[]
+            {
+                //twin fingermaiden
+                new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
+                new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
+                new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
+                new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
+                new LotItem(LotItem.Category.Weapon, 11000000), //Mace
+                new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
+                new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
+                new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+
+                //brother corhyn
+                new LotItem(LotItem.Category.Good, 6420), //Urgent Heal
+                new LotItem(LotItem.Category.Good, 6421), //Heal
+                new LotItem(LotItem.Category.Good, 6440), //Cure Poison
+                new LotItem(LotItem.Category.Good, 6460), //Magic Fortification
+                new LotItem(LotItem.Category.Good, 6450), //Flame Fortification
+                new LotItem(LotItem.Category.Good, 6400), //Rejection
+                new LotItem(LotItem.Category.Good, 6000), //Catch Flame
+                new LotItem(LotItem.Category.Good, 6010), //Flame Sling
+                //altus
+                new LotItem(LotItem.Category.Good, 6422), //Great Heal
+                new LotItem(LotItem.Category.Good, 6470), //Lightning Fortification
+                //goldmask
+                new LotItem(LotItem.Category.Good, 6700), //Discus of Light
+                new LotItem(LotItem.Category.Good, 6010), //Immutable Shield
+
+                //D Hunter of the Dead
+                new LotItem(LotItem.Category.Good, 6750), //Litany of Proper Death
+                new LotItem(LotItem.Category.Good, 6770), //Order's Blade
+
+                //Gideon Ofnir
+                new LotItem(LotItem.Category.Good, 6260), //Black Flame's Protection
+                new LotItem(LotItem.Category.Good, 6760), //Law of Causality
+                new LotItem(LotItem.Category.Good, 6490), //Lord's Divine Fortification
+
+                new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
+            };
+
+            LotItem[] exceptions = new LotItem[]
+            {
+                new LotItem(LotItem.Category.Weapon, 33060000), //Demi-Human Queen's Staff
+                new LotItem(LotItem.Category.Weapon, 4100000), //Grafted Blade Greatsword
+                new LotItem(LotItem.Category.Weapon, 42030000), //Erdtree Greatbow
+                new LotItem(LotItem.Category.Weapon, 18080000), //Golden Halberd
+
+                new LotItem(LotItem.Category.Weapon, 1040000), //Reduvia
+                new LotItem(LotItem.Category.Weapon, 6000000), //Bloody Helice
+
+
+
+
+
+                new LotItem(LotItem.Category.Weapon, 4070000), //Godslayer's Greatsword
+                new LotItem(LotItem.Category.Weapon, 18160000), // Gargoyle's Black Halberd
+                new LotItem(LotItem.Category.Weapon, 3210000), //Gargoyle's Blackblade
+                new LotItem(LotItem.Category.Weapon, 15130000), //Gargoyle's Great Axe
+                new LotItem(LotItem.Category.Weapon, 18150000), //Gargoyle's Halberd
+                new LotItem(LotItem.Category.Weapon, 10090000), //Gargoyle's Black Blades
+                new LotItem(LotItem.Category.Weapon, 3190000), //Gargoyle's Greatsword
+                new LotItem(LotItem.Category.Weapon, 10080000), //Gargoyle's Twinblade
+
+                new LotItem(LotItem.Category.Weapon, 18040000), //Commander's Standard
+
+                new LotItem(LotItem.Category.Weapon, 18050000), //Nightrider Glaive
+                new LotItem(LotItem.Category.Weapon, 13000000), //Nightrider Flail
+
+                new LotItem(LotItem.Category.Weapon, 1110000), //Cinquedea
+                new LotItem(LotItem.Category.Weapon, 12150000), //Beastclaw Greathammer
+                new LotItem(LotItem.Category.Weapon, 34040000), //Clawmark Seal
+
+                //kenneth haight, also in lleyndel
+                new LotItem(LotItem.Category.Weapon, 1150000), //Erdsteel Dagger 
+
+                new LotItem(LotItem.Category.Weapon, 2080000), //Nox Flowing Sword
+                new LotItem(LotItem.Category.Weapon, 33240000), //Lusat's Glintstone Staff
+                new LotItem(LotItem.Category.Weapon, 33280000), //Staff of Loss
+
+                new LotItem(LotItem.Category.Weapon, 2060000), //Ornamental Straight Sword
+
+                new LotItem(LotItem.Category.Weapon, 3090000), //Dark Moon Greatsword
+                new LotItem(LotItem.Category.Weapon, 4060000), //Royal Greatsword
+
+                new LotItem(LotItem.Category.Weapon, 17050000), //Vyke's War Spear
+                new LotItem(LotItem.Category.Weapon, 13020000), //Family Heads
+
+                //omenkiller
+                new LotItem(LotItem.Category.Weapon, 15020000), //Great Omenkiller Cleaver, volcano mannor and miranda boss
+
+                //given by patches
+                new LotItem(LotItem.Category.Weapon, 20030000), //Magma Whip Candlestick
+
+                //given by tanith after quest, serpent stuff
+                new LotItem(LotItem.Category.Weapon, 9080000), //Serpentbone Blade
+
+                new LotItem(LotItem.Category.Weapon, 17030000), //Serpent-Hunter
+
+                new LotItem(LotItem.Category.Weapon, 16130000), //Inquisitor's Girandole
+                new LotItem(LotItem.Category.Weapon, 6010000), //Godskin Stitcher
+                new LotItem(LotItem.Category.Weapon, 10010000), //Godskin Peeler
+                new LotItem(LotItem.Category.Weapon, 23080000), //Fallingstar Beast Jaw
+
+                new LotItem(LotItem.Category.Weapon, 15120700), //Sacred Butchering Knife
+
+                new LotItem(LotItem.Category.Weapon, 5040000), //Antspur Rapier
+                new LotItem(LotItem.Category.Weapon, 3150000), //Marais Executioner's Sword
+
+                new LotItem(LotItem.Category.Weapon, 9010000), //Nagakiba, given from yura
+                new LotItem(LotItem.Category.Weapon, 10050000), //Eleonora's Poleblade
+
+                new LotItem(LotItem.Category.Weapon, 40030000), //Harp Bow
+
+                new LotItem(LotItem.Category.Weapon, 34060000), //Golden Order Seal
+
+                new LotItem(LotItem.Category.Weapon, 8010000), //Onyx Lord's Greatsword
+
+                new LotItem(LotItem.Category.Weapon, 21070000), //Iron Ball
+                new LotItem(LotItem.Category.Weapon, 3160000), //Sword of Milos
+
+                new LotItem(LotItem.Category.Weapon, 23060000), //Dragon Greatclaw
+
+                new LotItem(LotItem.Category.Weapon, 3060000), //Ordovis's Greatsword
+
+                new LotItem(LotItem.Category.Weapon, 16090000), //Bolt Of Gransax
+                new LotItem(LotItem.Category.Weapon, 34030000), //Gravel Stone Seal
+
+                new LotItem(LotItem.Category.Weapon, 11110000), //Scepter of the All-Knowing
+
+                new LotItem(LotItem.Category.Weapon, 2110000), //Coded Sword
+
+                new LotItem(LotItem.Category.Weapon, 23120000), //Golem's Halberd
+                new LotItem(LotItem.Category.Weapon, 1160000), //Blade of Calling
+
+                new LotItem(LotItem.Category.Weapon, 9040000), //Rivers of Blood
+                new LotItem(LotItem.Category.Weapon, 20050000), //Hoslow's Petal Whip
+
+                //deathy
+                new LotItem(LotItem.Category.Weapon, 3130000), //Helphen's Steeple
+                new LotItem(LotItem.Category.Weapon, 24050000), //Ghostflame Torch
+
+                new LotItem(LotItem.Category.Weapon, 7100000), //Eclipse Shotel
+
+                new LotItem(LotItem.Category.Weapon, 21120000), //Veteran's Prosthesis
+
+                new LotItem(LotItem.Category.Weapon, 3170000), //Golden Order Greatsword
+
+                new LotItem(LotItem.Category.Weapon, 12210000), //Rotten Battle Hammer
+                new LotItem(LotItem.Category.Weapon, 23150000), //Rotten Greataxe
+
+                new LotItem(LotItem.Category.Weapon, 18100000), //Loretta's War Sickle
+
+                new LotItem(LotItem.Category.Weapon, 2260000), //Rotten Crystal Sword
+
+                new LotItem(LotItem.Category.Weapon, 12200000), //Devourer's Scepter
+
+                new LotItem(LotItem.Category.Weapon, 17020000), //Siluria's Tree
+
+                new LotItem(LotItem.Category.Weapon, 2090000), //Inseparable Sword
+
+                new LotItem(LotItem.Category.Weapon, 11060000), //Varré's Bouquet
+
+                new LotItem(LotItem.Category.Weapon, 11080000), //Hammer, //fortified manor
+            };
+
+            LotItem[] chestItems = new LotItem[]
+            {
+                 //carriage chest
+                 new LotItem(LotItem.Category.Weapon, 13010000), //Flail
+                 new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword
+                 new LotItem(LotItem.Category.Weapon, 11050000), //Morning Star
+                 new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe
+                 new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword
+                 //--------
+                 //good carriage weapons
+                 new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
+                 new LotItem(LotItem.Category.Weapon, 17070000), //Treespear
+                 new LotItem(LotItem.Category.Weapon, 4030000), //Troll's Golden Sword
+                 new LotItem(LotItem.Category.Weapon, 23110000), //Giant-Crusher
+                 new LotItem(LotItem.Category.Weapon, 12180000), //Great Stars, thematic value, found in blood related area             
+                 new LotItem(LotItem.Category.Weapon, 24040000), //St. Trina's Torch,  concentrated snow field
+                 new LotItem(LotItem.Category.Weapon, 7060000), //Flowing Curved Sword, concentrated snow field slight thematic value
+                 //-------
+
+                 //world chest
+                 new LotItem(LotItem.Category.Weapon, 3180000), //Claymore
+                 new LotItem(LotItem.Category.Weapon, 6020000), //Great epee
+                 new LotItem(LotItem.Category.Weapon, 10000000), //Twinblade
+                 new LotItem(LotItem.Category.Weapon, 21100000), //Katar
+                 //------
+                 new LotItem(LotItem.Category.Weapon, 5050000), //Frozen Needle //carian stuff
+                 new LotItem(LotItem.Category.Weapon, 2140000), //Sword of Night and Flame // found in carian manor, carian stuff
+                 new LotItem(LotItem.Category.Weapon, 12060000), //Great Mace
+                 new LotItem(LotItem.Category.Weapon, 42040000), //Greatbow, // in a highway look out, fitting, in altus
+                 new LotItem(LotItem.Category.Weapon, 41030000), //Erdtree Bow
+                 
+
+                 //thematically vauge chest locations
+                 new LotItem(LotItem.Category.Weapon, 19060000), //Winged Scythe
+                 new LotItem(LotItem.Category.Weapon, 2190000), //Sword of St. Trina
+                 new LotItem(LotItem.Category.Weapon, 14080000), //Icerind Hatchet
+                
+                 //thematically accurate chest location
+                 new LotItem(LotItem.Category.Weapon, 44000000), //Hand Ballista, high area by balista
+                 new LotItem(LotItem.Category.Weapon, 16020000), //Crystal Spear, crystal tunnel
+                 new LotItem(LotItem.Category.Weapon, 34010000), //Godslayer's Seal, stormviel castle sealed chest
+                 //crystal stuff.
+                 new LotItem(LotItem.Category.Weapon, 1050000), //Crystal Knife, raya lucaria crystal tunnel, 
+                 new LotItem(LotItem.Category.Weapon, 22030000), //Raptor Talons
+                 new LotItem(LotItem.Category.Weapon, 1080000), //Scorpion's Stinger
+                 new LotItem(LotItem.Category.Weapon, 7070000), //Wing of Astel
+
+
+                 //unsure
+                 new LotItem(LotItem.Category.Weapon, 2220000), //Regalia of Eochaid
+                 new LotItem(LotItem.Category.Weapon, 23100000), //Ghiza's Wheel
+
+                 
+            };
+
+            LotItem[] merchantitems = new LotItem[]
+            {
+                
+                //patches
+                new LotItem(LotItem.Category.Weapon, 5000000), //Estoc, also sold by a nomadic merchant
+                new LotItem(LotItem.Category.Weapon, 1020000), //Parrying Dagger
+                //------
+
+                //gostoc
+                new LotItem(LotItem.Category.Weapon, 21000000), //Caestus
+                //-------
+
+                //pidia
+                new LotItem(LotItem.Category.Weapon, 14050000), //Ripple Blade
+
+                //-----------
+                     new LotItem(LotItem.Category.Weapon, 4040000), //Zweihander
+
+                     new LotItem(LotItem.Category.Weapon, 3000000), //Bastard Sword
+                     new LotItem(LotItem.Category.Weapon, 43020000), //Light Crossbow
+
+                     new LotItem(LotItem.Category.Weapon, 2020000), //Broadsword
+                     new LotItem(LotItem.Category.Weapon, 11010000), //Club
+                     new LotItem(LotItem.Category.Weapon, 40000000), //Shortbow
+
+                     new LotItem(LotItem.Category.Weapon, 14020000), //Hand Axe
+
+                     new LotItem(LotItem.Category.Weapon, 18000000), //Halberd
+
+                     new LotItem(LotItem.Category.Weapon, 21010000), //Spiked Caestus
+                     new LotItem(LotItem.Category.Weapon, 24060000), //Beast-Repellent Torch, thematically accurate
+
+                     new LotItem(LotItem.Category.Weapon, 5000000), //Estoc
+                     new LotItem(LotItem.Category.Weapon, 33130000), //Astrologer's Staff
+
+                     new LotItem(LotItem.Category.Weapon, 40050000), //Composite Bow
+
+                     new LotItem(LotItem.Category.Weapon, 24070000), //Sentry's Torch
+
+                     new LotItem(LotItem.Category.Weapon, 7020000), //Shotel
+                //-----------
+            };
+
+            LotItem[] deathbirdItems = new LotItem[]
+            {
+                new LotItem(LotItem.Category.Weapon, 14110000), //Sacrificial Axe
+                new LotItem(LotItem.Category.Weapon, 3200000), //Death's Poker
+                new LotItem(LotItem.Category.Weapon, 16120000), //Death Ritual Spear
+
+            };
+            LotItem[] bloodhoundItems = new LotItem[]
+            {
+                new LotItem(LotItem.Category.Weapon, 8030000), //Bloodhound's Fang
+                new LotItem(LotItem.Category.Weapon, 22020000), //Bloodhound Claws
+            };
+
+            LotItem[] corpseOrBossItems = new LotItem[]
+            {
+                new LotItem(LotItem.Category.Weapon, 24020000), //Steel-Wire Torch
+                new LotItem(LotItem.Category.Weapon, 7030000), //Shamshir
+                new LotItem(LotItem.Category.Weapon, 9000000), //Uchigatana
+                new LotItem(LotItem.Category.Weapon, 17060000), //Lance
+                new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne
+                new LotItem(LotItem.Category.Weapon, 7080000), //Scavenger's Curved Sword
+                new LotItem(LotItem.Category.Weapon, 10030000), //Twinned Knight Swords
+                new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow, in a rooftop, slight thematic value
+                new LotItem(LotItem.Category.Weapon, 2210000), //Cane Sword
+                //-------
+
+                new LotItem(LotItem.Category.Weapon, 21080000), //Star Fist. found around arena. thematic value
+
+                new LotItem(LotItem.Category.Weapon, 14140000), //Stormhawk Axe, fortified manor, and castle soll
+
+                new LotItem(LotItem.Category.Weapon, 23130000), //Troll's Hammer, found neear boss
+                new LotItem(LotItem.Category.Weapon, 23020000), //Great Club ,dropeed by stone digger troll
+
+                new LotItem(LotItem.Category.Weapon, 43050000), //Pulley Crossbow
+                new LotItem(LotItem.Category.Weapon, 41060000), //Pulley Bow
+
+                //dropped by demi human queen margot
+                new LotItem(LotItem.Category.Weapon, 44010000), //Jar Cannon
+
+
+                new LotItem(LotItem.Category.Weapon, 34070000), //Erdtree Seal
+                new LotItem(LotItem.Category.Weapon, 2070000), //Golden Epitaph
+
+                new LotItem(LotItem.Category.Weapon, 1010000), //Black Knife
+
+
+               //stromveil
+               new LotItem(LotItem.Category.Weapon, 12190000), //Brick Hammer
+               new LotItem(LotItem.Category.Weapon, 22000000), //Hookclaws
+               new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde
+               new LotItem(LotItem.Category.Weapon, 14100000), //Highland Axe, thematicly zccurate, in front of godfrey painting
+               new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest
+               new LotItem(LotItem.Category.Weapon, 16070000), //Pike
+               //-----------
+
+                //caelid
+                new LotItem(LotItem.Category.Weapon, 16110000), //Cross-Naginata
+                new LotItem(LotItem.Category.Weapon, 1100000), //Wakizashi
+                //----------
+                new LotItem(LotItem.Category.Weapon, 33250000), //Meteorite Staff
+                new LotItem(LotItem.Category.Weapon, 9030000), //Meteoric Ore Blade
+
+                //catacombs
+                new LotItem(LotItem.Category.Weapon, 19000000), //Scythe
+                //---
+                new LotItem(LotItem.Category.Weapon, 23010000), //Watchdog's Staff
+                new LotItem(LotItem.Category.Weapon, 14120000), //Rosus' Axe
+
+                //carian
+                new LotItem(LotItem.Category.Weapon, 33170000), //Carian Glintblade Staff
+                new LotItem(LotItem.Category.Weapon, 33210000), //Carian Glintstone Staff
+
+                //crystal stuff
+                new LotItem(LotItem.Category.Weapon, 2150000), //Crystal Sword
+
+
+                new LotItem(LotItem.Category.Weapon, 2200000), //Miquellan Knight's Sword
+
+                new LotItem(LotItem.Category.Weapon, 1130000), //Ivory Sickle
+                new LotItem(LotItem.Category.Weapon, 33190000), //Albinauric Staff
+                new LotItem(LotItem.Category.Weapon, 20070000), //Urumi
+
+                new LotItem(LotItem.Category.Weapon, 41020000), //Horn Bow. found near ancester spirits in nokrom. fitting enough
+
+                new LotItem(LotItem.Category.Weapon, 11120000), //Nox Flowing Hammer //found in nokrom, fitting enough
+
+
+
+                //serpent related
+                new LotItem(LotItem.Category.Weapon, 41040000), //Serpent Bow
+                new LotItem(LotItem.Category.Weapon, 22010000), //Venomous Fang
+                new LotItem(LotItem.Category.Weapon, 7110000), //Serpent-God's Curved Sword
+
+                //frenzied related
+                new LotItem(LotItem.Category.Weapon, 34090000), //Frenzied Flame Seal, given by hyetta
+
+                new LotItem(LotItem.Category.Weapon, 12130000), //Celebrant's Skull. found in dominula, fitting.
+
+                //blashphemous
+                new LotItem(LotItem.Category.Weapon, 11130000), //Ringed Finger
+
+                //cementry shade
+                new LotItem(LotItem.Category.Weapon, 7120000), //Mantis Blade
+
+                //found in proximitty to jerren, slight thematic value
+                new LotItem(LotItem.Category.Weapon, 3050000), //Flamberge
+                //-----
+
+                //castle morce cell area, thematically accurate
+                new LotItem(LotItem.Category.Weapon, 20000000), //Whip
+                //-----
+
+                //demihuman body, limgrave
+                new LotItem(LotItem.Category.Weapon, 12000000), //Large Club
+                //------
+
+                //misbegotten cave boss, weeping pennisula, thematically accurate location
+                new LotItem(LotItem.Category.Weapon, 15060100), //Heavy Rusted Anchor
+
+                //magama wyrm geal cave, weird drop, thematically vauge
+                new LotItem(LotItem.Category.Weapon, 9060000), //Moonveil
+
+                //magma wyrm in ruin strwn precupice
+                new LotItem(LotItem.Category.Weapon, 8040000), //Magma Wyrm's Scalesword
+
+                //prelate
+                new LotItem(LotItem.Category.Weapon, 23000000), //Prelate's Inferno Crozier
+                new LotItem(LotItem.Category.Weapon, 34020000), //Giant's Seal
+                new LotItem(LotItem.Category.Weapon, 12170000), //Cranial Vessel Candlestand
+                new LotItem(LotItem.Category.Weapon, 20020000), //Thorned Whip
+
+                new LotItem(LotItem.Category.Weapon, 40020000), //Red Branch Shortbow, dropped by first page in lleyndell
+               
+                new LotItem(LotItem.Category.Weapon, 8050000), //Zamor Curved Sword. //ancient hero of zamor boss
+
+                new LotItem(LotItem.Category.Weapon, 23140000), //Rotten Staff // dropped by rotten tree avatar in haligtree
+                new LotItem(LotItem.Category.Weapon, 23070000), //Staff of the Avatar
+
+
+                new LotItem(LotItem.Category.Weapon, 3070000), //Alabaster Lord's Sword
+
+                new LotItem(LotItem.Category.Weapon, 9070000), //Dragonscale Blade
+                new LotItem(LotItem.Category.Weapon, 18140000), //Dragon Halberd
+
+
+
+            };
+
+
+
+
+
+
+
+
+
+
+
+            LotItem[][] basicItems = new LotItem[][]
+            {
+                new LotItem[]{
+                    new LotItem(LotItem.Category.Weapon, 1000000), //Dagger   //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 41000000), //Longbow //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 11000000), //Mace //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 5020000), //Rapier //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear //fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar //fingermaiden
+                },
+                new LotItem[]{
+                     new LotItem(LotItem.Category.Weapon, 13010000), //Flail //carriage
+                     new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage
+                     new LotItem(LotItem.Category.Weapon, 11050000), //Morning Star //carriage
+                     new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe //carriage
+                     new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword //carriage
+                     new LotItem(LotItem.Category.Weapon, 3180000), //Claymore //chest
+                     new LotItem(LotItem.Category.Weapon, 6020000), //Great epee  //chest
+                     new LotItem(LotItem.Category.Weapon, 10000000), //Twinblade  //chest
+                },
+
+                new LotItem[]{
+                    new LotItem(LotItem.Category.Weapon, 21100000), //Katar  //chest
+                    new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne //body
+                    new LotItem(LotItem.Category.Weapon, 24020000), //Steel-Wire Torch  //body
+                    new LotItem(LotItem.Category.Weapon, 10030000), //Twinned Knight Swords  //body
+                    new LotItem(LotItem.Category.Weapon, 2210000), //Cane Sword  //body
+                    new LotItem(LotItem.Category.Weapon, 17060000), //Lance  //body
+                    new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest //body
+                    new LotItem(LotItem.Category.Weapon, 16070000), //Pike //body
+                },
+
+                //new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
+
+                new LotItem[]{
+                     new LotItem(LotItem.Category.Weapon, 17070000), //Treespear
+                     new LotItem(LotItem.Category.Weapon, 4030000), //Troll's Golden Sword
+                     new LotItem(LotItem.Category.Weapon, 23110000), //Giant-Crusher
+                     //new LotItem(LotItem.Category.Weapon, 24070000), //Sentry's Torch //sold by merchant
+                },
+                
+
+                 //new LotItem(LotItem.Category.Weapon, 12180000), //Great Stars, thematic value, found in blood related area             
+                 //new LotItem(LotItem.Category.Weapon, 24040000), //St. Trina's Torch,  concentrated snow field
+                 //new LotItem(LotItem.Category.Weapon, 7060000), //Flowing Curved Sword, concentrated snow field slight thematic value
+
+                //shop weapons 
+                /*
+                     new LotItem(LotItem.Category.Weapon, 4040000), //Zweihander
+
+                     new LotItem(LotItem.Category.Weapon, 3000000), //Bastard Sword
+                     new LotItem(LotItem.Category.Weapon, 43020000), //Light Crossbow
+
+                     new LotItem(LotItem.Category.Weapon, 2020000), //Broadsword
+                     new LotItem(LotItem.Category.Weapon, 11010000), //Club
+                     new LotItem(LotItem.Category.Weapon, 40000000), //Shortbow
+
+                     new LotItem(LotItem.Category.Weapon, 14020000), //Hand Axe
+
+                     new LotItem(LotItem.Category.Weapon, 18000000), //Halberd
+
+                     new LotItem(LotItem.Category.Weapon, 21010000), //Spiked Caestus
+                     new LotItem(LotItem.Category.Weapon, 24060000), //Beast-Repellent Torch, thematically accurate
+
+                     new LotItem(LotItem.Category.Weapon, 5000000), //Estoc
+                     new LotItem(LotItem.Category.Weapon, 33130000), //Astrologer's Staff
+
+                     new LotItem(LotItem.Category.Weapon, 40050000), //Composite Bow
+
+                     
+
+                     new LotItem(LotItem.Category.Weapon, 7020000), //Shotel
+
+                     //patches
+                     new LotItem(LotItem.Category.Weapon, 5000000), //Estoc, also sold by a nomadic merchant
+                     new LotItem(LotItem.Category.Weapon, 1020000), //Parrying Dagger
+
+                     //gostoc
+                     new LotItem(LotItem.Category.Weapon, 21000000), //Caestus
+                */
+                //^shop weapons
+
+
+
+
+
+
+                
+                new LotItem[]{
+                    new LotItem(LotItem.Category.Weapon, 16110000), //Cross-Naginata //body cealid
+                    new LotItem(LotItem.Category.Weapon, 1100000), //Wakizashi //body cealid
+
+                    new LotItem(LotItem.Category.Weapon, 7030000), //Shamshir //body 
+                    new LotItem(LotItem.Category.Weapon, 9000000), //Uchigatana //body
+                    new LotItem(LotItem.Category.Weapon, 7080000), //Scavenger's Curved Sword //body near grafted scion /
+                    new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow // body in a rooftop, slight thematic value
+              
+                    new LotItem(LotItem.Category.Weapon, 22000000), //Hookclaws //body
+                    new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde //body
+                },
+
+               /* 
+               new LotItem(LotItem.Category.Weapon, 12190000), //Brick Hammer , stormveil
+               new LotItem(LotItem.Category.Weapon, 14100000), //Highland Axe, thematicly zccurate, in front of godfrey painting stormveil
+               
+                //castle morce cell area, thematically accurate
+                new LotItem(LotItem.Category.Weapon, 20000000), //Whip
+
+                //demihuman body, limgrave
+                new LotItem(LotItem.Category.Weapon, 12000000), //Large Club
+
+                //found in proximitty to jerren, slight thematic value
+                new LotItem(LotItem.Category.Weapon, 3050000), //Flamberge
+
+                //catacombs
+                new LotItem(LotItem.Category.Weapon, 19000000), //Scythe
+                */
+            };
+
+
+        }
+
         static void limitWarpPoints()
         {
             if (!IsRunningParamFile(new ParamFile[] { BonfireWarpParam }))
@@ -388,6 +1007,7 @@ namespace EldenRingCSVHelper
 
 
         }
+
         static void giveEnemieSmithingStoneDrops(bool RUNES = false, bool STONES = true, float DROPMULT = 1, bool OneTimeWeaponAndArmorDrops = false, float MATDROPMULT = 1)
         {
 
@@ -891,8 +1511,8 @@ namespace EldenRingCSVHelper
                 BossOrMiniBossToItemLotMapDict.Add(31500050, 1048510700);    //Night's Cavalry (Phantom Slash Drop)
                 BossOrMiniBossToItemLotMapDict.Add(31500020, 1036480400);    //Night's Cavalry (Giant's Hunt + Glaive Drop) //shares id
                 BossOrMiniBossToItemLotMapDict2.Add(31500020, 1039430400);    //Night's Cavalry (Ice Spear Drop)    //shares id.
-                BossOrMiniBossToItemLotMapDict.Add(31501030, 30335);    //Night's Cavalry (Shared Order Drop)
-                BossOrMiniBossToItemLotMapDict.Add(31501012, 30335);    //Night's Cavalry (Barricade Shield + Flail Drop)
+                BossOrMiniBossToItemLotMapDict.Add(31501030, 1039510200);    //Night's Cavalry (Shared Order Drop)
+                BossOrMiniBossToItemLotMapDict.Add(31501012, 1044320410);    //Night's Cavalry (Barricade Shield + Flail Drop)
 
 
                 BossOrMiniBossToItemLotMapDict.Add(25000010, 30120);    //crucible Knight (Stormhill) (Tail spell Drop)
@@ -927,8 +1547,8 @@ namespace EldenRingCSVHelper
                 BossOrMiniBossToItemLotMapDict2.Add(49100038, 30400);    //Magma Wyrm (Lava Lake Boss) (Dragon Heart) //no sure which is the "real" ItemLotMap lot so ill set it to both.
 
 
-                BossOrMiniBossToItemLotMapDict.Add(32510030, 1044320410);    // Tree Sentinel (Altus Plateua) (Erdtree Shield Drop)
-                BossOrMiniBossToItemLotMapDict.Add(32511030, 1044320410);    // Tree Sentinel - Torch (Altus Plateua) (Erdtree Shield Srop)
+                BossOrMiniBossToItemLotMapDict.Add(32510030, 30335);    // Tree Sentinel (Altus Plateua) (Erdtree Shield Drop)
+                BossOrMiniBossToItemLotMapDict.Add(32511030, 30335);    // Tree Sentinel - Torch (Altus Plateua) (Erdtree Shield Srop)
 
                 BossOrMiniBossToItemLotMapDict.Add(33001940, 1049390800);   //Nox Monk (Boss) (Nox Flowing Sword Drop)
                 BossOrMiniBossToItemLotMapDict.Add(33000940, 1049390800);   //Nox Swordstress (Boss) (Nox Flowing Sword Drop)
@@ -956,8 +1576,8 @@ namespace EldenRingCSVHelper
                 BossOrMiniBossToItemLotMapDict.Add(47701242, 30425);    //Gargoyle (Bestial Sanctum) (G's Blackblade + G's Black Halberd Drop)
                 BossOrMiniBossToItemLotMapDict.Add(47702034, 11001187);    //Gargoyle (Lleyndel) (Gargoyle's Halberd Drop)
                 //BossOrMiniBossToItemLotMapDict.Add(47700070, );    //Gargoyle (Lleyndel Ashen Capital) // we accually want this one to drop since it respawns
-                BossOrMiniBossToItemLotMapDict.Add(47701165, 10100);    //Valiant Gargoyle Duo (Siofra River) (Gargoyle's Great Axe Drop)
-                BossOrMiniBossToItemLotMapDict.Add(47700165, 10100);    //Valiant Gargoyle Duo (Siofra River) (Gargoyle's Great Axe Drop)
+                BossOrMiniBossToItemLotMapDict.Add(47701165, 10100);    //Valiant Gargoyle Duo (Siofra River) (Gargoyle's Greatsword Drop)
+                BossOrMiniBossToItemLotMapDict.Add(47700165, 10100);    //Valiant Gargoyle Duo (Siofra River) (Gargoyle's Twinblade drop Drop)
 
 
 
@@ -1750,6 +2370,8 @@ namespace EldenRingCSVHelper
                     "65 > -0.8 x5x7xxx sp0.5 $$$$ Valiant Gargoyle",
                     "65 > -0.8 x5x7xxx sp0.5 $$$$ Black Blade Kindred",
 
+                    "1.75 >> %0.5 }0.85 sp1 & Starcaller",
+
                 };
 
                 somberKeywords = new string[]{
@@ -1914,7 +2536,7 @@ namespace EldenRingCSVHelper
 
                     "30  %0.65 +2 }0.85 #13 sp1 & Wormface",
                     "30  %0.5 +2 }0.85 sp1 & Giant Ant",
-                    "30  %0.5 +2 }0.85 sp1 & Starcaller",
+                    
                     "30  %0.65 +2 }0.85 sp1 & Giant Crayfish",
                     //"30  %0.5 +2 }0.85 sp1 Watcher Stones",
                     "30  %0.65 +2 }0.85 sp1 & Abductor Virgin",
@@ -2727,7 +3349,7 @@ namespace EldenRingCSVHelper
                // if(somberLevelAdjDict[keyword] != 0)\
                //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
                 //SET TEST
-                //if (npcID == 46010920)
+                //if (npcID == 47702066)
                 //if( 
                 //    npcLine.name.Contains("Draconic Tree"))
                 //&& (keywordOverrideIDsDict.ContainsKey(npcID))
@@ -2785,6 +3407,8 @@ namespace EldenRingCSVHelper
                         if (spLevel == -1)
                             continue;
 
+                        //var idName = npcLine._idName;
+                        //Console.WriteLine(idName);
                         level = spLevel;
 
 

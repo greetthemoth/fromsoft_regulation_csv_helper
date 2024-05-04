@@ -1146,6 +1146,16 @@ namespace EldenRingCSVHelper
         /// <summary> 
         /// Set a field of this line with a given field index. 
         /// </summary>
+        public Line SetField(int fieldIndex, bool setTo)
+        {
+            string s = "0";
+            if (setTo)
+                s = "1";
+            return SetField(fieldIndex, s);
+        }
+        /// <summary> 
+        /// Set a field of this line with a given field index. 
+        /// </summary>
         public Line SetField(int fieldIndex, string setTo)
         {
             if (setTo == _data[fieldIndex])
