@@ -8,7 +8,7 @@ namespace EldenRingCSVHelper
 {
     public class LotItem
     {
-
+        public static int maxChance = 32000;
         public static class Category
         {
             public static int None = 0;
@@ -26,11 +26,12 @@ namespace EldenRingCSVHelper
         public int chance = 1000;
         public bool affectByLuck = false;
 
-        static int[] idFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemId");
-        static int[] categoryFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemCategory");
-        static int[] amountFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemNum");
-        static int[] chanceFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemBasePoint");
-        static int[] affectByLuckFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("enableLuck");
+        public static int[] idFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemId");
+        public static int[] categoryFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemCategory");
+        public static int[] amountFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemNum");
+        public static int[] chanceFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemBasePoint");
+        public static int[] affectByLuckFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("enableLuck");
+        public static int[] lotItem_getItemFlagIdFis = Program.ItemLotParam_enemy.GetFieldIndexesContains("getItemFlagId0");
 
         public void SetLotItemToLine(Line line, int lotIndex = 1)
         {
@@ -39,6 +40,16 @@ namespace EldenRingCSVHelper
             line.SetField(amountFIs[lotIndex - 1], amount);
             line.SetField(chanceFIs[lotIndex - 1], chance);
             line.SetField(affectByLuckFIs[lotIndex - 1], affectByLuck);
+        }
+        public void SetLotItemToLine(Line line, int lotIndex, int chance, int amount = 1, int affectByLuck = true, int lotItem_getItemFlagId = -1)
+        {
+            line.SetField(idFIs[lotIndex - 1], id);
+            line.SetField(categoryFIs[lotIndex - 1], category);
+            line.SetField(amountFIs[lotIndex - 1], amount);
+            line.SetField(chanceFIs[lotIndex - 1], chance);
+            line.SetField(affectByLuckFIs[lotIndex - 1], affectByLuck);
+            if (lotItem_getItemFlagId = -1)
+                line.SetField(lotItem_getItemFlagIdFis[lotIndex - 1], lotItem_getItemFlagId);
         }
 
         public bool LineHasLotItem(Line line, bool sharesLotInfo)

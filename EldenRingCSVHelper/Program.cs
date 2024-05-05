@@ -388,17 +388,25 @@ namespace EldenRingCSVHelper
                 usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
             }
 
+            int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
+
+
+
+
             LotItem[] roundtableItems = new LotItem[]
             {
+
                 //twin fingermaiden
                 new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
                 new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
-                new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
-                new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
                 new LotItem(LotItem.Category.Weapon, 11000000), //Mace
                 new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
                 new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
                 new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+
+                
+                new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
+                new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
 
                 //brother corhyn
                 new LotItem(LotItem.Category.Good, 6420), //Urgent Heal
@@ -428,29 +436,212 @@ namespace EldenRingCSVHelper
                 new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
             };
 
-            const bool createNewRoundtableItems = false;
-            const bool stealItemLotsRoundtable = true;
+            const bool createNewRoundtableItemLots = false;
+            const bool stealItemLotsForRoundtable = true;
             if (createNewRoundtableItemLots)
             {
                 int roundtableItemsStartId = 0;
                 Line baseline = ItemLotParam_map.GetLineWithId(10000);
                 int lastId = roundtableItemsStartId - 5;
-                int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
+                
                 foreach (LotItem lotItem in roundtableItems)
                 {
                     Line line = baseline.Copy();
                     lastId = ItemLotParam_map.GetNextFreeId(lastId + 5, true);
+
                     line.SetField(0, lastId);
+                    if (lotItem.category == 1)
+                        line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
+                    else if (lotItem.category == 2)
+                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+
                     lotItem.SetLotItemToLine(line, 1);
-                    int currentGetItemFlagId = IntFilter.GetRandomInt(line, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                    int currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                     usedGetItemFlagId.Add(currentGetItemFlagId);
-                    int getItemFlagFI = ItemLotParam_map.GetFieldIndex();
-                    line.SetField(getItemFlagFI, currentGetItemFlagId);
+                    line.SetField(getItemFlagIdFI, currentGetItemFlagId);
+                    ItemLotParam_map.OverrideOrAddLine(line);
                 }
+
 
             }
             else if (stealItemLotsForRoundtable)
             {
+                /*int[] itemlotidsTobeReplaced = new int[]
+                {
+                    30027000, //[Limgrave - Stormfoot Catacombs] Root Resin
+                    1041380030, // Limgrave Smithing Stone x3
+                };*/
+
+                var isOneSmithingStoneCond =
+                        new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
+                        .AND(new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "1"))
+                        .AND(new Condition.FloatFieldBetween(10100, 10101, true));
+
+                var isBossToIgnore = new Condition.FieldCondition.FloatFieldCompare(0, Condition.LESS_THAN, 40000);
+                var isTearDropScarab = new Condition.HasInName("[Teardrop Scarab -");
+                var isLegacyDungeon = new Condition.HasInName("[LD -");
+                var isFieldBoss = new Condition.HasInName("- Field ");
+                var isMaterialNode = new Condition.HasInName("[Material Node]");
+                var isTunnel = new Condition.HasInName(new string[] { "Tunnel" });
+
+                var isValidSmithingStone =
+                    new Condition.AllOf(
+                        isBossToIgnore.IsFalse,
+                        isTearDropScarab.IsFalse,
+                        //isLegacyDungeon.IsFalse,
+                        isFieldBoss.IsFalse,
+                        isMaterialNode.IsFalse,
+                        isTunnel.IsFalse);
+
+                {
+                    LotItem[] roundtableBasicWeapons = new LotItem[]
+                    {
+                    //twin fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
+                    new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
+                    new LotItem(LotItem.Category.Weapon, 11000000), //Mace
+                    new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
+                    new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
+                    new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+                    };
+                    
+
+
+                    Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
+                        isOneSmithingStoneCond.AND(isValidSmithingStone)
+                        );
+
+
+
+                    for (int i = 0; i <= roundtableBasicWeapons.Length; i++)
+                    {
+                        //if(i == roundtableBasicWeapons.Length)
+                        //empty space
+                        LotItem lotItem = roundtableBasicWeapons[i];
+                        int currentGetItemFlagId;
+                        if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                        {
+                            currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                        }
+                        else
+                        {
+                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                            usedGetItemFlagId.Add(currentGetItemFlagId);
+                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                        }
+
+                        foreach (Line line in linesToReplaceWithWeaponPickups.lines)
+                        {
+                            line.SetField(LotItem.chanceFIs[0], 1);
+                            if (lotItem.category == 1)
+                                line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
+                            else if (lotItem.category == 2)
+                                line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+                            lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
+                        }
+                    }
+                }
+
+
+                {
+                    LotItem[] roundtableTalisman = new LotItem[]
+                    {
+                    //twin fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
+                    };
+
+                    isOneSmithingStoneCond =
+                        new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
+                        .AND(new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "3"))
+                        .AND(new Condition.FloatFieldBetween(10100, 10101, true));
+
+                    Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
+                        isOneSmithingStoneCond.AND(isValidSmithingStone)
+                        );
+
+                    for (int i = 0; i <= roundtableTalisman.Length; i++)
+                    {
+                        //if(i == roundtableTalisman.Length)
+                        //empty space
+                        LotItem lotItem = roundtableTalisman[i];
+                        int currentGetItemFlagId;
+                        if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                        {
+                            currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                        }
+                        else
+                        {
+                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                            usedGetItemFlagId.Add(currentGetItemFlagId);
+                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                        }
+
+                        foreach (Line line in linesToReplaceWithWeaponPickups.lines)
+                        {
+                            if (lotItem.category == 1)
+                                line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
+                            else if (lotItem.category == 2)
+                                line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+                            lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
+                        }
+                    }
+                }
+
+                {//LONGBOW
+                    LotItem[] lotItem = new LotItem[] {
+                        //twin fingermaiden
+                        new LotItem(LotItem.Category.Weapon, 41000000) //Longbow
+                    };
+                    Line ArrowBaseLine = ItemLotParam_map.GetLinesOnCondition(new Condition.NameIs("Arrow").AND(Condition.FieldEqualTo(LotItem.amountFIs[0],10)));
+                    Condition isAnArrowCond = new Condition.Either(new Condition.NameIs("Arrow"), new Condition.HasInName("Fire Arrow")).AND(new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Good));
+                    Condition isABowTalismanCond =
+                        new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Accessory).AND(
+                        new Condition.HasInName("Arrow's Reach Talisman")
+                        .OR(new Condition.HasInName("Arrow's Sting Talisman"))
+                        );
+                    List<Line> linesToAddTo = ItemLotParam_map.GetLineOnCondition(
+                        isABowTalismanCond
+                        .OR(isAnArrowCond)
+                        );
+
+                    foreach (Line lineToAddTo in linesToAddTo)
+                    {   //Certain item pickups will include a longbow drop. Only appears once.
+
+                        int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
+                        Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int+1);
+
+                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+
+                        lotItem.SetLotItemToLine(line, 1);
+
+                        int currentGetItemFlagId;
+                        if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                        {
+                            currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                        }
+                        else
+                        {
+                            currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                            usedGetItemFlagId.Add(currentGetItemFlagId);
+                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                        }
+                        line.SetField(getItemFlagIdFI, currentGetItemFlagId);
+
+                        ItemLotParam_map.OverrideOrAddLine(line);
+
+                        if (isABowTalismanCond.Pass(lineToAddTo))//IF IS A BOW TALISMAN
+                        {
+                            //ALSO ADD ARROWS
+                            Line arrowLine = ArrowBaseLine .Copy().SetField(0, line.id_int+1);
+                            arrowLine.SetField(1, "For Bow - Arrow");
+                            arrowLine.SetField(getItemFlagIdFI, lineToAddTo.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
+                            arrowLine.SetField(LotItem.lotItem_getItemFlagIdFis[0], currentGetItemFlagId);//USES THE SAME LOT SPECIFIC FLAG AS BOW
+                        }
+
+                    }
+                }
+
+                
 
             }
 
@@ -829,13 +1020,6 @@ namespace EldenRingCSVHelper
 
 
 
-
-
-
-
-
-
-
             LotItem[][] lotItemGroupsToRandomize = new LotItem[][]
             {
                 deathbirdItems,
@@ -979,7 +1163,7 @@ namespace EldenRingCSVHelper
                     }
                     else
                     {
-                        currentGetItemFlagId = IntFilter.GetRandomInt(line, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                        currentGetItemFlagId = IntFilter.GetRandomInt(lotItemGroup[i].id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
                         usedGetItemFlagId.Add(currentGetItemFlagId);
                         lotItemToFlagIdDict.Add(lotItemGroup[i], currentGetItemFlagId);
                     }
