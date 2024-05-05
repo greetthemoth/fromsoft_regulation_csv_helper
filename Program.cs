@@ -390,15 +390,18 @@ namespace EldenRingCSVHelper
 
             LotItem[] roundtableItems = new LotItem[]
             {
+
                 //twin fingermaiden
                 new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
                 new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
-                new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
-                new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
                 new LotItem(LotItem.Category.Weapon, 11000000), //Mace
                 new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
                 new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
                 new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+
+                
+                new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
+                new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
 
                 //brother corhyn
                 new LotItem(LotItem.Category.Good, 6420), //Urgent Heal
@@ -428,8 +431,8 @@ namespace EldenRingCSVHelper
                 new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
             };
 
-            const bool createNewRoundtableItems = false;
-            const bool stealItemLotsRoundtable = true;
+            const bool createNewRoundtableItemLots = false;
+            const bool stealItemLotsForRoundtable = true;
             if (createNewRoundtableItemLots)
             {
                 int roundtableItemsStartId = 0;
@@ -442,16 +445,38 @@ namespace EldenRingCSVHelper
                     lastId = ItemLotParam_map.GetNextFreeId(lastId + 5, true);
                     line.SetField(0, lastId);
                     lotItem.SetLotItemToLine(line, 1);
-                    int currentGetItemFlagId = IntFilter.GetRandomInt(line, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                    int currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                     usedGetItemFlagId.Add(currentGetItemFlagId);
-                    int getItemFlagFI = ItemLotParam_map.GetFieldIndex();
-                    line.SetField(getItemFlagFI, currentGetItemFlagId);
+                    line.SetField(getItemFlagIdFI, currentGetItemFlagId);
                 }
 
             }
             else if (stealItemLotsForRoundtable)
             {
+                /*int[] itemlotidsTobeReplaced = new int[]
+                {
+                    30027000, //[Limgrave - Stormfoot Catacombs] Root Resin
+                    1041380030, // Limgrave Smithing Stone x3
+                };*/
+                LotItem[] roundtableBasicWeapons = new LotItem[]
+                {
 
+                    //twin fingermaiden
+                    new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
+                    new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
+                    new LotItem(LotItem.Category.Weapon, 11000000), //Mace
+                    new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
+                    new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
+                    new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+                };
+                var isOneSmithingStoneCond = new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1").AND(new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "1")).AND(new Condition.FloatFieldBetween(10100, 10101, true));
+
+                Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(isOneSmithingStoneCond);
+
+                foreach(Line line in linesToReplaceWithWeaponPickups.lines)
+                {
+                    //line.
+                }
             }
 
 
@@ -979,7 +1004,7 @@ namespace EldenRingCSVHelper
                     }
                     else
                     {
-                        currentGetItemFlagId = IntFilter.GetRandomInt(line, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                        currentGetItemFlagId = IntFilter.GetRandomInt(lotItemGroup[i].id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
                         usedGetItemFlagId.Add(currentGetItemFlagId);
                         lotItemToFlagIdDict.Add(lotItemGroup[i], currentGetItemFlagId);
                     }
