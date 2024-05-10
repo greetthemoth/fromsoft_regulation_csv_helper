@@ -160,13 +160,15 @@ namespace EldenRingCSVHelper
                 return this.OR(new FloatFieldCompare(field, comparerFunc, toCompareNum));
             }
         }
-        public class FieldEqualTo : FieldCondition
+        public class FieldIs : FieldCondition
         {
             string[] equalTo;
-            public FieldEqualTo(int fieldIndex, string mustBeEqualTo) { field = fieldIndex; equalTo = new string[] { mustBeEqualTo }; }
-            public FieldEqualTo(string mustBeEqualTo) { equalTo = new string[] { mustBeEqualTo }; }
-            public FieldEqualTo(int fieldIndex, string[] mustBeEqualTo) { field = fieldIndex; equalTo =  mustBeEqualTo ; }
-            public FieldEqualTo(string[] mustBeEqualTo) { equalTo = mustBeEqualTo; }
+            public FieldIs(int fieldIndex, int mustBeEqualTo) { field = fieldIndex; equalTo = new string[] { mustBeEqualTo.ToString() }; }
+            public FieldIs(int fieldIndex, int[] mustBeEqualTo) { field = fieldIndex; equalTo = Util.ToStrings(mustBeEqualTo); }
+            public FieldIs(int fieldIndex, string mustBeEqualTo) { field = fieldIndex; equalTo = new string[] { mustBeEqualTo }; }
+            public FieldIs(string mustBeEqualTo) { equalTo = new string[] { mustBeEqualTo }; }
+            public FieldIs(int fieldIndex, string[] mustBeEqualTo) { field = fieldIndex; equalTo =  mustBeEqualTo ; }
+            public FieldIs(string[] mustBeEqualTo) { equalTo = mustBeEqualTo; }
 
             public override bool Pass(Line line)
             {
@@ -175,20 +177,6 @@ namespace EldenRingCSVHelper
                         return true;
                 }
                 return false;
-            }
-        }
-        public class FieldIs : FieldCondition
-        {
-            string[] validValues;
-
-            public FieldIs(int _field, string[] _validValues) { field = _field; validValues = _validValues; }
-            public FieldIs(int _field, string _validValue) { field = _field; validValues = new string[] { _validValue }; }
-            public FieldIs(string[] _validValues) { validValues = _validValues; }
-            public FieldIs(string _validValue) { validValues = new string[] { _validValue }; }
-
-            public override bool Pass(Line line)
-            {
-                return (validValues.Contains(line.GetData()[field.GetInt(line)]));
             }
         }
         public class FieldStartsWith : FieldCondition
@@ -216,6 +204,8 @@ namespace EldenRingCSVHelper
                 return (sEnding == endsWith);
             }
         }
+
+
 
         public class NameIs : Condition
         {
@@ -269,6 +259,19 @@ namespace EldenRingCSVHelper
             public override bool Pass(Line line)
             {
                 return (line.GetData()[1].IndexOf(startWith) == 0);
+            }
+        }
+
+        public class NameEndsWith : Condition
+        {
+            public string endsWith;
+
+            public NameEndsWith(string _endsWith) { endsWith = _endsWith; }
+            public override bool Pass(Line line)
+            {
+                string s = line.GetData()[1];
+                string sEnding = s.Remove(0, s.Length - endsWith.Length);
+                return (sEnding == endsWith);
             }
         }
 
@@ -451,27 +454,46 @@ namespace EldenRingCSVHelper
             LotItem[] lotItems;
             int lotIndex = -1;
             bool sharesLineInfo = false;
+            int amountToHave = 1;
             public HasLotItem(LotItem lotItem, int lotIndex = -1, bool sharesLineInfo = false)
             {
                 lotItems = new LotItem[] { lotItem };
                 this.lotIndex = lotIndex;
                 this.sharesLineInfo = sharesLineInfo;
             }
-            public HasLotItem(LotItem[] lotItems, int lotIndex = -1, bool sharesLineInfo = false)
+            public HasLotItem(LotItem[] lotItems, int amountToHave = 1, int lotIndex = -1, bool sharesLineInfo = false)
             {
                 this.lotItems = lotItems;
                 this.lotIndex = lotIndex;
                 this.sharesLineInfo = sharesLineInfo;
+                this.amountToHave = amountToHave;
+
             }
-            public override Pass(Line line)
+            public override bool Pass(Line line)
             {
+                int countFound = 0;
                 foreach(LotItem lotItem in lotItems)
                 {
                     if (lotIndex == -1)
-                        lotItem.LineHasLotItem(line, sharesLineInfo);
+                    {
+                        if (lotItem.LineHasLotItem(line, sharesLineInfo))
+                        {
+                            countFound++;
+                            if (countFound >= amountToHave)
+                                return true;
+                        }
+                    }
                     else
-                        lotItem.LotHasLotItem(line, lotIndex, sharesLineInfo);
+                    {
+                        if(lotItem.LotHasLotItem(line, lotIndex, sharesLineInfo))
+                        {
+                            countFound++;
+                            if (countFound >= amountToHave)
+                                return true;
+                        }
+                    }
                 }
+                return false;
             }
         }
     }
@@ -487,14 +509,69 @@ namespace EldenRingCSVHelper
     {
         LotItem lotItem;
         int lotIndex = 1;
+        bool useInfo = true;
+        int chance;
+        int amount;
+        bool affectByLuck;
+        int lotItem_getItemFlagId;
         public SetLotItem(LotItem lotItem, int lotIndex)
         {
             this.lotItem = lotItem;
             this.lotIndex = lotIndex;
         }
+        public SetLotItem(LotItem lotItem, int lotIndex, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
+        {
+            this.lotItem = lotItem;
+            this.lotIndex = lotIndex;
+            useInfo = false;
+            this.chance = chance;
+            this.amount = amount;
+            this.affectByLuck = affectByLuck;
+            this.lotItem_getItemFlagId = lotItem_getItemFlagId;
+        }
         public override void Operate(Line line)
         {
-            lotItem.SetLotItemToLine(line, lotIndex);
+            
+            if (useInfo)
+                lotItem.SetLotItemToLine(line, lotIndex);
+            else
+                lotItem.SetLotItemToLine(line, lotIndex, chance, amount, affectByLuck, lotItem_getItemFlagId);
+        }
+    }
+    public class SetLotItems : LineModifier
+    {
+        LotItem[] lotItems;
+        int startLotIndex = 1;
+        bool useInfo = true;
+        int chance;
+        int amount;
+        bool affectByLuck;
+        int lotItem_getItemFlagId;
+        public SetLotItems(LotItem[] lotItems, int startLotIndex)
+        {
+            this.lotItems = lotItems;
+            this.startLotIndex = startLotIndex;
+        }
+        public SetLotItems(LotItem[] lotItems, int startLotIndex, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
+        {
+            this.lotItems = lotItems;
+            this.startLotIndex = startLotIndex;
+            useInfo = false;
+            this.chance = chance;
+            this.amount = amount;
+            this.affectByLuck = affectByLuck;
+            this.lotItem_getItemFlagId = lotItem_getItemFlagId;
+        }
+        public override void Operate(Line line)
+        {
+            for (int i = startLotIndex; i < lotItems.Length; i++)
+            {
+                if (useInfo)
+                    lotItems[i].SetLotItemToLine(line, i);
+                else
+                    lotItems[i].SetLotItemToLine(line, i, chance, amount, affectByLuck, lotItem_getItemFlagId);
+            }
+            
         }
     }
     public abstract class FieldModifier : LineModifier
@@ -512,15 +589,26 @@ namespace EldenRingCSVHelper
     public class SetFieldTo : FieldModifier
     {
         string setTo;
+
         public SetFieldTo(int fieldIndex, string setTo)
         {
             this.fieldIndexes = new int[] { fieldIndex };
             this.setTo = setTo;
         }
+        public SetFieldTo(int fieldIndex, int setTo)
+        {
+            this.fieldIndexes = new int[] { fieldIndex };
+            this.setTo = setTo.ToString();
+        }
         public SetFieldTo(int[] fieldIndexes, string setTo)
         {
             this.fieldIndexes = fieldIndexes;
             this.setTo = setTo;
+        }
+        public SetFieldTo(int[] fieldIndexes, int setTo)
+        {
+            this.fieldIndexes = fieldIndexes;
+            this.setTo = setTo.ToString();
         }
         public override void Operate(Line line)
         {

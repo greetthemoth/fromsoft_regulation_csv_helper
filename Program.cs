@@ -64,6 +64,7 @@ namespace EldenRingCSVHelper
         public static ParamFile EquipParamWeapon = new ParamFile(VanillaFilesPath, "EquipParamWeapon.csv");
         public static ParamFile EquipParamGoods = new ParamFile(VanillaFilesPath, "EquipParamGoods.csv");
         public static ParamFile EquipParamProtector = new ParamFile(VanillaFilesPath, "EquipParamProtector.csv");
+        public static ParamFile EquipParamAccessory = new ParamFile(VanillaFilesPath, "EquipParamAccessory.csv");
         //to write
 
         //currently updated to: 1.10
@@ -85,10 +86,17 @@ namespace EldenRingCSVHelper
 
         static void Main()
         {
-            if (false)
+            if (true)
             {
                 RunSettings.RunIfNull = true;
                 noupgradedweaponsFromNpcs();
+                worldChangesPlus();
+                //randomizedWeapons();
+                string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+                string dropTypeDirString = @"\WorldChangesPlus";
+                RunSettings.Write_directory = exportDirectory + dropTypeDirString;
+                ParamFile.WriteModifiedFiles("", "__" + "WCP");
+                ParamFile.ResetAll();
             }
             else
             if (RunSettings.CreateSmithingStoneMods)
@@ -313,7 +321,7 @@ namespace EldenRingCSVHelper
             int lotItemCategory01 = ItemLotParam_map.GetFieldIndex("lotItemCategory01");
             int lotItemId01 = ItemLotParam_enemy.GetFieldIndex("lotItemId01");
 
-            var isWeaponCond = new Condition.FieldEqualTo(lotItemCategory01, "2");
+            var isWeaponCond = new Condition.FieldIs(lotItemCategory01, "2");
             var isUpgradedCond = new Condition.FieldEndsWith(lotItemId01, "0").IsFalse;
             var upgradedWeaponLines = ItemLotParam_map.GetLinesOnCondition(isWeaponCond.AND(isUpgradedCond));
 
@@ -326,7 +334,7 @@ namespace EldenRingCSVHelper
                     int toplus = name.IndexOf("+");
                     int tospace = name.Substring(toplus).IndexOf(" ");
                     if (tospace != -1)
-                        new_name = name.Remove(toplus, tospace+1);
+                        new_name = name.Remove(toplus, tospace + 1);
                     else
                         new_name = name.Remove(toplus);
                 }
@@ -356,11 +364,19 @@ namespace EldenRingCSVHelper
                     else
                         new_name = name.Remove(toplus);
                 }
-                Line newLine = line.Copy().SetField(0, line.GetNextFreeId()).SetField(1, new_name);
+                Line newLine = line.Copy().SetField(0, line.GetNextFreeId()).SetField(1, new_name).SetField("reinforceLv", 0);
+
+
+                var m1 = newLine.modified;
+                var f1 = newLine.inFile;
+
                 EquipParamCustomWeapon.OverrideOrAddLine(newLine);
 
-                var isCustomWeaponCond = new Condition.FieldEqualTo(lotItemCategory01, "6");
-                var dropsThisWeaponIdCond = new Condition.FieldEqualTo(lotItemId01, line.id);
+                var m = newLine.modified;
+                var f = newLine.inFile;
+
+                var isCustomWeaponCond = new Condition.FieldIs(lotItemCategory01, "6");
+                var dropsThisWeaponIdCond = new Condition.FieldIs(lotItemId01, line.id);
                 ItemLotParam_map.Operate(new SetFieldTo(lotItemId01, newLine.id), isCustomWeaponCond.AND(dropsThisWeaponIdCond));
             }
 
@@ -368,33 +384,55 @@ namespace EldenRingCSVHelper
         }
 
 
-
-
-
-        static void randomizedWeapons()
+        static void poisonSpellsUseIntelligence()
         {
-            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map }))
+            if (!IsRunningParamFile(new ParamFile[] { Magic }))
                 return;
-                                                                                                        //specific number
-            var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),    3       , IntFilter.Digit(3, 5),    IntFilter.Digit(0, 8)   , 7, -1, -1, 0);
-            var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),     9                       , 7, -1, -1, 0);
 
+            int[] poisonSpells = new int[]
+            {
+                6440, //[Inc] Cure Poison
+                7220, //[Inc] Poison Mist
+                7230, //[Inc] Poison Armament
+            };
+
+            var poisonLines = Magic.GetLinesWithId(poisonSpells);
+            foreach(Line line in poisonLines)
+            {
+                int req = line.GetFieldAsInt("requirementFaith");
+                line.SetField("requirementIntellect", req);
+                line.SetField("requirementFaith", 0);
+            }
+
+        }
+
+        static void worldChangesPlus()
+        {
+            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map , ItemLotParam_enemy}))
+                return;
+                                                                                                    //specific number                       //specific range 2
+            var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       9      , 7, -1, -1, 0);
+            var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       8      , 7, -1, -1, 0);
 
             List<int> usedGetItemFlagId;
             {
                 int _getItemFlagId = ItemLotParam_map.GetFieldIndex("getItemFlagId");
                 var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
-                usedGetItemFlagId = Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
-                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
+                usedGetItemFlagId = Util.ToInts(((Lines)ItemLotParam_enemy.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
+                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
             }
-
             int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
 
-
-
+            Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
+            Lines EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.vanillaParamFile.GetLinesOnCondition(
+                     new Condition.FieldIs(LotItem.getItemFlagIdFI, 0).IsFalse
+                .AND(new Condition.FloatFieldBetween(LotItem.categoryFIs[0], 2, 3, true))
+                //.AND(new Condition.FieldIs(LotItem.chanceFIs[0], 1000))
+                );
+            EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.GetLinesWithId(EnemyDropLinesWorthCheckingForFlagIds.GetIDs());//gets the none vanilla versions of the lines.
 
             LotItem[] roundtableItems = new LotItem[]
-            {
+           {
 
                 //twin fingermaiden
                 new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
@@ -434,7 +472,7 @@ namespace EldenRingCSVHelper
                 new LotItem(LotItem.Category.Good, 6490), //Lord's Divine Fortification
 
                 new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
-            };
+           };
 
             const bool createNewRoundtableItemLots = false;
             const bool stealItemLotsForRoundtable = true;
@@ -443,7 +481,7 @@ namespace EldenRingCSVHelper
                 int roundtableItemsStartId = 0;
                 Line baseline = ItemLotParam_map.GetLineWithId(10000);
                 int lastId = roundtableItemsStartId - 5;
-                
+
                 foreach (LotItem lotItem in roundtableItems)
                 {
                     Line line = baseline.Copy();
@@ -473,18 +511,18 @@ namespace EldenRingCSVHelper
                 };*/
 
                 var isOneSmithingStoneCond =
-                        new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
-                        .AND(new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "1"))
-                        .AND(new Condition.FloatFieldBetween(10100, 10101, true));
+                        new Condition.FieldIs(LotItem.categoryFIs[0], "1")
+                        .AND(new Condition.FieldIs(LotItem.amountFIs[0], "1"))
+                        .AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 10100, 10101, true));//smithing stone [1] & [2]
 
-                var isBossToIgnore = new Condition.FieldCondition.FloatFieldCompare(0, Condition.LESS_THAN, 40000);
+                var isBossToIgnore = new Condition.FloatFieldCompare(0, Condition.LESS_THAN, 40000);
                 var isTearDropScarab = new Condition.HasInName("[Teardrop Scarab -");
                 var isLegacyDungeon = new Condition.HasInName("[LD -");
                 var isFieldBoss = new Condition.HasInName("- Field ");
                 var isMaterialNode = new Condition.HasInName("[Material Node]");
                 var isTunnel = new Condition.HasInName(new string[] { "Tunnel" });
 
-                var isValidSmithingStone =
+                var isValidSmithingStoneForWeapon =
                     new Condition.AllOf(
                         isBossToIgnore.IsFalse,
                         isTearDropScarab.IsFalse,
@@ -493,7 +531,11 @@ namespace EldenRingCSVHelper
                         isMaterialNode.IsFalse,
                         isTunnel.IsFalse);
 
+                var baseLine = ItemLotParam_map.GetLineWithId(10000);
+
+                //Basic Weapons
                 {
+                    /*
                     LotItem[] roundtableBasicWeapons = new LotItem[]
                     {
                     //twin fingermaiden
@@ -504,16 +546,16 @@ namespace EldenRingCSVHelper
                     new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
                     new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
                     };
-                    
+
 
 
                     Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
-                        isOneSmithingStoneCond.AND(isValidSmithingStone)
+                        isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon)
                         );
 
 
 
-                    for (int i = 0; i <= roundtableBasicWeapons.Length; i++)
+                    for (int i = 0; i < roundtableBasicWeapons.Length; i++)
                     {
                         //if(i == roundtableBasicWeapons.Length)
                         //empty space
@@ -525,7 +567,7 @@ namespace EldenRingCSVHelper
                         }
                         else
                         {
-                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                             usedGetItemFlagId.Add(currentGetItemFlagId);
                             lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
                         }
@@ -540,19 +582,20 @@ namespace EldenRingCSVHelper
                             lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
                         }
                     }
+                    */
                 }
 
-
+                //FINGER SEAL
                 {
+                    /*
                     LotItem[] roundtableTalisman = new LotItem[]
                     {
                     //twin fingermaiden
                     new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
                     };
-
                     isOneSmithingStoneCond =
-                        new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
-                        .AND(new Condition.FieldEqualTo(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "3"))
+                        new Condition.FieldIs(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
+                        .AND(new Condition.FieldIs(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "3"))
                         .AND(new Condition.FloatFieldBetween(10100, 10101, true));
 
                     Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
@@ -571,7 +614,7 @@ namespace EldenRingCSVHelper
                         }
                         else
                         {
-                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                             usedGetItemFlagId.Add(currentGetItemFlagId);
                             lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
                         }
@@ -585,30 +628,56 @@ namespace EldenRingCSVHelper
                             lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
                         }
                     }
+                    */
                 }
+                //CREPUS'S BLACK-KEY CROSSBOW
+                {
+                    //adds the crepus bow along side the black key arrows found in fortified manor
+                    /*var lotItem = new LotItem(LotItem.Category.Weapon, 43110000); //Crepus's black-key crossbow
 
-                {//LONGBOW
-                    LotItem[] lotItem = new LotItem[] {
-                        //twin fingermaiden
-                        new LotItem(LotItem.Category.Weapon, 41000000) //Longbow
-                    };
-                    Line ArrowBaseLine = ItemLotParam_map.GetLinesOnCondition(new Condition.NameIs("Arrow").AND(Condition.FieldEqualTo(LotItem.amountFIs[0],10)));
-                    Condition isAnArrowCond = new Condition.Either(new Condition.NameIs("Arrow"), new Condition.HasInName("Fire Arrow")).AND(new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Good));
-                    Condition isABowTalismanCond =
-                        new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Accessory).AND(
-                        new Condition.HasInName("Arrow's Reach Talisman")
-                        .OR(new Condition.HasInName("Arrow's Sting Talisman"))
+                    List<Line> linesToAddTo = ItemLotParam_map.GetLinesOnCondition(
+                        new Condition.IDCheck(11000125) //fortified  anor black key arrow
                         );
-                    List<Line> linesToAddTo = ItemLotParam_map.GetLineOnCondition(
-                        isABowTalismanCond
-                        .OR(isAnArrowCond)
-                        );
+
+                    int currentGetItemFlagId = int.Parse(ItemLotParam_map.GetFieldOnCondition(LotItem.getItemFlagIdFI, new Condition.IDCheck(11100710)));
 
                     foreach (Line lineToAddTo in linesToAddTo)
                     {   //Certain item pickups will include a longbow drop. Only appears once.
 
-                        int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
-                        Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int+1);
+                        Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int + 1);
+
+                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+
+                        lotItem.SetLotItemToLine(line, 1);
+
+                        
+                        line.SetField(getItemFlagIdFI, currentGetItemFlagId);
+                        ItemLotParam_map.OverrideOrAddLine(line);
+                    }*/
+                }
+                //LONGBOW
+                {
+                    /*
+
+
+                    Line baseLine = ItemLotParam_map.GetLineWithId(10000);
+                    LotItem lotItem = new LotItem(LotItem.Category.Weapon, 41000000); //Longbow
+                    LotItem arrowLotItem = new LotItem(LotItem.Category.Weapon, 50000000, 10); //Arrow
+                    LotItem fireArrowLotItem = new LotItem(LotItem.Category.Weapon, 50010000); //Fire Arrow
+                    Condition isAnArrowCond = new Condition.Either(new Condition.HasLotItem(arrowLotItem, 1), new Condition.HasLotItem(fireArrowLotItem, 1));
+                    Condition isABowTalismanCond =
+                        new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Accessory.ToString()).AND(
+                        new Condition.HasInName("Arrow's Reach Talisman")
+                        .OR(new Condition.HasInName("Arrow's Sting Talisman"))
+                        );
+                    List<Line> linesToAddTo = ItemLotParam_map.GetLinesOnCondition(
+                            isABowTalismanCond
+                            .OR(isAnArrowCond));
+
+                    foreach (Line lineToAddTo in linesToAddTo)
+                    {   //Certain item pickups will include a longbow drop. Only appears once.
+
+                        Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int + 1);
 
                         line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
 
@@ -632,552 +701,570 @@ namespace EldenRingCSVHelper
                         if (isABowTalismanCond.Pass(lineToAddTo))//IF IS A BOW TALISMAN
                         {
                             //ALSO ADD ARROWS
-                            Line arrowLine = ArrowBaseLine .Copy().SetField(0, line.id_int+1);
+                            Line arrowLine = baseLine.Copy().SetField(0, line.id_int + 1);
+                            arrowLine.Operate(new SetLotItem(arrowLotItem, 1));
                             arrowLine.SetField(1, "For Bow - Arrow");
                             arrowLine.SetField(getItemFlagIdFI, lineToAddTo.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
-                            arrowLine.SetField(LotItem.lotItem_getItemFlagIdFis[0], currentGetItemFlagId);//USES THE SAME LOT SPECIFIC FLAG AS BOW
+                            arrowLine.SetField(LotItem.lotItem_getItemFlagIdFIs[0], currentGetItemFlagId);//USES THE SAME LOT SPECIFIC FLAG AS BOW
                         }
 
                     }
+                    */
                 }
 
-                
 
-            }
 
-
-            LotItem[] exceptions = new LotItem[]
-            {
-                new LotItem(LotItem.Category.Weapon, 33060000), //Demi-Human Queen's Staff
-                new LotItem(LotItem.Category.Weapon, 4100000), //Grafted Blade Greatsword
-                new LotItem(LotItem.Category.Weapon, 42030000), //Erdtree Greatbow
-                new LotItem(LotItem.Category.Weapon, 18080000), //Golden Halberd
-
-                new LotItem(LotItem.Category.Weapon, 1040000), //Reduvia
-                new LotItem(LotItem.Category.Weapon, 6000000), //Bloody Helice
-
-
-
-
-
-                new LotItem(LotItem.Category.Weapon, 4070000), //Godslayer's Greatsword
-                new LotItem(LotItem.Category.Weapon, 18160000), // Gargoyle's Black Halberd
-                new LotItem(LotItem.Category.Weapon, 3210000), //Gargoyle's Blackblade
-                new LotItem(LotItem.Category.Weapon, 15130000), //Gargoyle's Great Axe
-                new LotItem(LotItem.Category.Weapon, 18150000), //Gargoyle's Halberd
-                new LotItem(LotItem.Category.Weapon, 10090000), //Gargoyle's Black Blades
-                new LotItem(LotItem.Category.Weapon, 3190000), //Gargoyle's Greatsword
-                new LotItem(LotItem.Category.Weapon, 10080000), //Gargoyle's Twinblade
-
-                new LotItem(LotItem.Category.Weapon, 18040000), //Commander's Standard
-
-                new LotItem(LotItem.Category.Weapon, 18050000), //Nightrider Glaive
-                new LotItem(LotItem.Category.Weapon, 13000000), //Nightrider Flail
-
-                new LotItem(LotItem.Category.Weapon, 1110000), //Cinquedea
-                new LotItem(LotItem.Category.Weapon, 12150000), //Beastclaw Greathammer
-                new LotItem(LotItem.Category.Weapon, 34040000), //Clawmark Seal
-
-                //kenneth haight, also in lleyndel
-                new LotItem(LotItem.Category.Weapon, 1150000), //Erdsteel Dagger 
-
-                new LotItem(LotItem.Category.Weapon, 2080000), //Nox Flowing Sword
-                new LotItem(LotItem.Category.Weapon, 33240000), //Lusat's Glintstone Staff
-                new LotItem(LotItem.Category.Weapon, 33280000), //Staff of Loss
-
-                new LotItem(LotItem.Category.Weapon, 2060000), //Ornamental Straight Sword
-
-                new LotItem(LotItem.Category.Weapon, 3090000), //Dark Moon Greatsword
-                new LotItem(LotItem.Category.Weapon, 4060000), //Royal Greatsword
-
-                new LotItem(LotItem.Category.Weapon, 17050000), //Vyke's War Spear
-                new LotItem(LotItem.Category.Weapon, 13020000), //Family Heads
-
-                //omenkiller
-                new LotItem(LotItem.Category.Weapon, 15020000), //Great Omenkiller Cleaver, volcano mannor and miranda boss
-
-                //given by patches
-                new LotItem(LotItem.Category.Weapon, 20030000), //Magma Whip Candlestick
-
-                //given by tanith after quest, serpent stuff
-                new LotItem(LotItem.Category.Weapon, 9080000), //Serpentbone Blade
-
-                new LotItem(LotItem.Category.Weapon, 17030000), //Serpent-Hunter
-
-                new LotItem(LotItem.Category.Weapon, 16130000), //Inquisitor's Girandole
-                new LotItem(LotItem.Category.Weapon, 6010000), //Godskin Stitcher
-                new LotItem(LotItem.Category.Weapon, 10010000), //Godskin Peeler
-                new LotItem(LotItem.Category.Weapon, 23080000), //Fallingstar Beast Jaw
-
-                new LotItem(LotItem.Category.Weapon, 15120700), //Sacred Butchering Knife
-
-                new LotItem(LotItem.Category.Weapon, 5040000), //Antspur Rapier
-                new LotItem(LotItem.Category.Weapon, 3150000), //Marais Executioner's Sword
-
-                new LotItem(LotItem.Category.Weapon, 9010000), //Nagakiba, given from yura
-                new LotItem(LotItem.Category.Weapon, 10050000), //Eleonora's Poleblade
-
-                new LotItem(LotItem.Category.Weapon, 40030000), //Harp Bow
-
-                new LotItem(LotItem.Category.Weapon, 34060000), //Golden Order Seal
-
-                new LotItem(LotItem.Category.Weapon, 8010000), //Onyx Lord's Greatsword
-
-                new LotItem(LotItem.Category.Weapon, 21070000), //Iron Ball
-                new LotItem(LotItem.Category.Weapon, 3160000), //Sword of Milos
-
-                new LotItem(LotItem.Category.Weapon, 23060000), //Dragon Greatclaw
-
-                new LotItem(LotItem.Category.Weapon, 3060000), //Ordovis's Greatsword
-
-                new LotItem(LotItem.Category.Weapon, 16090000), //Bolt Of Gransax
-                new LotItem(LotItem.Category.Weapon, 34030000), //Gravel Stone Seal
-
-                new LotItem(LotItem.Category.Weapon, 11110000), //Scepter of the All-Knowing
-
-                new LotItem(LotItem.Category.Weapon, 2110000), //Coded Sword
-
-                new LotItem(LotItem.Category.Weapon, 23120000), //Golem's Halberd
-                new LotItem(LotItem.Category.Weapon, 1160000), //Blade of Calling
-
-                new LotItem(LotItem.Category.Weapon, 9040000), //Rivers of Blood
-                new LotItem(LotItem.Category.Weapon, 20050000), //Hoslow's Petal Whip
-
-                //deathy
-                new LotItem(LotItem.Category.Weapon, 3130000), //Helphen's Steeple
-                new LotItem(LotItem.Category.Weapon, 24050000), //Ghostflame Torch
-
-                new LotItem(LotItem.Category.Weapon, 7100000), //Eclipse Shotel
-
-                new LotItem(LotItem.Category.Weapon, 21120000), //Veteran's Prosthesis
-
-                new LotItem(LotItem.Category.Weapon, 3170000), //Golden Order Greatsword
-
-                new LotItem(LotItem.Category.Weapon, 12210000), //Rotten Battle Hammer
-                new LotItem(LotItem.Category.Weapon, 23150000), //Rotten Greataxe
-
-                new LotItem(LotItem.Category.Weapon, 18100000), //Loretta's War Sickle
-
-                new LotItem(LotItem.Category.Weapon, 2260000), //Rotten Crystal Sword
-
-                new LotItem(LotItem.Category.Weapon, 12200000), //Devourer's Scepter
-
-                new LotItem(LotItem.Category.Weapon, 17020000), //Siluria's Tree
-
-                new LotItem(LotItem.Category.Weapon, 2090000), //Inseparable Sword
-
-                new LotItem(LotItem.Category.Weapon, 11060000), //Varré's Bouquet
-
-                new LotItem(LotItem.Category.Weapon, 11080000), //Hammer, //fortified manor
-            };
-
-            LotItem[] chestItems = new LotItem[]
-            {
-                 //carriage chest
-                 new LotItem(LotItem.Category.Weapon, 13010000), //Flail
-                 new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword
-                 new LotItem(LotItem.Category.Weapon, 11050000), //Morning Star
-                 new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe
-                 new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword
-                 //--------
-                 //good carriage weapons
-                 new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
-                 new LotItem(LotItem.Category.Weapon, 17070000), //Treespear
-                 new LotItem(LotItem.Category.Weapon, 4030000), //Troll's Golden Sword
-                 new LotItem(LotItem.Category.Weapon, 23110000), //Giant-Crusher
-                 new LotItem(LotItem.Category.Weapon, 12180000), //Great Stars, thematic value, found in blood related area             
-                 new LotItem(LotItem.Category.Weapon, 24040000), //St. Trina's Torch,  concentrated snow field
-                 new LotItem(LotItem.Category.Weapon, 7060000), //Flowing Curved Sword, concentrated snow field slight thematic value
-                 //-------
-
-                 //world chest
-                 new LotItem(LotItem.Category.Weapon, 3180000), //Claymore
-                 new LotItem(LotItem.Category.Weapon, 6020000), //Great epee
-                 new LotItem(LotItem.Category.Weapon, 10000000), //Twinblade
-                 new LotItem(LotItem.Category.Weapon, 21100000), //Katar
-                 //------
-                 new LotItem(LotItem.Category.Weapon, 5050000), //Frozen Needle //carian stuff
-                 new LotItem(LotItem.Category.Weapon, 2140000), //Sword of Night and Flame // found in carian manor, carian stuff
-                 new LotItem(LotItem.Category.Weapon, 12060000), //Great Mace
-                 new LotItem(LotItem.Category.Weapon, 42040000), //Greatbow, // in a highway look out, fitting, in altus
-                 new LotItem(LotItem.Category.Weapon, 41030000), //Erdtree Bow
-                 
-
-                 //thematically vauge chest locations
-                 new LotItem(LotItem.Category.Weapon, 19060000), //Winged Scythe
-                 new LotItem(LotItem.Category.Weapon, 2190000), //Sword of St. Trina
-                 new LotItem(LotItem.Category.Weapon, 14080000), //Icerind Hatchet
-                
-                 //thematically accurate chest location
-                 new LotItem(LotItem.Category.Weapon, 44000000), //Hand Ballista, high area by balista
-                 new LotItem(LotItem.Category.Weapon, 16020000), //Crystal Spear, crystal tunnel
-                 new LotItem(LotItem.Category.Weapon, 34010000), //Godslayer's Seal, stormviel castle sealed chest
-                 //crystal stuff.
-                 new LotItem(LotItem.Category.Weapon, 1050000), //Crystal Knife, raya lucaria crystal tunnel, 
-                 new LotItem(LotItem.Category.Weapon, 22030000), //Raptor Talons
-                 new LotItem(LotItem.Category.Weapon, 1080000), //Scorpion's Stinger
-                 new LotItem(LotItem.Category.Weapon, 7070000), //Wing of Astel
-
-
-                 //unsure
-                 new LotItem(LotItem.Category.Weapon, 2220000), //Regalia of Eochaid
-                 new LotItem(LotItem.Category.Weapon, 23100000), //Ghiza's Wheel
-
-                 
-            };
-
-            LotItem[] merchantitems = new LotItem[]
-            {
-                
-                //patches
-                new LotItem(LotItem.Category.Weapon, 5000000), //Estoc, also sold by a nomadic merchant
-                new LotItem(LotItem.Category.Weapon, 1020000), //Parrying Dagger
-                //------
-
-                //gostoc
-                new LotItem(LotItem.Category.Weapon, 21000000), //Caestus
-                //-------
-
-                //pidia
-                new LotItem(LotItem.Category.Weapon, 14050000), //Ripple Blade
-
-                //-----------
-                     new LotItem(LotItem.Category.Weapon, 4040000), //Zweihander
-
-                     new LotItem(LotItem.Category.Weapon, 3000000), //Bastard Sword
-                     new LotItem(LotItem.Category.Weapon, 43020000), //Light Crossbow
-
-                     new LotItem(LotItem.Category.Weapon, 2020000), //Broadsword
-                     new LotItem(LotItem.Category.Weapon, 11010000), //Club
-                     new LotItem(LotItem.Category.Weapon, 40000000), //Shortbow
-
-                     new LotItem(LotItem.Category.Weapon, 14020000), //Hand Axe
-
-                     new LotItem(LotItem.Category.Weapon, 18000000), //Halberd
-
-                     new LotItem(LotItem.Category.Weapon, 21010000), //Spiked Caestus
-                     new LotItem(LotItem.Category.Weapon, 24060000), //Beast-Repellent Torch, thematically accurate
-
-                     new LotItem(LotItem.Category.Weapon, 5000000), //Estoc
-                     new LotItem(LotItem.Category.Weapon, 33130000), //Astrologer's Staff
-
-                     new LotItem(LotItem.Category.Weapon, 40050000), //Composite Bow
-
-                     new LotItem(LotItem.Category.Weapon, 24070000), //Sentry's Torch
-
-                     new LotItem(LotItem.Category.Weapon, 7020000), //Shotel
-                //-----------
-            };
-
-            LotItem[] deathbirdItems = new LotItem[]
-            {
-                new LotItem(LotItem.Category.Weapon, 14110000), //Sacrificial Axe
-                new LotItem(LotItem.Category.Weapon, 3200000), //Death's Poker
-                new LotItem(LotItem.Category.Weapon, 16120000), //Death Ritual Spear
-
-            };
-            LotItem[] bloodhoundItems = new LotItem[]
-            {
-                new LotItem(LotItem.Category.Weapon, 8030000), //Bloodhound's Fang
-                new LotItem(LotItem.Category.Weapon, 22020000), //Bloodhound Claws
-            };
-
-            LotItem[] corpseOrBossItems = new LotItem[]
-            {
-                new LotItem(LotItem.Category.Weapon, 24020000), //Steel-Wire Torch
-                new LotItem(LotItem.Category.Weapon, 7030000), //Shamshir
-                new LotItem(LotItem.Category.Weapon, 9000000), //Uchigatana
-                new LotItem(LotItem.Category.Weapon, 17060000), //Lance
-                new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne
-                new LotItem(LotItem.Category.Weapon, 7080000), //Scavenger's Curved Sword
-                new LotItem(LotItem.Category.Weapon, 10030000), //Twinned Knight Swords
-                new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow, in a rooftop, slight thematic value
-                new LotItem(LotItem.Category.Weapon, 2210000), //Cane Sword
-                //-------
-
-                new LotItem(LotItem.Category.Weapon, 21080000), //Star Fist. found around arena. thematic value
-
-                new LotItem(LotItem.Category.Weapon, 14140000), //Stormhawk Axe, fortified manor, and castle soll
-
-                new LotItem(LotItem.Category.Weapon, 23130000), //Troll's Hammer, found neear boss
-                new LotItem(LotItem.Category.Weapon, 23020000), //Great Club ,dropeed by stone digger troll
-
-                new LotItem(LotItem.Category.Weapon, 43050000), //Pulley Crossbow
-                new LotItem(LotItem.Category.Weapon, 41060000), //Pulley Bow
-
-                //dropped by demi human queen margot
-                new LotItem(LotItem.Category.Weapon, 44010000), //Jar Cannon
-
-
-                new LotItem(LotItem.Category.Weapon, 34070000), //Erdtree Seal
-                new LotItem(LotItem.Category.Weapon, 2070000), //Golden Epitaph
-
-                new LotItem(LotItem.Category.Weapon, 1010000), //Black Knife
-
-
-               //stromveil
-               new LotItem(LotItem.Category.Weapon, 12190000), //Brick Hammer
-               new LotItem(LotItem.Category.Weapon, 22000000), //Hookclaws
-               new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde
-               new LotItem(LotItem.Category.Weapon, 14100000), //Highland Axe, thematicly zccurate, in front of godfrey painting
-               new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest
-               new LotItem(LotItem.Category.Weapon, 16070000), //Pike
-               //-----------
-
-                //caelid
-                new LotItem(LotItem.Category.Weapon, 16110000), //Cross-Naginata
-                new LotItem(LotItem.Category.Weapon, 1100000), //Wakizashi
-                //----------
-                new LotItem(LotItem.Category.Weapon, 33250000), //Meteorite Staff
-                new LotItem(LotItem.Category.Weapon, 9030000), //Meteoric Ore Blade
-
-                //catacombs
-                new LotItem(LotItem.Category.Weapon, 19000000), //Scythe
-                //---
-                new LotItem(LotItem.Category.Weapon, 23010000), //Watchdog's Staff
-                new LotItem(LotItem.Category.Weapon, 14120000), //Rosus' Axe
-
-                //carian
-                new LotItem(LotItem.Category.Weapon, 33170000), //Carian Glintblade Staff
-                new LotItem(LotItem.Category.Weapon, 33210000), //Carian Glintstone Staff
-
-                //crystal stuff
-                new LotItem(LotItem.Category.Weapon, 2150000), //Crystal Sword
-
-
-                new LotItem(LotItem.Category.Weapon, 2200000), //Miquellan Knight's Sword
-
-                new LotItem(LotItem.Category.Weapon, 1130000), //Ivory Sickle
-                new LotItem(LotItem.Category.Weapon, 33190000), //Albinauric Staff
-                new LotItem(LotItem.Category.Weapon, 20070000), //Urumi
-
-                new LotItem(LotItem.Category.Weapon, 41020000), //Horn Bow. found near ancester spirits in nokrom. fitting enough
-
-                new LotItem(LotItem.Category.Weapon, 11120000), //Nox Flowing Hammer //found in nokrom, fitting enough
-
-
-
-                //serpent related
-                new LotItem(LotItem.Category.Weapon, 41040000), //Serpent Bow
-                new LotItem(LotItem.Category.Weapon, 22010000), //Venomous Fang
-                new LotItem(LotItem.Category.Weapon, 7110000), //Serpent-God's Curved Sword
-
-                //frenzied related
-                new LotItem(LotItem.Category.Weapon, 34090000), //Frenzied Flame Seal, given by hyetta
-
-                new LotItem(LotItem.Category.Weapon, 12130000), //Celebrant's Skull. found in dominula, fitting.
-
-                //blashphemous
-                new LotItem(LotItem.Category.Weapon, 11130000), //Ringed Finger
-
-                //cementry shade
-                new LotItem(LotItem.Category.Weapon, 7120000), //Mantis Blade
-
-                //found in proximitty to jerren, slight thematic value
-                new LotItem(LotItem.Category.Weapon, 3050000), //Flamberge
-                //-----
-
-                //castle morce cell area, thematically accurate
-                new LotItem(LotItem.Category.Weapon, 20000000), //Whip
-                //-----
-
-                //demihuman body, limgrave
-                new LotItem(LotItem.Category.Weapon, 12000000), //Large Club
-                //------
-
-                //misbegotten cave boss, weeping pennisula, thematically accurate location
-                new LotItem(LotItem.Category.Weapon, 15060100), //Heavy Rusted Anchor
-
-                //magama wyrm geal cave, weird drop, thematically vauge
-                new LotItem(LotItem.Category.Weapon, 9060000), //Moonveil
-
-                //magma wyrm in ruin strwn precupice
-                new LotItem(LotItem.Category.Weapon, 8040000), //Magma Wyrm's Scalesword
-
-                //prelate
-                new LotItem(LotItem.Category.Weapon, 23000000), //Prelate's Inferno Crozier
-                new LotItem(LotItem.Category.Weapon, 34020000), //Giant's Seal
-                new LotItem(LotItem.Category.Weapon, 12170000), //Cranial Vessel Candlestand
-                new LotItem(LotItem.Category.Weapon, 20020000), //Thorned Whip
-
-                new LotItem(LotItem.Category.Weapon, 40020000), //Red Branch Shortbow, dropped by first page in lleyndell
-               
-                new LotItem(LotItem.Category.Weapon, 8050000), //Zamor Curved Sword. //ancient hero of zamor boss
-
-                new LotItem(LotItem.Category.Weapon, 23140000), //Rotten Staff // dropped by rotten tree avatar in haligtree
-                new LotItem(LotItem.Category.Weapon, 23070000), //Staff of the Avatar
-
-
-                new LotItem(LotItem.Category.Weapon, 3070000), //Alabaster Lord's Sword
-
-                new LotItem(LotItem.Category.Weapon, 9070000), //Dragonscale Blade
-                new LotItem(LotItem.Category.Weapon, 18140000), //Dragon Halberd
-
-
-
-            };
-
-
-
-
-            LotItem[][] lotItemGroupsToRandomize = new LotItem[][]
-            {
-                deathbirdItems,
-                bloodhoundItems,
-                /*new LotItem[]{
-                    new LotItem(LotItem.Category.Weapon, 1000000), //Dagger   //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 41000000), //Longbow //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 11000000), //Mace //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 5020000), //Rapier //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear //fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar //fingermaiden
-                },*/
-                new LotItem[]{
-                     new LotItem(LotItem.Category.Weapon, 13010000), //Flail //carriage
-                     new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage
-                     new LotItem(LotItem.Category.Weapon, 11050000), //Morning Star //carriage
-                     new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe //carriage
-                     new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword //carriage
-                     new LotItem(LotItem.Category.Weapon, 3180000), //Claymore //chest
-                     new LotItem(LotItem.Category.Weapon, 6020000), //Great epee  //chest
-                     new LotItem(LotItem.Category.Weapon, 10000000), //Twinblade  //chest
-                },
-
-                new LotItem[]{
-                    new LotItem(LotItem.Category.Weapon, 21100000), //Katar  //chest
-                    new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne //body
-                    new LotItem(LotItem.Category.Weapon, 24020000), //Steel-Wire Torch  //body
-                    new LotItem(LotItem.Category.Weapon, 10030000), //Twinned Knight Swords  //body
-                    new LotItem(LotItem.Category.Weapon, 2210000), //Cane Sword  //body
-                    new LotItem(LotItem.Category.Weapon, 17060000), //Lance  //body
-                    new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest //body
-                    new LotItem(LotItem.Category.Weapon, 16070000), //Pike //body
-                },
-
-                //new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
-
-                new LotItem[]{
-                     new LotItem(LotItem.Category.Weapon, 17070000), //Treespear
-                     new LotItem(LotItem.Category.Weapon, 4030000), //Troll's Golden Sword
-                     new LotItem(LotItem.Category.Weapon, 23110000), //Giant-Crusher
-                     //new LotItem(LotItem.Category.Weapon, 24070000), //Sentry's Torch //sold by merchant
-                },
-                
-
-                 //new LotItem(LotItem.Category.Weapon, 12180000), //Great Stars, thematic value, found in blood related area             
-                 //new LotItem(LotItem.Category.Weapon, 24040000), //St. Trina's Torch,  concentrated snow field
-                 //new LotItem(LotItem.Category.Weapon, 7060000), //Flowing Curved Sword, concentrated snow field slight thematic value
-
-                //shop weapons 
-                /*
-                     new LotItem(LotItem.Category.Weapon, 4040000), //Zweihander
-
-                     new LotItem(LotItem.Category.Weapon, 3000000), //Bastard Sword
-                     new LotItem(LotItem.Category.Weapon, 43020000), //Light Crossbow
-
-                     new LotItem(LotItem.Category.Weapon, 2020000), //Broadsword
-                     new LotItem(LotItem.Category.Weapon, 11010000), //Club
-                     new LotItem(LotItem.Category.Weapon, 40000000), //Shortbow
-
-                     new LotItem(LotItem.Category.Weapon, 14020000), //Hand Axe
-
-                     new LotItem(LotItem.Category.Weapon, 18000000), //Halberd
-
-                     new LotItem(LotItem.Category.Weapon, 21010000), //Spiked Caestus
-                     new LotItem(LotItem.Category.Weapon, 24060000), //Beast-Repellent Torch, thematically accurate
-
-                     new LotItem(LotItem.Category.Weapon, 5000000), //Estoc
-                     new LotItem(LotItem.Category.Weapon, 33130000), //Astrologer's Staff
-
-                     new LotItem(LotItem.Category.Weapon, 40050000), //Composite Bow
-
-                     
-
-                     new LotItem(LotItem.Category.Weapon, 7020000), //Shotel
-
-                     //patches
-                     new LotItem(LotItem.Category.Weapon, 5000000), //Estoc, also sold by a nomadic merchant
-                     new LotItem(LotItem.Category.Weapon, 1020000), //Parrying Dagger
-
-                     //gostoc
-                     new LotItem(LotItem.Category.Weapon, 21000000), //Caestus
-                */
-                //^shop weapons
-
-
-
-
-
-
-                
-                new LotItem[]{
-                    new LotItem(LotItem.Category.Weapon, 16110000), //Cross-Naginata //body cealid
-                    new LotItem(LotItem.Category.Weapon, 1100000), //Wakizashi //body cealid
-
-                    new LotItem(LotItem.Category.Weapon, 7030000), //Shamshir //body 
-                    new LotItem(LotItem.Category.Weapon, 9000000), //Uchigatana //body
-                    new LotItem(LotItem.Category.Weapon, 7080000), //Scavenger's Curved Sword //body near grafted scion /
-                    new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow // body in a rooftop, slight thematic value
-              
-                    new LotItem(LotItem.Category.Weapon, 22000000), //Hookclaws //body
-                    new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde //body
-                },
-
-               /* 
-               new LotItem(LotItem.Category.Weapon, 12190000), //Brick Hammer , stormveil
-               new LotItem(LotItem.Category.Weapon, 14100000), //Highland Axe, thematicly zccurate, in front of godfrey painting stormveil
-               
-                //castle morce cell area, thematically accurate
-                new LotItem(LotItem.Category.Weapon, 20000000), //Whip
-
-                //demihuman body, limgrave
-                new LotItem(LotItem.Category.Weapon, 12000000), //Large Club
-
-                //found in proximitty to jerren, slight thematic value
-                new LotItem(LotItem.Category.Weapon, 3050000), //Flamberge
-
-                //catacombs
-                new LotItem(LotItem.Category.Weapon, 19000000), //Scythe
-                */
-            };
-                                                                                                    
-
-
-            Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
-
-            foreach (LotItem[] lotItemGroup in lotItemGroupsToRandomize)
-            {
-                Lines lines = ItemLotParam_map.GetLinesOnCondition(new Condition.HasLotItem(lotItemGroup, 1, true));
-                for(int i = 0; i < lotItemGroup.Length; i++)
+                //SPELLS
                 {
-                    int lotIndex = i + 1;
-                    var setItemLotOperation = new SetLotItem(lotItemGroup[i], lotIndex);
-                    int getItemFlagFI = ItemLotParam_map.GetFieldIndex("getItemFlagId0" + lotIndex);
+                    Dictionary<LotItem, int[]> ItemsToReplacementItemLotId = new Dictionary<LotItem, int[]>();
+                    Dictionary<LotItem, LotItem> BackupExistingItemLot = new Dictionary<LotItem, LotItem>();
+                    Dictionary<LotItem, LotItem[]> AdditionalItemLots = new Dictionary<LotItem, LotItem[]>();
+                    Dictionary<LotItem, Condition> ConditionForAdditionalItemLots = new Dictionary<LotItem, Condition>();
+                    Dictionary<LotItem, LotItem> ReplaceFirstLotItem = new Dictionary<LotItem, LotItem>();
+                    Dictionary<LotItem, Condition> ConditionForReplaceFirstLotItem = new Dictionary<LotItem, Condition>();
 
-                    int currentGetItemFlagId;
-                    if (lotItemToFlagIdDict.ContainsKey(lotItemGroup[i]))
+                    var ss3Ids = ItemLotParam_map.GetIDsWithLineName("Smithing Stone [3]");
+
+                    var sss6ValidIds = ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("Somber Smithing Stone[6]").AND(isValidSmithingStoneForWeapon));
+                    var sss7ValidIds = ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("Somber Smithing Stone [7]").AND(isValidSmithingStoneForWeapon));
+
+                    var sss6Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [6]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [6]")))).ToArray();
+                    var sss5Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [5]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [5]")))).ToArray();
+                    var sss4Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [4]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [4]")))).ToArray();
+                    var sss3Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [3]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [3]")))).ToArray();
+                    var sss2Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [2]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [2]")))).ToArray();
+                    var sss1Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [1]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [1]")))).ToArray();
+                    var neutralizingBolusesIds = ItemLotParam_map.GetIDsWithCondition(new Condition.HasLotItem(new LotItem(1, 900, 2), 1, true)); //2x Neutralizing Boluses
+                    var x8smolderingButterflyIds = ItemLotParam_map.GetIDsWithCondition(new Condition.HasLotItem(new LotItem(1, 20802, 8), 1, true)); //8x Smoldering Butterfly
+
+                    var sss8Ids2 = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [8]");
+                    var sss3Ids2 = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [3]");
+                    var sss2Ids2 = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [2]");
+
+                    var sss3Ids3 = ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [3]")));
+                    var sss2Ids3 = ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [2]")));
+
+                    var gr13_ow = ItemLotParam_map.GetIDsWithLineName("Golden Rune [13]");
+                    var gr7 = ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("Golden Rune [7]"));
+                    var gr5_ow = ItemLotParam_map.GetIDsWithLineName("Golden Rune [5]");
+
+
+
+
+
+                    //RANDOMIZE WEAPONS
                     {
-                        currentGetItemFlagId = lotItemToFlagIdDict[lotItemGroup[i]];
-                    }
-                    else
-                    {
-                        currentGetItemFlagId = IntFilter.GetRandomInt(lotItemGroup[i].id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
-                        usedGetItemFlagId.Add(currentGetItemFlagId);
-                        lotItemToFlagIdDict.Add(lotItemGroup[i], currentGetItemFlagId);
+                        LotItem[] deathRiteBird = new LotItem[]
+                        {
+                            new LotItem(LotItem.Category.Weapon, 3200000), //Death's Poker
+                            new LotItem(LotItem.Category.Weapon, 16120000), //Death Ritual Spear
+                            new LotItem(LotItem.Category.Good, 5001), //Ancient Death Rancor
+                            new LotItem(LotItem.Category.Good, 5010), //Explosive Ghostflame
+                        };
+                        LotItem[] deathbirdItems = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 14110000), //Sacrificial Axe
+                            new LotItem(LotItem.Category.Weapon, 31090000), //Twinbird Kite Shield
+                            new LotItem(LotItem.Category.Accessory, 4080), //Blue-Feathered Branchsword
+                            new LotItem(LotItem.Category.Accessory, 8971), //Red-Feathered Branchsword
+                        };
+
+                        {
+                            var bloodhoundStepIds = new int[]
+                            {
+                              20371,    //crystal cave boss
+                              //30130,    //evergeal boss, fang drop
+                              -429000001,    //None drop
+                              //-429000804,   //Gelmir hero cave, Armor Set Drop
+                              //=429000701, //Mt.Gelmir, Claw drop
+                            };
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.AshOfWar, 80100, 1, 1, false, -1), bloodhoundStepIds); //Bloodhound Step
+                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 10168, 1)); //1 somber ancient dragon smithing stone
+
+                            LotItem[] bloodhoundItems = new LotItem[]{
+                                new LotItem(LotItem.Category.Weapon, 8030000), //Bloodhound's Fang
+                                new LotItem(LotItem.Category.Weapon, 22020000), //Bloodhound Claws
+                            };
+                        }
+                        LotItem[] earlyBasicWeapons = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 13010000), //Flail //carriage
+                            new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage
+                            new LotItem(LotItem.Category.Weapon, 11050000), //Morning Star //carriage
+                            new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe //carriage
+                            new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword //carriage
+                            new LotItem(LotItem.Category.Weapon, 3180000), //Claymore //chest
+                            new LotItem(LotItem.Category.Weapon, 6020000), //Great epee  //chest
+                            new LotItem(LotItem.Category.Weapon, 10000000), //Twinblade  //chest
+                        };
+
+                        LotItem[] midgameWeapons = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 21100000), //Katar  //chest
+                            new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne //body
+                            new LotItem(LotItem.Category.Weapon, 24020000), //Steel-Wire Torch  //body
+                            new LotItem(LotItem.Category.Weapon, 10030000), //Twinned Knight Swords  //body
+                            new LotItem(LotItem.Category.Weapon, 2210000), //Cane Sword  //body
+                            new LotItem(LotItem.Category.Weapon, 17060000), //Lance  //body
+                            new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest //body
+                            new LotItem(LotItem.Category.Weapon, 16070000), //Pike //body
+                        };
+
+                        LotItem[] lateGameWeapons = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 17070000), //Treespear
+                            new LotItem(LotItem.Category.Weapon, 4030000), //Troll's Golden Sword
+                            new LotItem(LotItem.Category.Weapon, 23110000), //Giant-Crusher
+                            //new LotItem(LotItem.Category.Weapon, 24070000), //Sentry's Torch //sold by merchant
+                        };
+
+                        LotItem[] edgyWeapons = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 16110000), //Cross-Naginata //body cealid
+                            new LotItem(LotItem.Category.Weapon, 1100000), //Wakizashi //body cealid
+
+                            new LotItem(LotItem.Category.Weapon, 7030000), //Shamshir //body 
+                            new LotItem(LotItem.Category.Weapon, 9000000), //Uchigatana //body
+                            new LotItem(LotItem.Category.Weapon, 7080000), //Scavenger's Curved Sword //body near grafted scion /
+                            new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow // body in a rooftop, slight thematic value
+              
+                            new LotItem(LotItem.Category.Weapon, 22000000), //Hookclaws //body
+                            new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde //body
+                        };
+
+                        LotItem[][] lotItemGroupsToRandomize = new LotItem[][]
+                        {
+                deathRiteBird,
+                deathbirdItems,
+                //bloodhoundItems,
+
+                earlyBasicWeapons,
+                midgameWeapons,
+                edgyWeapons,
+                lateGameWeapons,
+
+
+                            //new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
+
+
+
+
+                            //new LotItem(LotItem.Category.Weapon, 12180000), //Great Stars, thematic value, found in blood related area             
+                            //new LotItem(LotItem.Category.Weapon, 24040000), //St. Trina's Torch,  concentrated snow field
+                            //new LotItem(LotItem.Category.Weapon, 7060000), //Flowing Curved Sword, concentrated snow field slight thematic value
+
+                            //shop weapons 
+                            /*
+                                 new LotItem(LotItem.Category.Weapon, 4040000), //Zweihander
+
+                                 new LotItem(LotItem.Category.Weapon, 3000000), //Bastard Sword
+                                 new LotItem(LotItem.Category.Weapon, 43020000), //Light Crossbow
+
+                                 new LotItem(LotItem.Category.Weapon, 2020000), //Broadsword
+                                 new LotItem(LotItem.Category.Weapon, 11010000), //Club
+                                 new LotItem(LotItem.Category.Weapon, 40000000), //Shortbow
+
+                                 new LotItem(LotItem.Category.Weapon, 14020000), //Hand Axe
+
+                                 new LotItem(LotItem.Category.Weapon, 18000000), //Halberd
+
+                                 new LotItem(LotItem.Category.Weapon, 21010000), //Spiked Caestus
+                                 new LotItem(LotItem.Category.Weapon, 24060000), //Beast-Repellent Torch, thematically accurate
+
+                                 new LotItem(LotItem.Category.Weapon, 5000000), //Estoc
+                                 new LotItem(LotItem.Category.Weapon, 33130000), //Astrologer's Staff
+
+                                 new LotItem(LotItem.Category.Weapon, 40050000), //Composite Bow
+
+
+
+                                 new LotItem(LotItem.Category.Weapon, 7020000), //Shotel
+
+                                 //patches
+                                 new LotItem(LotItem.Category.Weapon, 5000000), //Estoc, also sold by a nomadic merchant
+                                 new LotItem(LotItem.Category.Weapon, 1020000), //Parrying Dagger
+
+                                 //gostoc
+                                 new LotItem(LotItem.Category.Weapon, 21000000), //Caestus
+                            */
+                            //^shop weapons
+
+
+
+
+
+
+
+
+
+                            /* 
+                            new LotItem(LotItem.Category.Weapon, 12190000), //Brick Hammer , stormveil
+                            new LotItem(LotItem.Category.Weapon, 14100000), //Highland Axe, thematicly zccurate, in front of godfrey painting stormveil
+
+                             //castle morce cell area, thematically accurate
+                             new LotItem(LotItem.Category.Weapon, 20000000), //Whip
+
+                             //demihuman body, limgrave
+                             new LotItem(LotItem.Category.Weapon, 12000000), //Large Club
+
+                             //found in proximitty to jerren, slight thematic value
+                             new LotItem(LotItem.Category.Weapon, 3050000), //Flamberge
+
+                             //catacombs
+                             new LotItem(LotItem.Category.Weapon, 19000000), //Scythe
+                             */
+                        };
+
+                        foreach (LotItem[] lotItemGroup in lotItemGroupsToRandomize)
+                        {
+                            Lines lines_enemy = EnemyDropLinesWorthCheckingForFlagIds.GetLinesOnCondition(new Condition.HasLotItem(lotItemGroup, 1, 1, false));
+                            Lines lines_map = ItemLotParam_map.GetLinesOnCondition(new Condition.HasLotItem(lotItemGroup, 1, 1, false));
+
+                            lines_enemy.Operate(new SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
+                            lines_map.Operate(new SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
+
+                            int[] lineIds_map = lines_map.GetIDs();
+                            int[] lineIds_enemy = lines_enemy.GetIDs();
+                            for (int i = 0; i < lineIds_enemy.Length; i++)
+                            {
+                                lineIds_enemy[i] *= -1; //enemy lines are marked negative.
+                            }
+                            int[] lineIds = lineIds_map.Concat(lineIds_enemy).ToArray();
+
+                            foreach (LotItem lotItem in lotItemGroup)
+                            {
+                                lotItem.SetItemLot_getItemFlagId(-1); //this will mark it as forced to create a new id, not search for one. 
+                                ItemsToReplacementItemLotId.Add(lotItem, lineIds);
+                            }
+                        }
+
                     }
 
-                    foreach (Line line in lines.lines)
+                    LotItem.Default_Chance = LotItem.MAX_CHANCE;
+
+                    //Talisman Pouch
                     {
-                        line.Operate(setItemLotOperation);
-                        line.SetField(getItemFlagFI, currentGetItemFlagId);
+                        ItemsToReplacementItemLotId.Add(new LotItem(1, 10040, 1, LotItem.MAX_CHANCE, false, 60520), new int[] { 10301, 1043520500, 1039500101 }); //Enia's 2 Greatrune Talisman Pouch, radahn, margit second encounter, godefroy
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 2990, 1)); //1 lands between runes.
                     }
+
+
+                    //ROUNDTABLE BASIC WEAPONS
+                    {
+                        LotItem[] roundtableBasicWeapons = new LotItem[]
+                        {
+                            //twin fingermaiden
+                            new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
+                            new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
+                            new LotItem(LotItem.Category.Weapon, 11000000), //Mace
+                            new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
+                            new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
+                            new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+                        };
+                        int[] linesToReplaceWithBasicWeaponPickups = ItemLotParam_map.GetIDsWithCondition(isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon));
+                        foreach (LotItem lotItem in roundtableBasicWeapons)
+                        {
+                            ItemsToReplacementItemLotId.Add(lotItem, linesToReplaceWithBasicWeaponPickups);
+                        }
+                    }
+
+
+                    //brother corhyn spells
+                    {
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6420), sss1Ids); //Urgent Heal
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6421), sss1Ids); //Heal
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6440), neutralizingBolusesIds); //Cure Poison , Fort Faroth Neutralizing Boluses 1051390050, 
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6460), sss2Ids.Concat(sss3Ids).ToArray()); //Magic Fortification
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6450), sss2Ids); //Flame Fortification
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6400), sss4Ids); //Rejection
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6000), sss3Ids2.Concat(sss2Ids2).Concat(new int[] { 1037540050 }).ToArray()); //Catch Flame, Missionary's Cookbook [3] 1046400030, Mt.Gelmir burned minor erdtree x5 Golden Arrow 
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6010), sss3Ids3.Concat(sss2Ids3).Concat(x8smolderingButterflyIds).ToArray()); //Flame Sling, Nomadic Warrior's Cookbook [14] 1046400050, cealid entrance overlook shed Golden Rune [3] 1046400020
+                    }
+
+                    //Finger Seal & Glintstone Staff
+                    {
+                        //x3 Smithing Stone [1] lines
+                        int[] is3xSS1LineIds =
+                            ItemLotParam_map.GetIDsWithCondition(new Condition.FieldIs(LotItem.categoryFIs[0], "1")
+                            .AND(new Condition.FieldIs(LotItem.amountFIs[0], "3"))
+                            .AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 10100, 10101, true)));
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 34000000), is3xSS1LineIds); //Finger Seal
+                        
+                        Lines glintStoneStaffDropLines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasLotItem(new LotItem(LotItem.Category.Weapon, 33000000), 2));
+                        glintStoneStaffDropLines.Operate(new SetLotItem(LotItem.newEmpty(),2));//remove second lot
+                        //var v1 = glintStoneStaffDropLines.lines.Count;
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 33000000, 1, 1000), is3xSS1LineIds.Concat(Util.makeNegative(glintStoneStaffDropLines.GetIDs())).ToArray()); //Glintstone Staff. lower chance than finger seal
+
+                    }
+
+                    //Other roundtable spells
+                    {
+                        //altus
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6422), sss5Ids.Concat(sss6Ids).ToArray()); //Great Heal
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6470), sss5Ids.Concat(sss6Ids).ToArray()); //Lightning Fortification
+                                                                                                                                      //goldmask
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6700), new int[] { 15000270 }); //Discus of Light, haligtree in front of miquella statue and misbegotten statue Ancient Dragon Smithing Stone
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6740), new int[] { 1040510400 }); //Immutable Shield, stormcaller church sacred tear
+
+
+                        //D Hunter of the Dead
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6750), new int[] { 1043350100 }); //Litany of Proper Death, church of pilgramige sacred tear (cant get id)
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6770), new int[] { 1036490000 }); //Order's Blade,  bellum church sacred tear
+
+                        //Gideon Ofnir
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6260), new int[] { 11050010 }); //Black Flame's Protection
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6760), new int[] { 11050030 }); //Law of Causality
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6490), new int[] { 11050050 }); //Lord's Divine Fortification
+
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 8859), new int[] { 10000960 }); //Assassin's Prayerbook,  stormveil picked turtle neck
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 190, 3));
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 43110000), new int[] { 11000126 }); //Crepus's black-key crossbow,  added to black key bolt in fortified manor
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(ItemLotParam_map.GetLineWithId(11000125), 1, true)); //Black-Key Arrows
+                    }
+
+                    //LONGBOW
+                    {
+                        LotItem lotItem = new LotItem(LotItem.Category.Weapon, 41000000); //Longbow
+                        LotItem arrowLotItem = new LotItem(LotItem.Category.Weapon, 50000000, 10); //Arrow
+                        LotItem fireArrowLotItem = new LotItem(LotItem.Category.Weapon, 50010000); //Fire Arrow
+                        Condition isAnArrowCond = new Condition.Either(new Condition.HasLotItem(arrowLotItem, 1), new Condition.HasLotItem(fireArrowLotItem, 1));
+                        Condition isABowTalismanCond =
+                            new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Accessory.ToString()).AND(
+                            new Condition.HasInName("Arrow's Reach Talisman")
+                            .OR(new Condition.HasInName("Arrow's Sting Talisman"))
+                            );
+                        int[] linesToAddToIds = ItemLotParam_map.GetIDsWithCondition(
+                            isABowTalismanCond
+                            .OR(isAnArrowCond));
+                        for (int i = 0; i < linesToAddToIds.Length; i++)
+                        {
+                            linesToAddToIds[i]++; //doesnt replace original drop, bow is added to arrow drops
+                        }
+                        ItemsToReplacementItemLotId.Add(lotItem, linesToAddToIds); //Assassin's Prayerbook,  stormveil picked turtle neck
+                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] { arrowLotItem });
+                        ConditionForAdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), isABowTalismanCond);
+                    }
+
+
+                    //KNIGHT ARMOR
+                    ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false), new int[] { 1045370010, 31010100 }); //Empty,  mistwood ruins chest, earthbore cave chest,
+                    AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                        new LotItem(LotItem.Category.Armor, 1500000), //Knight Helm
+                        new LotItem(LotItem.Category.Armor, 1500100), //Knight Armor
+                        new LotItem(LotItem.Category.Armor, 1500200), //Knight Gauntlets
+                        new LotItem(LotItem.Category.Armor, 1500300), //Knight Greaves
+                    });
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 31330000), new int[] { 1045350000, 1042340020, 1046400040 }); //Heater Shield
+
+                    //ROYAL REMAINS SET
+                    {
+                        ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400490), sss8Ids2); //Empty
+                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                        new LotItem(LotItem.Category.Armor, 690000),
+                        new LotItem(LotItem.Category.Armor, 690100), //Royal Remains Set
+                        new LotItem(LotItem.Category.Armor, 690200), //
+                        new LotItem(LotItem.Category.Armor, 690300), //
+                        });
+                    }
+                    //CLINGING BONE 
+                    //ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21110000, 1, 200), sss7ValidIds); //Clinging Bone
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21110000), sss8Ids2.Concat(sss7ValidIds).ToArray()); //Clinging Bone
+
+                    //ARSENAL CHARM
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Accessory, 1030), new int[] { 100612, 110601, 110611, 110622 }); //Arsenal Charm, Banished Knight's Halberd +8 - Spinning Strikes. 
+                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 10163));// Somber Smithing Stone [4]
+
+                    //TWINNED SET
+                    ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400349), new int[] { 13000200 }); //Empty , rejuvinating boluses in farum azula surounded by worm faces
+                    AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                        new LotItem(LotItem.Category.Armor, 600000), //
+                        new LotItem(LotItem.Category.Armor, 600100), //Twinned Set
+                        new LotItem(LotItem.Category.Armor, 600200), //
+                        new LotItem(LotItem.Category.Armor, 600300), //
+                    });
+                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 100250, 10));
+
+                    //Fevor's Cookbook [3]
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 9421), gr13_ow); //Fevors Cookbook [3],  found in open world golden rune [13]s
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 9421, 1, 150, true), gr5_ow); //Fevors Cookbook [3],  found in open world golden rune [5]s
+                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 1290, 3)); //x3 Starlight Shards
+
+                    //Cipher Pata
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21130000), sss6ValidIds); //Cipher Pata,  found along side two fingers heirloom, found in exchange for any golden rune [7]
+                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21130000, 1, 300, true), gr7); //Cipher Pata,  found along side two fingers heirloom, found in exchange for any golden rune [7]
+                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 190, 2)); //x2 Rune Arcs
+
+                    //1046370000, 1035450030, 1038430000, 1049560320 strips of white flesh x2 - x3
+                    //church of pilgramige blood grease 1042340000
+                    //Missionary's Cookbook [3] 1046400050, Nomadic Warrior's Cookbook [14] 1046400030
+
+                    //used for heater shield
+                    //rot view balcony perserving bouluses 1046400040
+                    //weeping pennisula Golden Rune [2] 1042340020
+                    //mistwood shore Golden Rune [1] 1045350000
+
+                    LotItem.Default_Chance = 1000;
+
+                    Dictionary<int, List<LotItem>> lineIdToLotItemsDict = new Dictionary<int, List<LotItem>>();
+                    foreach (LotItem lotItem in ItemsToReplacementItemLotId.Keys)
+                    {
+                        {
+                            int currentGetItemFlagId = -1;
+                            if (lotItem.hasLotItem_getItemFlagIdFIs)
+                            {
+                                if(lotItem.lotItem_getItemFlagId == -1)
+                                    currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                else
+                                    currentGetItemFlagId = lotItem.lotItem_getItemFlagId;
+                            }
+                            else
+                            {
+                                Line l = null;
+                                if (!lotItem.IsEmpty())
+                                {
+                                    var hasLotCond = new Condition.HasLotItem(lotItem, 1);
+                                    l = ((Lines)ItemLotParam_map.GetLinesWithId(((Lines)ItemLotParam_map.vanillaParamFile.GetLinesOnCondition(hasLotCond)).GetIDs())).GetLineOnCondition(hasLotCond); //both vanilla and current lines have the lot
+                                    if (l == null)
+                                        l = EnemyDropLinesWorthCheckingForFlagIds.GetLineOnCondition(new Condition.HasLotItem(lotItem, 1));
+                                }
+                                else if (!AdditionalItemLots.ContainsKey(lotItem))
+                                    continue; //no point in continueing
+                                if (l != null)
+                                {
+                                    currentGetItemFlagId = l.GetFieldAsInt(LotItem.getItemFlagIdFI);
+                                    if (BackupExistingItemLot.ContainsKey(lotItem) && l.file == ItemLotParam_map)
+                                    {
+                                        var backUpLI = BackupExistingItemLot[lotItem];
+                                        backUpLI.SetLotItemToLine(l, 2, 1, backUpLI.amount, false, currentGetItemFlagId);
+                                        int newGetItemFlagIdForOldLine = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                        usedGetItemFlagId.Add(newGetItemFlagIdForOldLine);
+
+                                        //replaces all line with currentGetItemFlagId to the newGetItemFlagId
+                                        ItemLotParam_map.Operate(new SetFieldTo(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine), new Condition.FieldIs(LotItem.getItemFlagIdFI, currentGetItemFlagId), true);
+                                        //l.SetField(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine);
+                                    }
+                                }
+                                else
+                                    currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                            }
+                            usedGetItemFlagId.Add(currentGetItemFlagId);
+                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                        }
+
+                        foreach (int id in ItemsToReplacementItemLotId[lotItem])
+                        {
+
+
+                            if (!lineIdToLotItemsDict.ContainsKey(id))
+                            {
+                                lineIdToLotItemsDict.Add(id, new List<LotItem>());
+                            }
+                            lineIdToLotItemsDict[id].Add(lotItem);
+                        }
+                    }
+
+                    foreach (int dict_id in lineIdToLotItemsDict.Keys)
+                    {
+                        Line line;
+                        int id = dict_id;
+                        ParamFile ItemLotFile = ItemLotParam_map;
+                        if (dict_id < 0)
+                        {
+                            id = -dict_id;
+                            ItemLotFile = ItemLotParam_enemy;
+                        }
+                        line = ItemLotFile.GetLineWithId(id);
+
+                        bool isNewLine = false;
+                        int lotIndex = 2;
+                        if (line == null)   //lot item should not be empty or null if this is the case
+                        {
+                            isNewLine = true;
+                            lotIndex = 1;
+                            Line prevLine = ItemLotFile.GetLineWithId(id - 1);
+                            if (prevLine == null)
+                            {
+                                Util.println("id:" + id + " does not exist in ItemLotParam_map");
+                                continue;
+                                int currentGetItemFlagId = IntFilter.GetRandomInt(id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                usedGetItemFlagId.Add(currentGetItemFlagId);
+                                line = ItemLotFile.GetLineWithId(10000).Copy().SetField(LotItem.getItemFlagIdFI, currentGetItemFlagId);
+                            }
+                            else
+                            {
+                                line = prevLine.Copy();
+                            }
+
+
+                            line.SetField(0, id);
+                            string name;
+                            if (lineIdToLotItemsDict[dict_id].Count == 1)
+                            {
+                                LotItem lotItem = lineIdToLotItemsDict[dict_id][0];
+                                name =// " - " + 
+                                    lotItem.Name;
+                            }
+                            else
+                                name = "";//"s"; // "items" plural
+                            line.SetField(1, //"Roundtable Item" + 
+                                name);
+                            ItemLotFile.OverrideOrAddLine(line);
+                        }
+                        else if (new LotItem(line, 1).IsEmpty())
+                        {
+                            lotIndex = 1;
+                        }
+
+
+                        foreach (LotItem lotItem in lineIdToLotItemsDict[dict_id])
+                        {
+                            if (ReplaceFirstLotItem.ContainsKey(lotItem) && (!ConditionForReplaceFirstLotItem.ContainsKey(lotItem) || ConditionForReplaceFirstLotItem[lotItem].Pass(line)))
+                            {
+                                ReplaceFirstLotItem[lotItem].SetLotItemToLine(line, 1);
+                            }
+
+                            if (AdditionalItemLots.ContainsKey(lotItem) && (!ConditionForAdditionalItemLots.ContainsKey(lotItem) || ConditionForAdditionalItemLots[lotItem].Pass(line)))    //should only happen if there is one lineIdToLot
+                            {
+                                foreach (LotItem AdditionalItemLot in AdditionalItemLots[lotItem])
+                                {
+
+                                    Line newLine = baseLine.Copy().SetField(0, line.GetNextFreeId());
+                                    newLine.Operate(new SetLotItem(AdditionalItemLot, 1));
+                                    //Util.println(AdditionalItemLot.id);
+                                    newLine.SetField(1, AdditionalItemLot.Name);
+                                    newLine.SetField(getItemFlagIdFI, line.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
+                                    newLine.SetField(LotItem.lotItem_getItemFlagIdFIs[0], lotItemToFlagIdDict[lotItem]);//USES THE SAME LOT SPECIFIC FLAG AS BOW
+                                    ItemLotFile.OverrideOrAddLine(newLine);
+                                }
+
+                            }
+                            if (!isNewLine)
+                                line.SetField(1, line.name + " & " + lotItem.Name);
+                           
+
+                            if (lotItem.chance == LotItem.MAX_CHANCE)
+                                line.SetField(LotItem.chanceFIs[0], 1); //set regular drop to 1
+
+                            if (false)//testing
+                            {
+                                var t = ItemLotFile.paramName;
+                                var y = line.file.paramName;
+                                var m = line.modified;
+                                var v = line.IsVannilaLine;
+                                var vv = line.vanillaLine.IsVannilaLine;
+                                var i = line.inFile;
+                                var test = 429000700;
+                                if (line.id_int == test)
+                                    Util.p();
+                            }
+                            lotItem.SetLotItemToLine(line, lotIndex, lotItem.chance, lotItem.amount, false, lotItemToFlagIdDict[lotItem]);
+                            lotIndex++;
+                        }
+                    }
+
+                    ((Lines)ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.getItemFlagIdFI, 400370))).RevertFieldsToVanilla();  //Revert Corhyns flail drop to vanilla
+
                 }
             }
-
 
         }
+
+      
 
         static void limitWarpPoints()
         {
@@ -1547,13 +1634,13 @@ namespace EldenRingCSVHelper
 41650935,// Bloodbane Stray (Boss)
 
                     };
-                    isBossExceptionCond = new Condition.FieldEqualTo(0, Util.ToStrings(BossExceptionIDs));
+                    isBossExceptionCond = new Condition.FieldIs(0, Util.ToStrings(BossExceptionIDs));
                 }
                 //get group after npc id. create an exception that allows boses to sill be allowed if ni group/
                 var isBossCondition = new Condition.TRUE().IsFalse;
                 {
-                    var BossSoulDropCond = new Condition.FieldEqualTo(NpcParam.GetFieldIndex("isSoulGetByBoss"), "1");
-                    var BossSpEffectCond = new Condition.FieldEqualTo(NpcParam.GetFieldIndex("spEffectID31"), "4301");
+                    var BossSoulDropCond = new Condition.FieldIs(NpcParam.GetFieldIndex("isSoulGetByBoss"), "1");
+                    var BossSpEffectCond = new Condition.FieldIs(NpcParam.GetFieldIndex("spEffectID31"), "4301");
                     var scaledCond = new Condition.HasInName("(Unscaled)").IsFalse;
                     isBossCondition = new Condition.AllOf(
                         new Condition.Either(
@@ -1640,7 +1727,7 @@ namespace EldenRingCSVHelper
                             idToGroups.Add(npcID, groups.ToList());
                         }
                     }
-                    isDocumentedIDCond = new Condition.FieldEqualTo(0, Util.ToStrings(isDocumentedIDs.ToArray()));
+                    isDocumentedIDCond = new Condition.FieldIs(0, Util.ToStrings(isDocumentedIDs.ToArray()));
                     if (EXCLUDE_IN_GROUP)
                     {
                         List<int> SharesIDsWithBosses = new List<int>();
@@ -1687,8 +1774,8 @@ namespace EldenRingCSVHelper
                         }
                         //Util.println(3 + " " + isBossCondition.Pass(testline).ToString());
                         //Util.println(2);
-                        isGroupAppropriateCond = new Condition.FieldEqualTo(0, Util.ToStrings(ignoreIsInGroupIDs.ToArray())).OR(
-                            new Condition.FieldEqualTo(0, Util.ToStrings(SharesIDsWithBosses.ToArray())).IsFalse
+                        isGroupAppropriateCond = new Condition.FieldIs(0, Util.ToStrings(ignoreIsInGroupIDs.ToArray())).OR(
+                            new Condition.FieldIs(0, Util.ToStrings(SharesIDsWithBosses.ToArray())).IsFalse
                             );
                     }
                 }
@@ -3497,8 +3584,8 @@ namespace EldenRingCSVHelper
             {
                 int _getItemFlagId = ItemLotParam_map.GetFieldIndex("getItemFlagId");
                 var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
-                usedGetItemFlagId = Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
-                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)NpcParam.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
+                usedGetItemFlagId = Util.ToInts(((Lines)ItemLotParam_enemy.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
+                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
             }
 
             //Util.println("" + 7.5f);
@@ -3506,6 +3593,28 @@ namespace EldenRingCSVHelper
             Dictionary<int, int> AsssignedArmorsFlagIdDict;
             AsssignedWeaponsFlagIdDict = new Dictionary<int, int>();
             AsssignedArmorsFlagIdDict = new Dictionary<int, int>();
+
+            {
+                Lines oneTimeWeaponDropLines = ItemLotParam_enemy.GetLinesOnCondition(
+                    new Condition.FieldIs(LotItem.idFIs[0],LotItem.Category.Weapon.ToString())
+                    .AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, "0"))
+                    );
+                oneTimeWeaponDropLines.PrintIDAndNames(" - pre assigned - ");
+                foreach(Line line in oneTimeWeaponDropLines.lines)
+                {
+                    AsssignedWeaponsFlagIdDict.Add(line.GetFieldAsInt(LotItem.idFIs[0]), line.GetFieldAsInt(LotItem.getItemFlagIdFI));
+                }
+
+                Lines oneTimeArmorDropLines = ItemLotParam_enemy.GetLinesOnCondition(
+                    new Condition.FieldIs(LotItem.idFIs[0], LotItem.Category.Armor.ToString())
+                    .AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, "0"))
+                    );
+                oneTimeArmorDropLines.PrintIDAndNames(" - pre assigned - ");
+                foreach (Line line in oneTimeArmorDropLines.lines)
+                {
+                    AsssignedArmorsFlagIdDict.Add(line.GetFieldAsInt(LotItem.idFIs[0]), line.GetFieldAsInt(LotItem.getItemFlagIdFI));
+                }
+            }
 
             Dictionary<Line, string> idToVariantsDict = new Dictionary<Line, string>();
             Dictionary<Line, float> idToLevelDict = new Dictionary<Line, float>();
@@ -4183,7 +4292,7 @@ namespace EldenRingCSVHelper
                     }
                     else if (CanHijack && itemLotLine != null && !itemLotLine.name.Contains("(Level: ") //unused
                         && NpcParam.GetLineOnCondition(
-                                new Condition.FieldEqualTo(NpcParam.GetFieldIndex("itemLotId_enemy"), itemLotLine.ToString()).
+                                new Condition.FieldIs(NpcParam.GetFieldIndex("itemLotId_enemy"), itemLotLine.ToString()).
                                 AND(new Condition.IDCheck(npcID).IsFalse)
                             ) == null
                         )
@@ -6046,8 +6155,8 @@ namespace EldenRingCSVHelper
             
 
             int lotItemId01 = ItemLotParam_map.GetFieldIndex("lotItemId01");
-            var isSmithingStone = new Condition.FieldEqualTo(lotItemId01,Util.ToStrings(smithingStoneItemIDsDict.Keys.ToArray()));
-            var isSomberSmithingStone = new Condition.FieldEqualTo(lotItemId01,Util.ToStrings(somberSmithingStoneItemIDsDict.Keys.ToArray()));
+            var isSmithingStone = new Condition.FieldIs(lotItemId01,Util.ToStrings(smithingStoneItemIDsDict.Keys.ToArray()));
+            var isSomberSmithingStone = new Condition.FieldIs(lotItemId01,Util.ToStrings(somberSmithingStoneItemIDsDict.Keys.ToArray()));
 
             var isStone = new Condition.Either(isSmithingStone, isSomberSmithingStone);
             //var isSmithingStone = isSomberSmithingStone.IsFalse;
@@ -6464,7 +6573,7 @@ namespace EldenRingCSVHelper
                 var lineNameID = magicLine._idName;
                 var spellName = magicLine.name;
                 spellName = spellName.Substring(spellName.IndexOf("]") + 1);
-                magicLine.GetFirstFieldIndexOnCondition(magicRefIdFIs, new Condition.FieldEqualTo("-1"), out int magicArrayIndex);
+                magicLine.GetFirstFieldIndexOnCondition(magicRefIdFIs, new Condition.FieldIs("-1"), out int magicArrayIndex);
                 if(magicArrayIndex == -1)
                 {
                     Util.println(magicLine._idName + " no free slots found.. skipping");

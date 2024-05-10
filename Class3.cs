@@ -106,6 +106,16 @@ namespace EldenRingCSVHelper
             return a + b;
         }
 
+        public static int[] makeNegative(int[] ints)
+        {
+
+            for (int i = 0; i < ints.Length; i++)
+            {
+                ints[i] *= -1;
+            }
+            return ints;
+        }
+
         public static string AppendToString(string[] a, string b = "")
         {
             string s = "";

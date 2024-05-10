@@ -91,7 +91,7 @@ namespace EldenRingCSVHelper
                 {
                     var vanillaLine = new Line(line, vanillaParamFile);
                     vanillaLinesList.Add (vanillaLine);
-                    Line myLine = vanillaLine.Copy(this);
+                    Line myLine = vanillaLine.Copy(this, true);
                     lines.Add(myLine);
                 }
 
@@ -591,6 +591,11 @@ namespace EldenRingCSVHelper
             return "\nField Count Verification Passed!";
 
         }
+
+        public override void OverrideOrAddLine(Line overrideLine)
+        {
+            lines = Line.OverrideOrAddLine(lines, overrideLine, this);
+        }
     }
     public class Lines : LineContainer
     {
@@ -686,22 +691,22 @@ namespace EldenRingCSVHelper
         /// currently doesnt work use OVerrideOrAddLine
         /// Overrides the lines in this container with the given lines. Replaces lines with shared ids.
         /// </summary>
-        public void OverrideLines(List<Line> overrideLines, bool preOrderedLines = true)
+        /*public void OverrideLines(List<Line> overrideLines, bool preOrderedLines = true)
         {
             lines = Line.OverrideLines(lines, overrideLines, preOrderedLines);
-        }
+        }*/
         /// <summary> 
         /// currently doenst work use OVerrideOrAddLine
         /// Overrides the lines in this container with the given lines. Replaces lines with shared ids. Also adds lines that dont share an id. Useful for adding or replacing lines in a Param. 
         /// </summary>
-        public void OverrideOrAddLines(List<Line> overrideLines, bool preOrderedLines = true)
+        /*public void OverrideOrAddLines(List<Line> overrideLines, bool preOrderedLines = true)
         {
             lines = Line.OverrideOrAddLines(lines, overrideLines, preOrderedLines);
-        }
+        }*/
         /// <summary> 
         /// Overrides the line in this container with the given line. Replaces the existing line if it shares an id. Also adds the line if it doesnt share an id.  Useful for adding or replacing lines in a Param.
         /// </summary>
-        public void OverrideOrAddLine(Line overrideLine)
+        public virtual void OverrideOrAddLine(Line overrideLine)
         {
             lines = Line.OverrideOrAddLine(lines, overrideLine);
         }
@@ -711,6 +716,13 @@ namespace EldenRingCSVHelper
         public void Operate(LineModifier operation, Condition condition = null, List<Line> conditionLines = null)
         {
             lines = Line.Operate(lines, operation, condition, conditionLines);
+        }
+        public void RevertFieldsToVanilla()
+        {
+            foreach(Line line in lines)
+            {
+                line.RevertFieldsToVanilla();
+            }
         }
         /// <summary> 
         /// Run line modifiers into all lines in this Container. Includes an optional Condition.
@@ -834,7 +846,7 @@ namespace EldenRingCSVHelper
         /// </summary>
         public string GetFieldWithLineName(int fieldIndex, string linename)
         {
-            Condition condition = new Condition.FieldEqualTo(1, linename);
+            Condition condition = new Condition.FieldIs(1, linename);
             return Line.GetFieldOnCondition(fieldIndex, lines, condition);
         }
         /// <summary> 
@@ -853,13 +865,32 @@ namespace EldenRingCSVHelper
             Condition condition = new Condition.FieldIs(0, id);
             return Line.GetFieldOnCondition(fieldIndex, lines, condition);
         }
+        public int[] GetIDs()
+        {
+            return Util.ToInts(Line.GetFields(0, lines));
+        }
+        /// <summary> 
+        /// Gets the ID of the lines that pass the given condifiton.
+        /// </summary>
+        public int[] GetIDsWithCondition(Condition condition)
+        {
+            return Util.ToInts( Line.GetFieldsOnCondition(0, lines, condition));
+        }
+        /// <summary> 
+        /// Gets the ID of the lines with the given line names.
+        /// </summary>
+        public int[] GetIDsWithLineName(string[] names)
+        {
+            Condition condition = new Condition.FieldIs(1, names);
+            return Util.ToInts(Line.GetFieldsOnCondition(0, lines, condition));
+        }
         /// <summary> 
         /// Gets the ID of the line with the given line names.
         /// </summary>
-        public string[] GetIDsWithLineName(string[] names)
+        public int[] GetIDsWithLineName(string name)
         {
-            Condition condition = new Condition.FieldIs(1, names);
-            return Line.GetFieldsOnCondition(0, lines, condition);
+            Condition condition = new Condition.FieldIs(1, name);
+            return Util.ToInts(Line.GetFieldsOnCondition(0, lines, condition));
         }
         /// <summary> 
         /// Prints all lines in this container.
@@ -998,6 +1029,11 @@ namespace EldenRingCSVHelper
         public Line vanillaLine { get; private set; }
         public bool inFile { get; private set; } = false;
         public bool modified { get; private set; } = false;
+
+        public bool IsVannilaLine
+        {
+            get { return vanillaLine == null; }
+        }
         /// <summary> 
         /// marks this line as modified, even if its not. Ueful for printing it alongside the modified lines.
         /// </summary>
@@ -1091,7 +1127,7 @@ namespace EldenRingCSVHelper
         /// <summary> 
         /// create a copy of this line but with an assiged parent file.
         /// </summary>
-        public Line Copy(ParamFile parentFile)
+        public Line Copy(ParamFile parentFile, bool inFile = false)
         {
             var copy = new Line(this.line, parentFile);
             if (vanillaLine == null)
@@ -1100,7 +1136,7 @@ namespace EldenRingCSVHelper
                 copy.vanillaLine = vanillaLine;
             copy.modified = modified;
             copy.modifiedFieldIndexes = new List<int>(modifiedFieldIndexes);
-            copy.inFile = false;
+            copy.inFile = inFile;
             return copy;
         }
 
@@ -1112,16 +1148,7 @@ namespace EldenRingCSVHelper
             queUpdateData = false;
             queUpdateLine = false;
         }
-        /// <summary> 
-        /// Set a field of this line with a given field name. 
-        /// </summary>
-        public Line SetField(string fieldName, bool setTo)
-        {
-            string s = "0";
-            if (setTo)
-                s = "1";
-            return SetField(file.GetFieldIndex(fieldName), s);
-        }
+
         /// <summary> 
         /// Set a field of this line with a given field name. 
         /// </summary>
@@ -1144,15 +1171,16 @@ namespace EldenRingCSVHelper
             return SetField(file.GetFieldIndex(fieldName), setTo);
         }
         /// <summary> 
-        /// Set a field of this line with a given field index. 
+        /// Set a field of this line with a given field name. 
         /// </summary>
-        public Line SetField(int fieldIndex, bool setTo)
+        public Line SetField(string fieldName, bool setTo)
         {
             string s = "0";
             if (setTo)
                 s = "1";
-            return SetField(fieldIndex, s);
+            return SetField(file.GetFieldIndex(fieldName), s);
         }
+
         /// <summary> 
         /// Set a field of this line with a given field index. 
         /// </summary>
@@ -1195,6 +1223,16 @@ namespace EldenRingCSVHelper
             return SetField(fieldIndex, (setTo).ToString());
         }
         /// <summary> 
+        /// Set a field of this line with a given field index. 
+        /// </summary>
+        public Line SetField(int fieldIndex, bool setTo)
+        {
+            string s = "0";
+            if (setTo)
+                s = "1";
+            return SetField(fieldIndex, s);
+        }
+        /// <summary> 
         /// Get a field of this line with a given field index. 
         /// </summary>
         public string GetField(int fieldIndex)
@@ -1214,6 +1252,20 @@ namespace EldenRingCSVHelper
         public float GetFieldAsFloat(int fieldIndex)
         {
             return float.Parse(GetData()[fieldIndex]);
+        }
+        /// <summary> 
+        /// Get a field of this line with a given field index parsed as an int.
+        /// </summary>
+        public int GetFieldAsInt(string fieldName)
+        {
+            return int.Parse(GetData()[file.GetFieldIndex(fieldName)]);
+        }
+        /// <summary> 
+        /// Get a field of this line with a given field index parsed as a float.
+        /// </summary>
+        public float GetFieldAsFloat(string fieldName)
+        {
+            return float.Parse(GetData()[file.GetFieldIndex(fieldName)]);
         }
         /// <summary> 
         /// Get a field of this line with a given field name. 
@@ -1250,6 +1302,14 @@ namespace EldenRingCSVHelper
         {
             SetField(fieldIndex, vanillaLine.GetField(fieldIndex));
             modifiedFieldIndexes.Remove(fieldIndex);
+        }
+        public void RevertFieldsToVanilla()
+        {
+            for (int i = 0; i < _data.Length; i++)
+            {
+                SetField(i, vanillaLine.GetField(i));
+                modifiedFieldIndexes.Remove(i);
+            }
         }
         /// <summary> 
         /// Revert the given field to vanilla
@@ -1690,8 +1750,9 @@ namespace EldenRingCSVHelper
         /// <summary> 
         /// Currently doenst work use OVerrideOrAddLine
         /// </summary>
-        public static List<Line> OverrideOrAddLines(List<Line> lines, List<Line> overrideLines, bool preOrderedLines = true)
+        public static List<Line> OverrideOrAddLines(List<Line> lines, List<Line> overrideLines, bool preOrderedLines = true, ParamFile fileInto = null)
         {
+            bool changingFile = fileInto != null;
             List<Line> newLines = new List<Line>();
             
             string[] modifiedLinesIDs = new string[overrideLines.Count];
@@ -1717,21 +1778,31 @@ namespace EldenRingCSVHelper
                     if (stillfinding && data[0] == modifiedLinesIDs[lookingFor])    //override
                     {
                         newLines.Add(overrideLines[lookingFor]);
-                        if (!lines[l].modified && !lines[l].inFile)
+                        if (changingFile && lines[l].inFile)
                         {
-                            lines[l].inFile = true;
-                            overrideLines[lookingFor].file.numberOfModifiedOrAddedLines++;
-                            overrideLines[lookingFor].file.numberOfModifiedFields += overrideLines[lookingFor].modifiedFieldIndexes.Count;
+                            overrideLines[lookingFor].inFile = true;
+                            lines[l].inFile = false;
+                            if (lines[l].modified)
+                                fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
+                            if (overrideLines[lookingFor].modified)
+                            {
+                                fileInto.numberOfModifiedOrAddedLines++;
+                                fileInto.numberOfModifiedFields += overrideLines[lookingFor].modifiedFieldIndexes.Count;
+                            }
                         }
                         lookingFor++;
                     }
                     else if (stillfinding && int.Parse(data[0]) > int.Parse(modifiedLinesIDs[lookingFor]))  //add
                     {
                         newLines.Add(overrideLines[lookingFor]);
-                        if (!lines[l].inFile){
-                            lines[l].inFile = true;
-                            overrideLines[lookingFor].file.numberOfModifiedOrAddedLines++;
-                            overrideLines[lookingFor].file.numberOfModifiedFields += overrideLines[lookingFor].modifiedFieldIndexes.Count;
+                        if (changingFile)
+                        {
+                            overrideLines[lookingFor].inFile = true;
+                            if (overrideLines[lookingFor].modified)
+                            {
+                                fileInto.numberOfModifiedOrAddedLines++;
+                                fileInto.numberOfModifiedFields += overrideLines[lookingFor].modifiedFieldIndexes.Count;
+                            }
                         }
                         lookingFor++;
                         l--;
@@ -1749,11 +1820,17 @@ namespace EldenRingCSVHelper
                         if (data[0] == modifiedLinesIDs[i]) //override
                         {
                             newLines.Add(overrideLines[i]);
-                            if (!lines[l].modified && !lines[l].inFile)
+                            if (changingFile && lines[l].inFile)
                             {
-                                lines[l].inFile = true;
-                                overrideLines[i].file.numberOfModifiedOrAddedLines++;
-                                overrideLines[i].file.numberOfModifiedFields += overrideLines[i].modifiedFieldIndexes.Count;
+                                overrideLines[i].inFile = true;
+                                lines[l].inFile = false;
+                                if (lines[l].modified)
+                                    fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
+                                if (overrideLines[i].modified)
+                                {
+                                    fileInto.numberOfModifiedOrAddedLines++;
+                                    fileInto.numberOfModifiedFields += overrideLines[i].modifiedFieldIndexes.Count;
+                                }
                             }
                             found = true;
                             break;
@@ -1761,11 +1838,14 @@ namespace EldenRingCSVHelper
                         else if (int.Parse(data[0]) > int.Parse(modifiedLinesIDs[i]))
                         {
                             newLines.Add(overrideLines[i]); //add
-                            if (!lines[l].inFile)
+                            if (changingFile)
                             {
-                                lines[l].inFile = true;
-                                overrideLines[i].file.numberOfModifiedOrAddedLines++;
-                                overrideLines[i].file.numberOfModifiedFields += overrideLines[i].modifiedFieldIndexes.Count;
+                                overrideLines[i].inFile = true;
+                                if (overrideLines[i].modified)
+                                {
+                                    fileInto.numberOfModifiedOrAddedLines++;
+                                    fileInto.numberOfModifiedFields += overrideLines[i].modifiedFieldIndexes.Count;
+                                }
                             }
                             found = true;
                             l--;
@@ -1784,8 +1864,9 @@ namespace EldenRingCSVHelper
         /// <summary> 
         /// Overrides the line the given lines with the given Overrideline. Replaces the first lines if it shares an id. Also adds the line if it doesnt share an id.
         /// </summary>
-        public static List<Line> OverrideOrAddLine(List<Line> lines, Line overrideLine)
+        public static List<Line> OverrideOrAddLine(List<Line> lines, Line overrideLine, ParamFile fileInto = null)
         {
+            bool changingFile = fileInto != null;
             List<Line> newLines = new List<Line>();
             bool found = false;
             for (int l = 0; l < lines.Count; l++)
@@ -1796,11 +1877,17 @@ namespace EldenRingCSVHelper
                     {
                         //lines[l] = overrideLine;
                         newLines.Add(overrideLine);
-                        if (!lines[l].modified && !lines[l].inFile)
+                        if (changingFile && lines[l].inFile)
                         {
-                            lines[l].inFile = true;
-                            overrideLine.file.numberOfModifiedOrAddedLines++;
-                            overrideLine.file.numberOfModifiedFields += overrideLine.modifiedFieldIndexes.Count;
+                            overrideLine.inFile = true;
+                            lines[l].inFile = false;
+                            if (lines[l].modified)
+                                fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
+                            if (overrideLine.modified)
+                            {
+                                fileInto.numberOfModifiedOrAddedLines++;
+                                fileInto.numberOfModifiedFields += overrideLine.modifiedFieldIndexes.Count;
+                            }
                         }
                         found = true;
                         //return;
@@ -1809,11 +1896,14 @@ namespace EldenRingCSVHelper
                     {
                         //lines.Insert(l, overrideLine);
                         newLines.Add(overrideLine);
-                        if (!lines[l].inFile)
+                        if (changingFile)
                         {
-                            lines[l].inFile = true;
-                            overrideLine.file.numberOfModifiedOrAddedLines++;
-                            overrideLine.file.numberOfModifiedFields += overrideLine.modifiedFieldIndexes.Count;
+                            overrideLine.inFile = true;
+                            if (overrideLine.modified)
+                            {
+                                fileInto.numberOfModifiedOrAddedLines++;
+                                fileInto.numberOfModifiedFields += overrideLine.modifiedFieldIndexes.Count;
+                            }
                         }
                         l--;
                         found = true;
