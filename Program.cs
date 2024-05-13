@@ -383,7 +383,6 @@ namespace EldenRingCSVHelper
 
         }
 
-
         static void poisonSpellsUseIntelligence()
         {
             if (!IsRunningParamFile(new ParamFile[] { Magic }))
@@ -754,6 +753,167 @@ namespace EldenRingCSVHelper
 
                     //RANDOMIZE WEAPONS
                     {
+                        LotItem[] talimans1 = new LotItem[]
+                        {
+                            //new LotItem(LotItem.Category.Accessory, "Crimson Amber Medallion").addKW("erdtree",25), //sold by mercahnt
+                            new LotItem(LotItem.Category.Accessory, "Cerulean Amber Medallion").addKW("magic").addKW("erdtree",25), //crystal cave, bloodhound knight boss
+                            new LotItem(LotItem.Category.Accessory, "Viridian Amber Medallion").addKW("erdtree",25), //Miranda the Blighted Bloom
+                            new LotItem(LotItem.Category.Accessory, "Green Turtle Talisman").addKW("erdtree",25), //turtle room imp sea
+                            new LotItem(LotItem.Category.Accessory, "Arsenal Charm"), //given by nepheli
+
+                            //new LotItem(LotItem.Category.Accessory, "Starscourge Heirloom"), //Fort Gael +strength
+                            //new LotItem(LotItem.Category.Accessory, "Prosthesis-Wearer Heirloom"), //Millicent +dexterity
+                            //new LotItem(LotItem.Category.Accessory, "Stargazer Heirloom"), //Liurnia Divine tower +intelligence
+                            new LotItem(LotItem.Category.Accessory, "Two Finger Heirloom"), //Purified Ruins +faith
+
+                            new LotItem(LotItem.Category.Accessory, "Dragoncrest Shield Talisman").addKW("dragon"), //Edges of Beastial Sactum
+                            new LotItem(LotItem.Category.Accessory, "Spelldrake Talisman").addKW("dragon"), //Earthbore Cave Runebear boss 
+                            new LotItem(LotItem.Category.Accessory, "Flamedrake Talisman").addKW("dragon"), //Groveside Cave Beastman boss
+                            new LotItem(LotItem.Category.Accessory, "Boltdrake Talisman").addKW("dragon"), //Stomveil, divine tower path 
+                            new LotItem(LotItem.Category.Accessory, "Haligdrake Talisman").addKW("dragon"), //Stranded Graveyard, loop back
+                            new LotItem(LotItem.Category.Accessory, "Pearldrake Talisman").addKW("dragon"), //Four belfries gateway, Farum azula
+
+                            new LotItem(LotItem.Category.Accessory, "Immunizing Horn Charm").addKW("ancestral follower"), //Ainsel River Ant Nest
+                            new LotItem(LotItem.Category.Accessory, "Stalwart Horn Charm").addKW("ancestral follower"), //Liurnia Mausoleum Compound
+                            new LotItem(LotItem.Category.Accessory, "Clarifying Horn Charm").addKW("ancestral follower"), //Deep Siofra Well
+                            new LotItem(LotItem.Category.Accessory, "Mottled Necklace").addKW("ancestral follower"), //Four Belfries gateway, Nokron
+
+                            new LotItem(LotItem.Category.Accessory, "Prince of Death's Pustule").addKW("deathblight"), //Stormveil, godwyn corpse
+
+                            new LotItem(LotItem.Category.Accessory, "Curved Sword Talisman"), //Stromviel, dark room chest
+                            new LotItem(LotItem.Category.Accessory, "Twinblade Talisman"), //Castle Morne, tower chest
+                            new LotItem(LotItem.Category.Accessory, "Axe Talisman"), //Mistwood Ruins, chest
+                            new LotItem(LotItem.Category.Accessory, "Hammer Talisman"), //Recusant Henricus drop
+                            new LotItem(LotItem.Category.Accessory, "Spear Talisman"), //Lakeside Crystal cave
+                            new LotItem(LotItem.Category.Accessory, "Lance Talisman"), //Stormhill, by bats
+                            new LotItem(LotItem.Category.Accessory, "Arrow's Reach Talisman").addKW("highground"), //above stormgate chest
+
+                            new LotItem(LotItem.Category.Accessory, "Primal Glintstone Blade").addKW("magic"), //MtGiants, Stargazer ruins, 
+                            new LotItem(LotItem.Category.Accessory, "Moon of Nokstella").addKW("magic").addKW("nokstella"), //Nokstella giant throne chest
+                            new LotItem(LotItem.Category.Accessory, "Old Lords Talisman").addKW("dragon").addKW("farum azula"), //Farum Azula
+                            new LotItem(LotItem.Category.Accessory, "Radagon Icon").addKW("radagon"), //Raya Lucaria
+                            new LotItem(LotItem.Category.Accessory, "Roar Medallion").addKW("troll"), //Limgrave Tunnels Troll boss
+                            //new LotItem(LotItem.Category.Accessory, "Companion Jar"), //Jar Bairn questline
+                            //new LotItem(LotItem.Category.Accessory, "Perfumer's Talisman").addKW("perfumer"), //Perfumer ruins
+                            //new LotItem(LotItem.Category.Accessory, "Carian Filigreed Crest").addKW("magic").addKW("carian"), //Bought from iji
+                            //new LotItem(LotItem.Category.Accessory, "Warrior Jar Shard").addKW("great jar", 150), //Iron fist alexander
+                            //new LotItem(LotItem.Category.Accessory, "Shard of Alexander"), //Shard of Alexander
+                            new LotItem(LotItem.Category.Accessory, "Godfrey Icon").addKW("godfrey"), //Gidefroy drop
+                            new LotItem(LotItem.Category.Accessory, "Bull-Goat's Talisman"), //Dragonbarrow cave
+                            new LotItem(LotItem.Category.Accessory, "Blue Dancer Charm").addKW("magic").addKW("uhl"), //Highroad Cave golem boss
+
+                            new LotItem(LotItem.Category.Accessory, "Crucible Scale Talisman").addKW("crucible"), //Lleyndel Catacombs
+                            new LotItem(LotItem.Category.Accessory, "Crucible Feather Talisman").addKW("crucible"), //Auriza Hero's Grave
+                            new LotItem(LotItem.Category.Accessory, "Crucible Knot Talisman").addKW("crucible"), //Village of Albinaurics omen killer drop
+
+                            //new LotItem(LotItem.Category.Accessory, "Red-Feather Branchsword").addKW("death bird"), //Death bird
+                            //new LotItem(LotItem.Category.Accessory, "Blue-Feather Branchsword").addKW("death bird"), //Death bird
+
+                            //new LotItem(LotItem.Category.Accessory, "Assassin's Crimson Dagger").addKW("black knives"), //Deathtouched Catacombs, limgrave, BK drop
+                            //new LotItem(LotItem.Category.Accessory, "Assassin's Cerulean Dagger").addKW("magic").addKW("black knives"), //Black Knife Catacombs, Liurnia, BK drop
+
+                            //new LotItem(LotItem.Category.Accessory, "Winged Sword Insignia").addKW("malenia"), //Still water cave Clean Rot Knight drop
+                            //new LotItem(LotItem.Category.Accessory, "Rotten Winged Insignia").addKW("malenia").addKW("rot"), //Millicent questline option
+                            //new LotItem(LotItem.Category.Accessory, "Millicent's Prosthesis").addKW("millicent").addKW("malenia",50), //Millicent questline iption
+
+                            //new LotItem(LotItem.Category.Accessory, "Godskin Swaddling Cloth").addKW("godskin"), //Spirit caller cave godskin drop
+                            //new LotItem(LotItem.Category.Accessory, "Kindred of Rot's Exultation").addKW("rot"), //Kindred rot boss drop
+                            //new LotItem(LotItem.Category.Accessory, "Taker's Cameo").addKW("rykard"), //Tanith reward item
+                            //new LotItem(LotItem.Category.Accessory, "Ancestral Spirit's Horn").addKW("ancestral follower"), //Remmerance of regal ancestar
+
+
+                            //new LotItem(LotItem.Category.Accessory, "Crepus's Vial").addKW("confessor"), //Relight the Idle drop
+                            //new LotItem(LotItem.Category.Accessory, "Concealing Veil").addKW("black knife"), //Sage Cave BK drop
+                            //magic new LotItem(LotItem.Category.Accessory, "Longtail Cat Talisman").addKW("magic"), //Raya lucaria
+                            //new LotItem(LotItem.Category.Accessory, "Furled Finger's Trick Mirror").addKW("two finger"), //finger maiden husks
+                            //new LotItem(LotItem.Category.Accessory, "Host's Trick-Mirror").addKW("two finger"), //finger maiden husks
+                            //new LotItem(LotItem.Category.Accessory, "Shabriri's Woe").addKW("frenzy").addKW("shabriri"), //Frenzied Flame Village
+                            //new LotItem(LotItem.Category.Accessory, "Daedicar's Woe").addKW("rykard").addKW("snake").addKW("daedicar"), //Rya quest
+                            //new LotItem(LotItem.Category.Accessory, "Sacrificial Twig"), //many places
+                            //new LotItem(LotItem.Category.Accessory, "Entwining Umbilical Cord"), //cut
+                        };
+                        LotItem[] talimans2 = new LotItem[]
+                        {
+                            new LotItem(LotItem.Category.Accessory, "Radagon's Scarseal").addKW("radagon"),//Weeping Evergael
+                            new LotItem(LotItem.Category.Accessory, "Marika's Scarseal").addKW("marika"),//Nokron
+                            new LotItem(LotItem.Category.Accessory, "Crimson Amber Medallion +1").addKW("erdtree", 25), //Volcano Manor imp seal
+                            new LotItem(LotItem.Category.Accessory, "Cerulean Amber Medallion +1").addKW("magic").addKW("erdtree", 25), //Castle Sol
+                            new LotItem(LotItem.Category.Accessory, "Viridian Amber Medallion +1").addKW("erdtree", 25), //Margit secound encounter
+                            new LotItem(LotItem.Category.Accessory, "Crimson Seed Talisman").addKW("erdtree", 25), //Sainted Heros imp seal
+                            //magic new LotItem(LotItem.Category.Accessory, "Cerulean Seed Talisman").addKW("magic").addKW("erdtree"), //Carian Study hall
+                            new LotItem(LotItem.Category.Accessory, "Arsenal Charm +1"), //cave by falling star beast
+                            new LotItem(LotItem.Category.Accessory, "Blessed Dew Talisman").addKW("erdtree"),    //tower of return teleport
+                            new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor"),
+
+                            new LotItem(LotItem.Category.Accessory, "Dragoncrest Shield Talisman +1").addKW("dragon"), //Sainted Hero's grave imp seal
+                            //magic new LotItem(LotItem.Category.Accessory, "Spelldrake Talisman +1").addKW("dragon"), //Sellia secret chest
+                            new LotItem(LotItem.Category.Accessory, "Flamedrake Talisman +1").addKW("dragon"), //leyndell, random column
+                            new LotItem(LotItem.Category.Accessory, "Boltdrake Talisman +1").addKW("dragon"), //Old Altus Tunnel shed
+                            new LotItem(LotItem.Category.Accessory, "Haligdrake Talisman +1").addKW("dragon"), //leyndell
+                            new LotItem(LotItem.Category.Accessory, "Pearldrake Talisman +1").addKW("dragon"), //Mt.Gelmir ruins imp seal
+
+                            //ancestral followers new LotItem(LotItem.Category.Accessory, "Immunizing Horn Charm +1").addKW("ancestral follower"), //Lake of Rot shaman drop
+                            //ancestral followers new LotItem(LotItem.Category.Accessory, "Stalwart Horn Charm +1").addKW("ancestral follower"), //concentrated snow field
+                            //ancestral followers new LotItem(LotItem.Category.Accessory, "Clarifying Horn Charm +1").addKW("ancestral follower"), //Nokron upper
+                            //ancestral followers new LotItem(LotItem.Category.Accessory, "Mottled Necklace +1").addKW("ancestral follower"), //Nokron upper
+
+                            //new LotItem(LotItem.Category.Accessory, "Prince of Death's Cyst").addKW("deathblight"), //Deeproot Depths, bear drop
+
+                            new LotItem(LotItem.Category.Accessory, "Claw Talisman").addKW("occult",50).addKW("death bird", 70).addKW("highground", 50), //Stormveil ladder tower
+                            new LotItem(LotItem.Category.Accessory, "Greatshield Talisman"), //Ancient dragon Lanseax area
+                            new LotItem(LotItem.Category.Accessory, "Arrow's Sting Talisman").addKW("highground"), //redmane castle tower chest
+                            
+                            //magic secret new LotItem(LotItem.Category.Accessory, "Graven-School Talisman").addKW("Magic").addKW("Gravenmass").addKW("Occult"), //raya lucaria secret room
+                            new LotItem(LotItem.Category.Accessory, "Faithful's Canvas Talisman").addKW("rot").addKW("occult").addKW("sacred",30), //Sellia crystal tunnel (has rot followers)
+
+                            //magic secret new LotItem(LotItem.Category.Accessory, "Magic Scorpion Charm").addKW("Magic").addKW("Occult"), //Preceptor Selivus
+                            new LotItem(LotItem.Category.Accessory, "Fire Scorpion Charm").addKW("fire").addKW("occult"), //Fort Laiedd mt.gelmir
+                            new LotItem(LotItem.Category.Accessory, "Lightning Scorpion Charm").addKW("lightning").addKW("occult"), //Wyndhelm catacombs imp seal
+                            new LotItem(LotItem.Category.Accessory, "Sacred Scorpion Charm").addKW("sacred").addKW("occult"), //Anastacia drop
+
+                            new LotItem(LotItem.Category.Accessory, "Ritual Sword Talisman"), //Lux Ruins Altus
+                            new LotItem(LotItem.Category.Accessory, "Ritual Shield Talisman"), //Leyndell
+
+                            new LotItem(LotItem.Category.Accessory, "Gold Scarab"), //Cleanrot knight duo boss
+                            new LotItem(LotItem.Category.Accessory, "Silver Scarab"), //Hidden Path to Haligtree, chest
+
+                        };
+                        LotItem[] talimans3 = new LotItem[]
+                        {
+                            new LotItem(LotItem.Category.Accessory, "Radagon's Soreseal").addKW("radagon"),//Fort Faroth
+                            new LotItem(LotItem.Category.Accessory, "Marika's Soreseal").addKW("marika"),//Haligtree
+
+                            new LotItem(LotItem.Category.Accessory, "Crimson Amber Medallion +2").addKW("erdtree", 25), //Capital of Ash
+                            //new LotItem(LotItem.Category.Accessory, "Cerulean Amber Medallion +2").addKW("erdtree", 25), //Moonlight Alter Ruins
+                            new LotItem(LotItem.Category.Accessory, "Viridian Amber Medallion +2").addKW("erdtree", 25), //Haligtree, room with mushroom people 
+                            //new LotItem(LotItem.Category.Accessory, "Great-Jar's Arsenal").addKW("great jar",200),//Cealid Arena reward
+                            new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor +1"),//
+
+                            new LotItem(LotItem.Category.Accessory, "Dragoncrest Shield Talisman +2").addKW("dragon"), //Farum Azula
+                            new LotItem(LotItem.Category.Accessory, "Spelldrake Talisman +2").addKW("dragon"), //Hidden Path to haligtree
+                            new LotItem(LotItem.Category.Accessory, "Flamedrake Talisman +2").addKW("dragon"), //Dragon barrow cave beastmen duo boss
+                            new LotItem(LotItem.Category.Accessory, "Boltdrake Talisman +2").addKW("dragon"), //Farum Azula
+                            new LotItem(LotItem.Category.Accessory, "Haligdrake Talisman +2").addKW("dragon"), //Moghwyn Palace
+                            new LotItem(LotItem.Category.Accessory, "Pearldrake Talisman +2").addKW("dragon"), //Haligtree
+
+                            new LotItem(LotItem.Category.Accessory, "Dagger Talisman").addKW("Occult"), //Temple of Eiglay, imp seal
+
+
+                            
+                            //magic secret new LotItem(LotItem.Category.Accessory, "Graven-Mass Talisman").addKW("magic").addKW("gravenmass").addKW("occult"), //Concentrated Snowfield, Albinauric Rise
+                            new LotItem(LotItem.Category.Accessory, "Flock's Canvas Talisman").addKW("rot").addKW("occult").addKW("sacred",30), //Dropped by Gowry
+
+                            
+                            //blood new LotItem(LotItem.Category.Accessory, "Lord of Blood's Exultation"), //Esgar priest of blood droop
+                        };
+
+
+                        LotItem[] talisman4 = new LotItem[]
+                        {
+                            //new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor +2"), //Ashen Capital
+                            new LotItem(LotItem.Category.Accessory, "Dragoncrest Greatshield Talisman"), //Haligtree drainage channel
+                        };
+
                         LotItem[] deathRiteBird = new LotItem[]
                         {
                             new LotItem(LotItem.Category.Weapon, 3200000), //Death's Poker
@@ -785,6 +945,7 @@ namespace EldenRingCSVHelper
                                 new LotItem(LotItem.Category.Weapon, 22020000), //Bloodhound Claws
                             };
                         }
+
                         LotItem[] earlyBasicWeapons = new LotItem[]{
                             new LotItem(LotItem.Category.Weapon, 13010000), //Flail //carriage
                             new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage

@@ -6,8 +6,52 @@ using System.Threading.Tasks;
 
 namespace EldenRingCSVHelper
 {
-    public class LotItem
+
+    public struct Keyword
     {
+        public string keyword;
+        public int scale;
+
+        public Keyword(string keyword, int scale = 100)
+        {
+            this.keyword = keyword;
+            this.scale = scale;
+        }
+    }
+
+    public interface Themescaped
+    {
+        public List<Keyword> keywords = new List<Keyword>();
+        public Themescaped addKW(string keyword, int scale = 100)
+        {
+            return addKW(new Keyword(keyword, scale));
+        }
+        public Themescaped addKW(Keyword keyword)
+        {
+            keywords.Add(keyword);
+            return this;
+        }
+        public bool hasKeyword(Keyword keyword)
+        {
+            return keywords.Contains(Keyword);
+        }
+        public static Themescaped[] getHasKeyword(Themescaped[] objs, Keyword keyword)
+        {
+            List<Themescaped> ret = new List<Themescaped>();
+            foreach(Themescaped obj in objs)
+            {
+                if (obj.hasKeyword(keyword))
+                    ret.Add(obj);
+            }
+            return ret.ToArray();
+        }
+
+    }
+
+
+    public class LotItem:Themescaped
+    {
+        
         public const int MAX_CHANCE = 32000;
         public static class Category
         {
@@ -26,20 +70,26 @@ namespace EldenRingCSVHelper
         {
             get
             {
-                string name = "";
-                if (category == Category.None)
-                    name += "None";
+                return CategoryParamFile.GetLineWithId(id).name;
+            }
+        }
+
+        ParamFile CategoryParamFile
+        {
+            get
+            {
+                if (category == null || category == Category.None)
+                    return null;
                 else if (category == Category.Good)
-                    name += Program.EquipParamGoods.GetLineWithId(id).name;
+                    return Program.EquipParamGoods;
                 else if (category == Category.Weapon)
-                    name += Program.EquipParamWeapon.GetLineWithId(id).name;
+                    return Program.EquipParamWeapon;
                 else if (category == Category.Armor)
-                    name += Program.EquipParamProtector.GetLineWithId(id).name;
+                    return Program.EquipParamProtector;
                 else if (category == Category.Accessory)
-                    name += Program.EquipParamAccessory.GetLineWithId(id).name;
+                    return Program.EquipParamAccessory;
                 else if (category == Category.CustomWeapon)
-                    name += Program.EquipParamCustomWeapon.GetLineWithId(id).name;
-                return name;
+                    return Program.EquipParamCustomWeapon;
             }
         }
         public int amount = 1;
@@ -56,6 +106,16 @@ namespace EldenRingCSVHelper
         public static int[] chanceFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemBasePoint");
         public static int[] affectByLuckFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("enableLuck");
         public static int[] lotItem_getItemFlagIdFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("getItemFlagId0");
+
+        public Themescaped addKW(string keyword, int scale = 100)
+        {
+            return addKW(new Keyword(keyword, scale));
+        }
+        public Themescaped addKW(Keyword keyword)
+        {
+            keywords.Add(keyword);
+            return this;
+        }
 
         public void SetLotItemToLine(Line line, int lotIndex = 1)
         {
@@ -136,6 +196,23 @@ namespace EldenRingCSVHelper
         public static int Default_Chance = 1000;
         static int Default_Amount = 1;
         static bool Default_AffectByLuck = false;
+
+        public LotItem(int category, string itemName)
+        {
+            this.category = category;
+            this.id = CategoryParamFile.GetLineWithName("itemName");
+            this.amount = Default_Amount;
+            this.chance = Default_Chance;
+            this.affectByLuck = Default_AffectByLuck;
+        }
+        public LotItem(int category, int id)
+        {
+            this.category = category;
+            this.id = id;
+            this.amount = Default_Amount;
+            this.chance = Default_Chance;
+            this.affectByLuck = Default_AffectByLuck;
+        }
         public LotItem(int category, int id)
         {
             this.category = category;
