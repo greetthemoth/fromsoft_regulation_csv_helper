@@ -904,14 +904,14 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Accessory, "Flock's Canvas Talisman").addKW("rot").addKW("occult").addKW("sacred",30), //Dropped by Gowry
 
                             
-                            //blood new LotItem(LotItem.Category.Accessory, "Lord of Blood's Exultation"), //Esgar priest of blood droop
+                            //blood new LotItem(LotItem.Category.Accessory, "Lord of Blood's Exultation").addKW("mogh"), //Esgar priest of blood droop
                         };
 
 
                         LotItem[] talisman4 = new LotItem[]
                         {
-                            //new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor +2"), //Ashen Capital
-                            new LotItem(LotItem.Category.Accessory, "Dragoncrest Greatshield Talisman"), //Haligtree drainage channel
+                            //new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor +2").addKW("erdtree"), //Ashen Capital
+                            new LotItem(LotItem.Category.Accessory, "Dragoncrest Greatshield Talisman").addKW("dragon"), //Haligtree drainage channel
                         };
 
                         LotItem[] deathRiteBird = new LotItem[]

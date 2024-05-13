@@ -19,21 +19,28 @@ namespace EldenRingCSVHelper
         }
     }
 
-    public interface Themescaped
+    public interface IThemescaped
+    {
+        Themescaped addKeyword(string keyword, int scale = 100);
+        Themescaped addKeyword(Keyword keyword);
+        bool hasKeyword(Keyword keyword);
+    }
+
+    public class Themescaped
     {
         public List<Keyword> keywords = new List<Keyword>();
-        public Themescaped addKW(string keyword, int scale = 100)
+        public Themescaped addKeyword(string keyword, int scale = 100)
         {
-            return addKW(new Keyword(keyword, scale));
+            return addKeyword(new Keyword(keyword, scale));
         }
-        public Themescaped addKW(Keyword keyword)
+        public Themescaped addKeyword(Keyword keyword)
         {
             keywords.Add(keyword);
             return this;
         }
         public bool hasKeyword(Keyword keyword)
         {
-            return keywords.Contains(Keyword);
+            return keywords.Contains(keyword);
         }
         public static Themescaped[] getHasKeyword(Themescaped[] objs, Keyword keyword)
         {
@@ -45,7 +52,6 @@ namespace EldenRingCSVHelper
             }
             return ret.ToArray();
         }
-
     }
 
 
@@ -63,7 +69,8 @@ namespace EldenRingCSVHelper
             public static int AshOfWar = 5;
             public static int CustomWeapon = 3;
         }
-        
+
+
         public int id;
         public int category;
         public string Name
@@ -90,6 +97,7 @@ namespace EldenRingCSVHelper
                     return Program.EquipParamAccessory;
                 else if (category == Category.CustomWeapon)
                     return Program.EquipParamCustomWeapon;
+                return null;
             }
         }
         public int amount = 1;
@@ -107,11 +115,11 @@ namespace EldenRingCSVHelper
         public static int[] affectByLuckFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("enableLuck");
         public static int[] lotItem_getItemFlagIdFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("getItemFlagId0");
 
-        public Themescaped addKW(string keyword, int scale = 100)
+        public LotItem addKW(string keyword, int scale = 100)
         {
             return addKW(new Keyword(keyword, scale));
         }
-        public Themescaped addKW(Keyword keyword)
+        public LotItem addKW(Keyword keyword)
         {
             keywords.Add(keyword);
             return this;
@@ -200,15 +208,7 @@ namespace EldenRingCSVHelper
         public LotItem(int category, string itemName)
         {
             this.category = category;
-            this.id = CategoryParamFile.GetLineWithName("itemName");
-            this.amount = Default_Amount;
-            this.chance = Default_Chance;
-            this.affectByLuck = Default_AffectByLuck;
-        }
-        public LotItem(int category, int id)
-        {
-            this.category = category;
-            this.id = id;
+            this.id = CategoryParamFile.GetLineWithName(itemName).id_int;
             this.amount = Default_Amount;
             this.chance = Default_Chance;
             this.affectByLuck = Default_AffectByLuck;
