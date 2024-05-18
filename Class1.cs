@@ -275,7 +275,15 @@ namespace EldenRingCSVHelper
             }
         }
 
+        public class NextLineIsFree : Condition
+        {
+            public NextLineIsFree() { }
 
+            public override bool Pass(Line line)
+            {
+                return line.GetNextFreeId() == line.id_int + 1;
+            }
+        }
         class ConditionIsFalse : Condition
         {
             Condition baseCondition;
@@ -378,15 +386,17 @@ namespace EldenRingCSVHelper
         public abstract class FieldCondition : Condition
         {
             public IntReturn field;
-            public Condition AND(FieldCondition condition)
+            public FieldConditions AND(FieldCondition condition, bool shareField = false)
             {
-                ShareField(condition);
-                return new AllOf(this, condition);
+                if (shareField)
+                    ShareField(condition);
+                return new FieldConditions(this, condition,true,false);
             }
-            public Condition OR(FieldCondition condition)
+            public FieldConditions OR(FieldCondition condition, bool shareField = false)
             {
-                ShareField(condition);
-                return new Either(this, condition);
+                if (shareField)
+                    ShareField(condition);
+                return new FieldConditions(this, condition,false,true);
             }
             public void ShareField(FieldCondition condition)
             {
@@ -405,7 +415,30 @@ namespace EldenRingCSVHelper
             {
                 this.field = field;
             }
+            public class FieldConditions:FieldCondition
+            {
+                FieldCondition fc1;
+                FieldCondition fc2;
+                bool _AND = false;
+                bool _OR = false;
+                public FieldConditions(FieldCondition fc1, FieldCondition fc2, bool _AND, bool _OR)
+                {
+                    field = fc1.field;
+                    this.fc1 = fc1;
+                    this.fc2 = fc2;
+                    this._AND = _AND;
+                    this._OR = _OR;
+                }
 
+                public override bool Pass(Line line)
+                {
+                    if (_AND)
+                        return fc1.Pass(line) && fc2.Pass(line);
+                    if (_OR)
+                        return fc1.Pass(line) || fc2.Pass(line);
+                    return false;
+                }
+            }
         }
         public class MultiFieldCondition : Condition
         {
@@ -430,13 +463,19 @@ namespace EldenRingCSVHelper
                 }
                 return false;
             }
-            public Condition AND(FieldCondition condition)
+            public Condition AND(FieldCondition condition, bool shareField = false)
             {
-                return new AllOf(this, ShareField(condition));
+                if (shareField)
+                    return new AllOf(this, ShareField(condition));
+                else
+                    return new AllOf(this, condition);
             }
-            public Condition OR(FieldCondition condition)
+            public Condition OR(FieldCondition condition, bool shareField = false)
             {
-                return new Either(this, ShareField(condition));
+                if (shareField)
+                    return new Either(this, ShareField(condition));
+                else
+                    return new Either(this, condition);
             }
             public Condition ShareField(FieldCondition condition)
             {
@@ -448,96 +487,153 @@ namespace EldenRingCSVHelper
             }
         }
 
-
-        public class HasLotItem : Condition
+        public class OneKeywordPassesCondition: Condition
         {
-            LotItem[] lotItems;
-            int lotIndex = -1;
-            bool sharesLineInfo = false;
-            int amountToHave = 1;
-            public HasLotItem(LotItem lotItem, int lotIndex = -1, bool sharesLineInfo = false)
+            KeywordCondition[] conditions;
+            public OneKeywordPassesCondition(KeywordCondition condition)
             {
-                lotItems = new LotItem[] { lotItem };
-                this.lotIndex = lotIndex;
-                this.sharesLineInfo = sharesLineInfo;
+                conditions = new KeywordCondition[] { condition };
             }
-            public HasLotItem(LotItem[] lotItems, int amountToHave = 1, int lotIndex = -1, bool sharesLineInfo = false)
+            public OneKeywordPassesCondition(KeywordCondition[] conditions)
             {
-                this.lotItems = lotItems;
-                this.lotIndex = lotIndex;
-                this.sharesLineInfo = sharesLineInfo;
-                this.amountToHave = amountToHave;
-
+                this.conditions = conditions;
             }
+            int lastPassedKeywordIndex = -1;
             public override bool Pass(Line line)
             {
-                int countFound = 0;
-                foreach(LotItem lotItem in lotItems)
+                for (int i = 0; i < line.keywords.Count; i++)
                 {
-                    if (lotIndex == -1)
+                    bool passed = true;
+                    foreach (KeywordCondition kc in conditions)
                     {
-                        if (lotItem.LineHasLotItem(line, sharesLineInfo))
+                        kc.keywordIndex = i;
+                        if (!kc.Pass(line))
                         {
-                            countFound++;
-                            if (countFound >= amountToHave)
-                                return true;
+                            kc.keywordIndex = -1;
+                            passed = false;
+                            break;
                         }
+                        kc.keywordIndex = -1;
                     }
-                    else
+                    if (passed)
                     {
-                        if(lotItem.LotHasLotItem(line, lotIndex, sharesLineInfo))
-                        {
-                            countFound++;
-                            if (countFound >= amountToHave)
-                                return true;
-                        }
+                        lastPassedKeywordIndex = i;
+                        return true;
                     }
+                    
                 }
                 return false;
             }
         }
     }
 
+    public abstract class KeywordCondition : Condition
+    {
+        public IntReturn keywordIndex = -1;
 
+        public class StartsWith : KeywordCondition
+        {
+            public string startsWith;
+            public StartsWith(string _startsWith) { startsWith = _startsWith; }
+            public StartsWith(IntReturn keywordIndex, string _startsWith) { this.keywordIndex = keywordIndex; startsWith = _startsWith; }
+
+            public override bool Pass(Line line)
+            {
+                return line.keywords[keywordIndex.GetInt(line)].keyword.IndexOf(startsWith) == 0;
+            }
+        }
+        public class Contains : KeywordCondition
+        {
+            public string[] hasInName;
+
+            public Contains(string _hasInName) { hasInName = new string[] { _hasInName }; }
+            public Contains(string[] _hasInName) { hasInName = _hasInName; }
+            public Contains(IntReturn keywordIndex, string _hasInName) { this.keywordIndex = keywordIndex; hasInName = new string[] { _hasInName }; }
+            public Contains(IntReturn keywordIndex, string[] _hasInName) { this.keywordIndex = keywordIndex; hasInName = _hasInName; }
+            public override bool Pass(Line line)
+            {
+                foreach (string name in hasInName)
+                {
+                    if (line.keywords[keywordIndex.GetInt(line)].keyword.Contains(name))
+                        return true;
+                }
+                return false;
+            }
+        }
+        public class ValueBetween : KeywordCondition
+        {
+            FloatReturn min;
+            FloatReturn max;
+            bool include;
+            public ValueBetween(FloatReturn min, FloatReturn max, bool include = false)
+            {
+                this.min = min;
+                this.max = max;
+                this.include = include;
+            }
+            public ValueBetween(IntReturn keywordIndex, FloatReturn min, FloatReturn max, bool include = false)
+            {
+                this.keywordIndex = keywordIndex;
+                this.min = min;
+                this.max = max;
+                this.include = include;
+            }
+            public override bool Pass(Line line)
+            {
+                return new FloatBetween(line.keywords[keywordIndex.GetInt(line)].value, min, max, include).Pass(line);
+            }
+        }
+
+        public KeywordCondition AND(KeywordCondition condition, bool shareKeywordIndex = false)
+        {
+            if(shareKeywordIndex)
+                ShareKeywordIndex(condition);
+            return new KeywordConditions(this, condition, true, false);
+        }
+        public KeywordCondition OR(KeywordCondition condition, bool shareKeywordIndex = false)
+        {
+            if (shareKeywordIndex)
+                ShareKeywordIndex(condition);
+            return new KeywordConditions(this, condition, false, true);
+        }
+        KeywordCondition ShareKeywordIndex(KeywordCondition kc)
+        {
+            kc.keywordIndex = keywordIndex;
+            return this;
+        }
+
+        public class KeywordConditions : KeywordCondition
+        {
+            KeywordCondition kc1;
+            KeywordCondition kc2;
+            bool _AND = false;
+            bool _OR = false;
+            public KeywordConditions(KeywordCondition kc1, KeywordCondition kc2, bool _AND, bool _OR)
+            {
+                keywordIndex = kc1.keywordIndex;
+                this.kc1 = kc1;
+                this.kc2 = kc2;
+                this._AND = _AND;
+                this._OR = _OR;
+            }
+
+            public override bool Pass(Line line)
+            {
+                if (_AND)
+                    return kc1.Pass(line) && kc2.Pass(line);
+                if (_OR)
+                    return kc1.Pass(line) || kc2.Pass(line);
+                return false;
+            }
+        }
+    }
 
     //operations
     public abstract class LineModifier
     {
         public abstract void Operate(Line line);
     }
-    public class SetLotItem: LineModifier
-    {
-        LotItem lotItem;
-        int lotIndex = 1;
-        bool useInfo = true;
-        int chance;
-        int amount;
-        bool affectByLuck;
-        int lotItem_getItemFlagId;
-        public SetLotItem(LotItem lotItem, int lotIndex)
-        {
-            this.lotItem = lotItem;
-            this.lotIndex = lotIndex;
-        }
-        public SetLotItem(LotItem lotItem, int lotIndex, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
-        {
-            this.lotItem = lotItem;
-            this.lotIndex = lotIndex;
-            useInfo = false;
-            this.chance = chance;
-            this.amount = amount;
-            this.affectByLuck = affectByLuck;
-            this.lotItem_getItemFlagId = lotItem_getItemFlagId;
-        }
-        public override void Operate(Line line)
-        {
-            
-            if (useInfo)
-                lotItem.SetLotItemToLine(line, lotIndex);
-            else
-                lotItem.SetLotItemToLine(line, lotIndex, chance, amount, affectByLuck, lotItem_getItemFlagId);
-        }
-    }
+   
     public class SetLotItems : LineModifier
     {
         LotItem[] lotItems;

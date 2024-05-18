@@ -65,6 +65,7 @@ namespace EldenRingCSVHelper
         public static ParamFile EquipParamGoods = new ParamFile(VanillaFilesPath, "EquipParamGoods.csv");
         public static ParamFile EquipParamProtector = new ParamFile(VanillaFilesPath, "EquipParamProtector.csv");
         public static ParamFile EquipParamAccessory = new ParamFile(VanillaFilesPath, "EquipParamAccessory.csv");
+        public static ParamFile EquipParamGem = new ParamFile(VanillaFilesPath, "EquipParamGem.csv");
         //to write
 
         //currently updated to: 1.10
@@ -86,17 +87,20 @@ namespace EldenRingCSVHelper
 
         static void Main()
         {
-            if (true)
+            if (false)
             {
                 RunSettings.RunIfNull = true;
-                noupgradedweaponsFromNpcs();
-                worldChangesPlus();
-                //randomizedWeapons();
-                string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+                //noupgradedweaponsFromNpcs();
+                //enemyDrops_IncreasedMaterialDrops();
+                //enemyDrops_OneTimeEquipmentDrops();
+                //worldChangesPlus();
+                replaceOpenWorldSmithingStones();
+                /*string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                 string dropTypeDirString = @"\WorldChangesPlus";
                 RunSettings.Write_directory = exportDirectory + dropTypeDirString;
                 ParamFile.WriteModifiedFiles("", "__" + "WCP");
-                ParamFile.ResetAll();
+                ParamFile.ResetAll();*/
+                
             }
             else
             if (RunSettings.CreateSmithingStoneMods)
@@ -126,10 +130,10 @@ namespace EldenRingCSVHelper
 
                 //                                //makeRuneArchsGive2500()
                 //MaloModShopChanges();
-                SmithingStoneShopLineupChanges();
+                ShopLineupChanges(true,false,false,false);
                 Console.WriteLine("7");
 
-                giveEnemieSmithingStoneDrops(true);
+                enemyDrops_MoreSmithingStoneDrops(true);
                 Console.WriteLine("8");
 
                 replaceOpenWorldSmithingStones();
@@ -185,69 +189,151 @@ namespace EldenRingCSVHelper
             RunSettings.Testing = false;
             RunSettings.Write_OnlyModifiedLines = true;
             RunSettings.RunIfNull = true;
-            string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
-            
-            var SmithingDropMultsToWrite = new float[]
+            string exportDirectory;
+
+            var DropMultsToWrite = new float[]
             {
                 1,
-                1.5f,
+                /*1.5f,
                 2f,
                 3f,
-                5f,
+                5f,*/
             };
-           
+
+            /*exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
+
+            RunSettings.Write_directory = exportDirectory;
+            worldChangesPlus(true, true);
+            giveEnemieSmithingStoneDrops(true, true);
+            enemyDrops_OneTimeEquipmentDrops();
+            replaceOpenWorldSmithingStones();
+            noupgradedweaponsFromNpcs();
+            ShopLineupChanges(true, true, true, true);
+            ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
+            ParamFile.ResetAll();*/
 
 
-            for (int i = 0; i < SmithingDropMultsToWrite.Length; i++)
+            
+
+
+            
+            exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+
+            /*for (int i = 0; i < DropMultsToWrite.Length; i++)
             {
-                string multString = "x" + SmithingDropMultsToWrite[i];
+                string multString = "x" + DropMultsToWrite[i];
                 string multDirString = @"\StoneDrops\" + multString + @" Stones";
-                if (SmithingDropMultsToWrite[i] == 1)
+                if (DropMultsToWrite[i] == 1)
                 {
-                    multDirString += "(vanilla-like)";
+                    multDirString += "(recommended)";
                     multString = "";
                 }
-                else if (SmithingDropMultsToWrite[i] == 1.5f)
-                    multDirString += "(recommended)";
+                else if (DropMultsToWrite[i] == 1.5f)
+                    multDirString += "";
                 RunSettings.Write_directory = exportDirectory + multDirString;
-                giveEnemieSmithingStoneDrops(false, true, SmithingDropMultsToWrite[i], false);
+                giveEnemieSmithingStoneDrops(false, true, DropMultsToWrite[i]);
                 ParamFile.WriteModifiedFiles("", "__" + multString +"StoneDrops");
                 ParamFile.ResetAll();
-            }
+            }*/
 
             string dropTypeDirString = @"\RuneDrops";
             RunSettings.Write_directory = exportDirectory + dropTypeDirString;
-            giveEnemieSmithingStoneDrops(true, false);
+            enemyDrops_MoreSmithingStoneDrops(true, false);
             ParamFile.WriteModifiedFiles("", "__" + "RuneDrops");
             ParamFile.ResetAll();
             
 
             string OTED_DirString = @"\OneTime Equipment Drops (import last)";
             RunSettings.Write_directory = exportDirectory + OTED_DirString;
-            giveEnemieSmithingStoneDrops(false, false,1,true);
+            enemyDrops_OneTimeEquipmentDrops();
+            enemyDrops_MoreSmithingStoneDrops(false, false,1);
             ParamFile.WriteModifiedFiles("", "__" + "OTED");
             ParamFile.ResetAll();
 
             string worldChanges_DirString = @"\World Changes";
             RunSettings.Write_directory = exportDirectory + worldChanges_DirString;
-            SmithingStoneShopLineupChanges();
+            //ShopLineupChanges(true, false, false, false);
             replaceOpenWorldSmithingStones();
-            ParamFile.WriteModifiedFiles("", "__WorldChanges IMPORT - ");
+            ParamFile.WriteModifiedFiles("", "__WorldChanges");
             ParamFile.ResetAll();
+
+            string WCP_DirString = @"\World Changes Plus\Soft Item Randomizer";
+            RunSettings.Write_directory = exportDirectory + WCP_DirString;
+            worldChangesPlus(true, false);
+            enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+            ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR");
+            ParamFile.ResetAll();
+
+            WCP_DirString = @"\World Changes Plus\Add Roundtable Items";
+            RunSettings.Write_directory = exportDirectory + WCP_DirString;
+            worldChangesPlus(false, true);
+            //giveEnemieSmithingStoneDrops(false, false, 1);
+            ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI");
+            ParamFile.ResetAll();
+
+
+            WCP_DirString = @"\World Changes Plus\Unupgrade NPC Weap";
+            RunSettings.Write_directory = exportDirectory + WCP_DirString;
+            noupgradedweaponsFromNpcs();
+            ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW");
+            ParamFile.ResetAll();
+
+            string ShopChanges_DirString = @"\Shop Changes\Vendor Stone Nerf";
+            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+            ShopLineupChanges(true, true, false, false);
+            ParamFile.WriteModifiedFiles("", "__" + "SC_VSN");
+            ParamFile.ResetAll();
+
+            /*ShopChanges_DirString = @"\Shop Changes\TwinMaiden Stone Nerf";
+            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+            ShopLineupChanges(false, true, false, false);
+            ParamFile.WriteModifiedFiles("", "__" + "SC_TMSN");
+            ParamFile.ResetAll();*/
+
+            ShopChanges_DirString = @"\Shop Changes\Vendor Material Buff";
+            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+            ShopLineupChanges(false, false, true, false);
+            ParamFile.WriteModifiedFiles("", "__" + "SC_VMB");
+            ParamFile.ResetAll();
+
+            ShopChanges_DirString = @"\Shop Changes\Misc Balancing";
+            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+            ShopLineupChanges(false, false, false, true);
+            ParamFile.WriteModifiedFiles("", "__" + "SC_MB");
+            ParamFile.ResetAll();
+
+            for (int i = 0; i < DropMultsToWrite.Length; i++)
+            {
+                string multString = "x" + DropMultsToWrite[i];
+                string multDirString = @"\MaterialDrops\" + multString + @" Mats";
+                if (DropMultsToWrite[i] == 1)
+                {
+                    multDirString += "(recommended)";
+                    multString = "";
+                }
+                else if (DropMultsToWrite[i] == 1.5f)
+                    multDirString += "";
+                RunSettings.Write_directory = exportDirectory + multDirString;
+                //ShopLineupChanges(false,false,true, false);
+                enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                ParamFile.ResetAll();
+            }
+
 
             exportDirectory = @"C:\CODING OUTPUT\CSV\Choose Options";
             {
                 
-                for (int i = 0;i < SmithingDropMultsToWrite.Length; i++)
+                for (int i = 0;i < DropMultsToWrite.Length; i++)
                 {
-                    string multString = "x" + SmithingDropMultsToWrite[i];
+                    string multString = "x" + DropMultsToWrite[i];
                     string multDirString = @"\"+multString+@" Stones";
-                    if (SmithingDropMultsToWrite[i] == 1)
+                    if (DropMultsToWrite[i] == 1)
                     {
-                        multDirString += "(vanilla-like)";
-                        multString = "";
-                    }else if (SmithingDropMultsToWrite[i] == 1.5f)
                         multDirString += "(recommended)";
+                        multString = "";
+                    }else if (DropMultsToWrite[i] == 1.5f)
+                        multDirString += "";
                     for (bool WorldChanges = false; ; WorldChanges = true)
                     {
                         string worldChanges_string = "";
@@ -287,10 +373,13 @@ namespace EldenRingCSVHelper
                                     dropTypeDirString += @"StoneDrops ONLY";
 
                                 RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + worldChanges_DirString;
-                                giveEnemieSmithingStoneDrops(DropRunes, true, SmithingDropMultsToWrite[i], OneTimeEquipmentDrop);
+                                if (OneTimeEquipmentDrop)
+                                    enemyDrops_OneTimeEquipmentDrops();
+                                //enemyDrops_IncreasedMaterialDrops();
+                                enemyDrops_MoreSmithingStoneDrops(DropRunes, true, DropMultsToWrite[i]);
                                 if (WorldChanges)
                                 {
-                                    SmithingStoneShopLineupChanges();
+                                    //ShopLineupChanges(true, false,false,false);
                                     replaceOpenWorldSmithingStones();
                                 }
                                 ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + OTED_string + worldChanges_string);
@@ -405,7 +494,7 @@ namespace EldenRingCSVHelper
 
         }
 
-        static void worldChangesPlus()
+        static void worldChangesPlus(bool RANDOMIZE_CERTAIN_ITEMS, bool ADD_ROUNDTABLE_ITEMS)
         {
             if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map , ItemLotParam_enemy}))
                 return;
@@ -413,13 +502,7 @@ namespace EldenRingCSVHelper
             var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       9      , 7, -1, -1, 0);
             var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       8      , 7, -1, -1, 0);
 
-            List<int> usedGetItemFlagId;
-            {
-                int _getItemFlagId = ItemLotParam_map.GetFieldIndex("getItemFlagId");
-                var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
-                usedGetItemFlagId = Util.ToInts(((Lines)ItemLotParam_enemy.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
-                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
-            }
+            List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
             int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
 
             Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
@@ -430,8 +513,14 @@ namespace EldenRingCSVHelper
                 );
             EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.GetLinesWithId(EnemyDropLinesWorthCheckingForFlagIds.GetIDs());//gets the none vanilla versions of the lines.
 
-            LotItem[] roundtableItems = new LotItem[]
-           {
+
+            const bool createNewRoundtableItemLots = false;
+            const bool stealItemLotsForRoundtable = true;
+            if (createNewRoundtableItemLots)
+            {
+
+                LotItem[] roundtableItems = new LotItem[]
+               {
 
                 //twin fingermaiden
                 new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
@@ -471,12 +560,7 @@ namespace EldenRingCSVHelper
                 new LotItem(LotItem.Category.Good, 6490), //Lord's Divine Fortification
 
                 new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
-           };
-
-            const bool createNewRoundtableItemLots = false;
-            const bool stealItemLotsForRoundtable = true;
-            if (createNewRoundtableItemLots)
-            {
+               };
                 int roundtableItemsStartId = 0;
                 Line baseline = ItemLotParam_map.GetLineWithId(10000);
                 int lastId = roundtableItemsStartId - 5;
@@ -532,184 +616,188 @@ namespace EldenRingCSVHelper
 
                 var baseLine = ItemLotParam_map.GetLineWithId(10000);
 
-                //Basic Weapons
+                //OLD
                 {
-                    /*
-                    LotItem[] roundtableBasicWeapons = new LotItem[]
+                    //Basic Weapons
                     {
-                    //twin fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
-                    new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
-                    new LotItem(LotItem.Category.Weapon, 11000000), //Mace
-                    new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
-                    new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
-                    new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
-                    };
-
-
-
-                    Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
-                        isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon)
-                        );
-
-
-
-                    for (int i = 0; i < roundtableBasicWeapons.Length; i++)
-                    {
-                        //if(i == roundtableBasicWeapons.Length)
-                        //empty space
-                        LotItem lotItem = roundtableBasicWeapons[i];
-                        int currentGetItemFlagId;
-                        if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                        /*
+                        LotItem[] roundtableBasicWeapons = new LotItem[]
                         {
-                            currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
-                        }
-                        else
-                        {
-                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
-                            usedGetItemFlagId.Add(currentGetItemFlagId);
-                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
-                        }
+                        //twin fingermaiden
+                        new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
+                        new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
+                        new LotItem(LotItem.Category.Weapon, 11000000), //Mace
+                        new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
+                        new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
+                        new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+                        };
 
-                        foreach (Line line in linesToReplaceWithWeaponPickups.lines)
+
+
+                        Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
+                            isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon)
+                            );
+
+
+
+                        for (int i = 0; i < roundtableBasicWeapons.Length; i++)
                         {
-                            line.SetField(LotItem.chanceFIs[0], 1);
-                            if (lotItem.category == 1)
-                                line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
-                            else if (lotItem.category == 2)
-                                line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
-                            lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
+                            //if(i == roundtableBasicWeapons.Length)
+                            //empty space
+                            LotItem lotItem = roundtableBasicWeapons[i];
+                            int currentGetItemFlagId;
+                            if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                            {
+                                currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                            }
+                            else
+                            {
+                                currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                usedGetItemFlagId.Add(currentGetItemFlagId);
+                                lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                            }
+
+                            foreach (Line line in linesToReplaceWithWeaponPickups.lines)
+                            {
+                                line.SetField(LotItem.chanceFIs[0], 1);
+                                if (lotItem.category == 1)
+                                    line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
+                                else if (lotItem.category == 2)
+                                    line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+                                lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
+                            }
                         }
+                        */
                     }
-                    */
-                }
 
-                //FINGER SEAL
-                {
-                    /*
-                    LotItem[] roundtableTalisman = new LotItem[]
+                    //FINGER SEAL
                     {
-                    //twin fingermaiden
-                    new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
-                    };
-                    isOneSmithingStoneCond =
-                        new Condition.FieldIs(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
-                        .AND(new Condition.FieldIs(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "3"))
-                        .AND(new Condition.FloatFieldBetween(10100, 10101, true));
+                        /*
+                        LotItem[] roundtableTalisman = new LotItem[]
+                        {
+                        //twin fingermaiden
+                        new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
+                        };
+                        isOneSmithingStoneCond =
+                            new Condition.FieldIs(ItemLotParam_map.GetFieldIndex("lotItemCategory01"), "1")
+                            .AND(new Condition.FieldIs(ItemLotParam_map.GetFieldIndex("lotItemNum01"), "3"))
+                            .AND(new Condition.FloatFieldBetween(10100, 10101, true));
 
-                    Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
-                        isOneSmithingStoneCond.AND(isValidSmithingStone)
-                        );
+                        Lines linesToReplaceWithWeaponPickups = ItemLotParam_map.GetLinesOnCondition(
+                            isOneSmithingStoneCond.AND(isValidSmithingStone)
+                            );
 
-                    for (int i = 0; i <= roundtableTalisman.Length; i++)
+                        for (int i = 0; i <= roundtableTalisman.Length; i++)
+                        {
+                            //if(i == roundtableTalisman.Length)
+                            //empty space
+                            LotItem lotItem = roundtableTalisman[i];
+                            int currentGetItemFlagId;
+                            if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                            {
+                                currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                            }
+                            else
+                            {
+                                currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                usedGetItemFlagId.Add(currentGetItemFlagId);
+                                lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                            }
+
+                            foreach (Line line in linesToReplaceWithWeaponPickups.lines)
+                            {
+                                if (lotItem.category == 1)
+                                    line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
+                                else if (lotItem.category == 2)
+                                    line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+                                lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
+                            }
+                        }
+                        */
+                    }
+                    //CREPUS'S BLACK-KEY CROSSBOW
                     {
-                        //if(i == roundtableTalisman.Length)
-                        //empty space
-                        LotItem lotItem = roundtableTalisman[i];
-                        int currentGetItemFlagId;
-                        if (lotItemToFlagIdDict.ContainsKey(lotItem))
-                        {
-                            currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
-                        }
-                        else
-                        {
-                            currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
-                            usedGetItemFlagId.Add(currentGetItemFlagId);
-                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
-                        }
+                        //adds the crepus bow along side the black key arrows found in fortified manor
+                        /*var lotItem = new LotItem(LotItem.Category.Weapon, 43110000); //Crepus's black-key crossbow
 
-                        foreach (Line line in linesToReplaceWithWeaponPickups.lines)
-                        {
-                            if (lotItem.category == 1)
-                                line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
-                            else if (lotItem.category == 2)
-                                line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
-                            lotItem.SetLotItemToLine(line, i + 2, LotItem.maxChance, 1, false, currentGetItemFlagId);
-                        }
+                        List<Line> linesToAddTo = ItemLotParam_map.GetLinesOnCondition(
+                            new Condition.IDCheck(11000125) //fortified  anor black key arrow
+                            );
+
+                        int currentGetItemFlagId = int.Parse(ItemLotParam_map.GetFieldOnCondition(LotItem.getItemFlagIdFI, new Condition.IDCheck(11100710)));
+
+                        foreach (Line lineToAddTo in linesToAddTo)
+                        {   //Certain item pickups will include a longbow drop. Only appears once.
+
+                            Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int + 1);
+
+                            line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+
+                            lotItem.SetLotItemToLine(line, 1);
+
+
+                            line.SetField(getItemFlagIdFI, currentGetItemFlagId);
+                            ItemLotParam_map.OverrideOrAddLine(line);
+                        }*/
                     }
-                    */
-                }
-                //CREPUS'S BLACK-KEY CROSSBOW
-                {
-                    //adds the crepus bow along side the black key arrows found in fortified manor
-                    /*var lotItem = new LotItem(LotItem.Category.Weapon, 43110000); //Crepus's black-key crossbow
-
-                    List<Line> linesToAddTo = ItemLotParam_map.GetLinesOnCondition(
-                        new Condition.IDCheck(11000125) //fortified  anor black key arrow
-                        );
-
-                    int currentGetItemFlagId = int.Parse(ItemLotParam_map.GetFieldOnCondition(LotItem.getItemFlagIdFI, new Condition.IDCheck(11100710)));
-
-                    foreach (Line lineToAddTo in linesToAddTo)
-                    {   //Certain item pickups will include a longbow drop. Only appears once.
-
-                        Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int + 1);
-
-                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
-
-                        lotItem.SetLotItemToLine(line, 1);
-
-                        
-                        line.SetField(getItemFlagIdFI, currentGetItemFlagId);
-                        ItemLotParam_map.OverrideOrAddLine(line);
-                    }*/
-                }
-                //LONGBOW
-                {
-                    /*
+                    //LONGBOW
+                    {
+                        /*
 
 
-                    Line baseLine = ItemLotParam_map.GetLineWithId(10000);
-                    LotItem lotItem = new LotItem(LotItem.Category.Weapon, 41000000); //Longbow
-                    LotItem arrowLotItem = new LotItem(LotItem.Category.Weapon, 50000000, 10); //Arrow
-                    LotItem fireArrowLotItem = new LotItem(LotItem.Category.Weapon, 50010000); //Fire Arrow
-                    Condition isAnArrowCond = new Condition.Either(new Condition.HasLotItem(arrowLotItem, 1), new Condition.HasLotItem(fireArrowLotItem, 1));
-                    Condition isABowTalismanCond =
-                        new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Accessory.ToString()).AND(
-                        new Condition.HasInName("Arrow's Reach Talisman")
-                        .OR(new Condition.HasInName("Arrow's Sting Talisman"))
-                        );
-                    List<Line> linesToAddTo = ItemLotParam_map.GetLinesOnCondition(
-                            isABowTalismanCond
-                            .OR(isAnArrowCond));
+                        Line baseLine = ItemLotParam_map.GetLineWithId(10000);
+                        LotItem lotItem = new LotItem(LotItem.Category.Weapon, 41000000); //Longbow
+                        LotItem arrowLotItem = new LotItem(LotItem.Category.Weapon, 50000000, 10); //Arrow
+                        LotItem fireArrowLotItem = new LotItem(LotItem.Category.Weapon, 50010000); //Fire Arrow
+                        Condition isAnArrowCond = new Condition.Either(new Condition.HasLotItem(arrowLotItem, 1), new Condition.HasLotItem(fireArrowLotItem, 1));
+                        Condition isABowTalismanCond =
+                            new Condition.FieldEqualTo(LotItem.categoryFIs[0], LotItem.Category.Accessory.ToString()).AND(
+                            new Condition.HasInName("Arrow's Reach Talisman")
+                            .OR(new Condition.HasInName("Arrow's Sting Talisman"))
+                            );
+                        List<Line> linesToAddTo = ItemLotParam_map.GetLinesOnCondition(
+                                isABowTalismanCond
+                                .OR(isAnArrowCond));
 
-                    foreach (Line lineToAddTo in linesToAddTo)
-                    {   //Certain item pickups will include a longbow drop. Only appears once.
+                        foreach (Line lineToAddTo in linesToAddTo)
+                        {   //Certain item pickups will include a longbow drop. Only appears once.
 
-                        Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int + 1);
+                            Line line = lineToAddTo.Copy().SetField(0, lineToAddTo.id_int + 1);
 
-                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+                            line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
 
-                        lotItem.SetLotItemToLine(line, 1);
+                            lotItem.SetLotItemToLine(line, 1);
 
-                        int currentGetItemFlagId;
-                        if (lotItemToFlagIdDict.ContainsKey(lotItem))
-                        {
-                            currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                            int currentGetItemFlagId;
+                            if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                            {
+                                currentGetItemFlagId = lotItemToFlagIdDict[lotItem];
+                            }
+                            else
+                            {
+                                currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                usedGetItemFlagId.Add(currentGetItemFlagId);
+                                lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
+                            }
+                            line.SetField(getItemFlagIdFI, currentGetItemFlagId);
+
+                            ItemLotParam_map.OverrideOrAddLine(line);
+
+                            if (isABowTalismanCond.Pass(lineToAddTo))//IF IS A BOW TALISMAN
+                            {
+                                //ALSO ADD ARROWS
+                                Line arrowLine = baseLine.Copy().SetField(0, line.id_int + 1);
+                                arrowLine.Operate(new SetLotItem(arrowLotItem, 1));
+                                arrowLine.SetField(1, "For Bow - Arrow");
+                                arrowLine.SetField(getItemFlagIdFI, lineToAddTo.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
+                                arrowLine.SetField(LotItem.lotItem_getItemFlagIdFIs[0], currentGetItemFlagId);//USES THE SAME LOT SPECIFIC FLAG AS BOW
+                            }
+
                         }
-                        else
-                        {
-                            currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
-                            usedGetItemFlagId.Add(currentGetItemFlagId);
-                            lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
-                        }
-                        line.SetField(getItemFlagIdFI, currentGetItemFlagId);
-
-                        ItemLotParam_map.OverrideOrAddLine(line);
-
-                        if (isABowTalismanCond.Pass(lineToAddTo))//IF IS A BOW TALISMAN
-                        {
-                            //ALSO ADD ARROWS
-                            Line arrowLine = baseLine.Copy().SetField(0, line.id_int + 1);
-                            arrowLine.Operate(new SetLotItem(arrowLotItem, 1));
-                            arrowLine.SetField(1, "For Bow - Arrow");
-                            arrowLine.SetField(getItemFlagIdFI, lineToAddTo.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
-                            arrowLine.SetField(LotItem.lotItem_getItemFlagIdFIs[0], currentGetItemFlagId);//USES THE SAME LOT SPECIFIC FLAG AS BOW
-                        }
-
+                        */
                     }
-                    */
                 }
+                
 
 
 
@@ -733,8 +821,8 @@ namespace EldenRingCSVHelper
                     var sss3Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [3]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [3]")))).ToArray();
                     var sss2Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [2]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [2]")))).ToArray();
                     var sss1Ids = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [1]").Concat(ItemLotParam_map.GetIDsWithCondition(new Condition.HasInName("[Teardrop Scarab - ").AND(new Condition.NameEndsWith("Somber Smithing Stone [1]")))).ToArray();
-                    var neutralizingBolusesIds = ItemLotParam_map.GetIDsWithCondition(new Condition.HasLotItem(new LotItem(1, 900, 2), 1, true)); //2x Neutralizing Boluses
-                    var x8smolderingButterflyIds = ItemLotParam_map.GetIDsWithCondition(new Condition.HasLotItem(new LotItem(1, 20802, 8), 1, true)); //8x Smoldering Butterfly
+                    var neutralizingBolusesIds = ItemLotParam_map.GetIDsWithCondition(new LotItem.HasLotItem(new LotItem(1, 900, 2), 1, true)); //2x Neutralizing Boluses
+                    var x8smolderingButterflyIds = ItemLotParam_map.GetIDsWithCondition(new LotItem.HasLotItem(new LotItem(1, 20802, 8), 1, true)); //8x Smoldering Butterfly
 
                     var sss8Ids2 = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [8]");
                     var sss3Ids2 = ItemLotParam_map.GetIDsWithLineName("Somber Smithing Stone [3]");
@@ -751,7 +839,8 @@ namespace EldenRingCSVHelper
 
 
 
-                    //RANDOMIZE WEAPONS
+                    //RANDOMIZE Items
+                    if(RANDOMIZE_CERTAIN_ITEMS)
                     {
                         LotItem[] talimans1 = new LotItem[]
                         {
@@ -764,7 +853,7 @@ namespace EldenRingCSVHelper
                             //new LotItem(LotItem.Category.Accessory, "Starscourge Heirloom"), //Fort Gael +strength
                             //new LotItem(LotItem.Category.Accessory, "Prosthesis-Wearer Heirloom"), //Millicent +dexterity
                             //new LotItem(LotItem.Category.Accessory, "Stargazer Heirloom"), //Liurnia Divine tower +intelligence
-                            new LotItem(LotItem.Category.Accessory, "Two Finger Heirloom"), //Purified Ruins +faith
+                            new LotItem(LotItem.Category.Accessory, "Two Fingers Heirloom"), //Purified Ruins +faith
 
                             new LotItem(LotItem.Category.Accessory, "Dragoncrest Shield Talisman").addKW("dragon"), //Edges of Beastial Sactum
                             new LotItem(LotItem.Category.Accessory, "Spelldrake Talisman").addKW("dragon"), //Earthbore Cave Runebear boss 
@@ -790,7 +879,7 @@ namespace EldenRingCSVHelper
 
                             new LotItem(LotItem.Category.Accessory, "Primal Glintstone Blade").addKW("magic"), //MtGiants, Stargazer ruins, 
                             new LotItem(LotItem.Category.Accessory, "Moon of Nokstella").addKW("magic").addKW("nokstella"), //Nokstella giant throne chest
-                            new LotItem(LotItem.Category.Accessory, "Old Lords Talisman").addKW("dragon").addKW("farum azula"), //Farum Azula
+                            new LotItem(LotItem.Category.Accessory, "Old Lord's Talisman").addKW("dragon").addKW("farum azula"), //Farum Azula
                             new LotItem(LotItem.Category.Accessory, "Radagon Icon").addKW("radagon"), //Raya Lucaria
                             new LotItem(LotItem.Category.Accessory, "Roar Medallion").addKW("troll"), //Limgrave Tunnels Troll boss
                             //new LotItem(LotItem.Category.Accessory, "Companion Jar"), //Jar Bairn questline
@@ -843,7 +932,7 @@ namespace EldenRingCSVHelper
                             //magic new LotItem(LotItem.Category.Accessory, "Cerulean Seed Talisman").addKW("magic").addKW("erdtree"), //Carian Study hall
                             new LotItem(LotItem.Category.Accessory, "Arsenal Charm +1"), //cave by falling star beast
                             new LotItem(LotItem.Category.Accessory, "Blessed Dew Talisman").addKW("erdtree"),    //tower of return teleport
-                            new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor"),
+                            new LotItem(LotItem.Category.Accessory, "Erdtree's Favor"),//fringe folk ruins
 
                             new LotItem(LotItem.Category.Accessory, "Dragoncrest Shield Talisman +1").addKW("dragon"), //Sainted Hero's grave imp seal
                             //magic new LotItem(LotItem.Category.Accessory, "Spelldrake Talisman +1").addKW("dragon"), //Sellia secret chest
@@ -887,7 +976,7 @@ namespace EldenRingCSVHelper
                             //new LotItem(LotItem.Category.Accessory, "Cerulean Amber Medallion +2").addKW("erdtree", 25), //Moonlight Alter Ruins
                             new LotItem(LotItem.Category.Accessory, "Viridian Amber Medallion +2").addKW("erdtree", 25), //Haligtree, room with mushroom people 
                             //new LotItem(LotItem.Category.Accessory, "Great-Jar's Arsenal").addKW("great jar",200),//Cealid Arena reward
-                            new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor +1"),//
+                            new LotItem(LotItem.Category.Accessory, "Erdtree's Favor +1"),//
 
                             new LotItem(LotItem.Category.Accessory, "Dragoncrest Shield Talisman +2").addKW("dragon"), //Farum Azula
                             new LotItem(LotItem.Category.Accessory, "Spelldrake Talisman +2").addKW("dragon"), //Hidden Path to haligtree
@@ -906,8 +995,6 @@ namespace EldenRingCSVHelper
                             
                             //blood new LotItem(LotItem.Category.Accessory, "Lord of Blood's Exultation").addKW("mogh"), //Esgar priest of blood droop
                         };
-
-
                         LotItem[] talisman4 = new LotItem[]
                         {
                             //new LotItem(LotItem.Category.Accessory, "Ertdtree's Favor +2").addKW("erdtree"), //Ashen Capital
@@ -925,9 +1012,13 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Weapon, 14110000), //Sacrificial Axe
                             new LotItem(LotItem.Category.Weapon, 31090000), //Twinbird Kite Shield
                             new LotItem(LotItem.Category.Accessory, 4080), //Blue-Feathered Branchsword
-                            new LotItem(LotItem.Category.Accessory, 8971), //Red-Feathered Branchsword
+                            new LotItem(LotItem.Category.Accessory, 2040), //Red-Feathered Branchsword
                         };
-
+                        LotItem[] bloodhoundItems = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 8030000), //Bloodhound's Fang
+                            new LotItem(LotItem.Category.Weapon, 22020000), //Bloodhound Claws
+                        };
+                        //bloodhound step to some bloodhounds
                         {
                             var bloodhoundStepIds = new int[]
                             {
@@ -937,13 +1028,18 @@ namespace EldenRingCSVHelper
                               //-429000804,   //Gelmir hero cave, Armor Set Drop
                               //=429000701, //Mt.Gelmir, Claw drop
                             };
-                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.AshOfWar, 80100, 1, 1, false, -1), bloodhoundStepIds); //Bloodhound Step
-                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 10168, 1)); //1 somber ancient dragon smithing stone
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.AshOfWar, 80100, 1, 1000, false, -1), bloodhoundStepIds); //Bloodhound Step
+                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(LotItem.Category.Good, 10168, 1)); //1 somber ancient dragon smithing stone
+                        }
 
-                            LotItem[] bloodhoundItems = new LotItem[]{
-                                new LotItem(LotItem.Category.Weapon, 8030000), //Bloodhound's Fang
-                                new LotItem(LotItem.Category.Weapon, 22020000), //Bloodhound Claws
-                            };
+                        //Warrior Jar Shard rare drops from jars
+                        {
+                            var warrorJarItemLotIds = Util.makeNegative(((Lines)ItemLotParam_enemy.GetLinesOnCondition(new Condition.NameIs("[Living Pot - Large] Living Jar Shard").AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, 0).IsFalse))).GetIDs());
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Accessory, 1230, 1, 150, true, 400175), warrorJarItemLotIds); //Warrior Jar Shard
+                            ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE,false,400175), warrorJarItemLotIds); //Warrior Jar Shard
+                            warrorJarItemLotIds = Util.makeNegative(((Lines)ItemLotParam_enemy.GetLinesOnCondition(new Condition.NameIs("[Living Pot - Large] Living Jar Shard").AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, 0)))).GetIDs());
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Accessory, 1230, 1, 20, true, 400175), warrorJarItemLotIds); //Warrior Jar Shard
+                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(LotItem.Category.Good, 2916, 1)); //1 Hero Rune [3]
                         }
 
                         LotItem[] earlyBasicWeapons = new LotItem[]{
@@ -1073,11 +1169,11 @@ namespace EldenRingCSVHelper
 
                         foreach (LotItem[] lotItemGroup in lotItemGroupsToRandomize)
                         {
-                            Lines lines_enemy = EnemyDropLinesWorthCheckingForFlagIds.GetLinesOnCondition(new Condition.HasLotItem(lotItemGroup, 1, 1, false));
-                            Lines lines_map = ItemLotParam_map.GetLinesOnCondition(new Condition.HasLotItem(lotItemGroup, 1, 1, false));
+                            Lines lines_enemy = EnemyDropLinesWorthCheckingForFlagIds.GetLinesOnCondition(new LotItem.HasLotItem(lotItemGroup, 1, 1, false));
+                            Lines lines_map = ItemLotParam_map.GetLinesOnCondition(new LotItem.HasLotItem(lotItemGroup, 1, 1, false));
 
-                            lines_enemy.Operate(new SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
-                            lines_map.Operate(new SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
+                            lines_enemy.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
+                            lines_map.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
 
                             int[] lineIds_map = lines_map.GetIDs();
                             int[] lineIds_enemy = lines_enemy.GetIDs();
@@ -1098,17 +1194,19 @@ namespace EldenRingCSVHelper
 
                     LotItem.Default_Chance = LotItem.MAX_CHANCE;
 
-                    //Talisman Pouch
+                    if (ADD_ROUNDTABLE_ITEMS)
                     {
-                        ItemsToReplacementItemLotId.Add(new LotItem(1, 10040, 1, LotItem.MAX_CHANCE, false, 60520), new int[] { 10301, 1043520500, 1039500101 }); //Enia's 2 Greatrune Talisman Pouch, radahn, margit second encounter, godefroy
-                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 2990, 1)); //1 lands between runes.
-                    }
-
-
-                    //ROUNDTABLE BASIC WEAPONS
-                    {
-                        LotItem[] roundtableBasicWeapons = new LotItem[]
+                        //Talisman Pouch
                         {
+                            ItemsToReplacementItemLotId.Add(new LotItem(1, 10040, 1, LotItem.MAX_CHANCE, false, 60520), new int[] { 10301, 1043520500, 1039500101 }); //Enia's 2 Greatrune Talisman Pouch, radahn, margit second encounter, godefroy
+                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 2990, 1)); //1 lands between runes.
+                        }
+
+
+                        //ROUNDTABLE BASIC WEAPONS
+                        {
+                            LotItem[] roundtableBasicWeapons = new LotItem[]
+                            {
                             //twin fingermaiden
                             new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
                             new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
@@ -1116,148 +1214,150 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
                             new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
                             new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
-                        };
-                        int[] linesToReplaceWithBasicWeaponPickups = ItemLotParam_map.GetIDsWithCondition(isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon));
-                        foreach (LotItem lotItem in roundtableBasicWeapons)
-                        {
-                            ItemsToReplacementItemLotId.Add(lotItem, linesToReplaceWithBasicWeaponPickups);
+                            };
+                            int[] linesToReplaceWithBasicWeaponPickups = ItemLotParam_map.GetIDsWithCondition(isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon));
+                            foreach (LotItem lotItem in roundtableBasicWeapons)
+                            {
+                                ItemsToReplacementItemLotId.Add(lotItem, linesToReplaceWithBasicWeaponPickups);
+                            }
                         }
-                    }
 
 
-                    //brother corhyn spells
-                    {
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6420), sss1Ids); //Urgent Heal
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6421), sss1Ids); //Heal
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6440), neutralizingBolusesIds); //Cure Poison , Fort Faroth Neutralizing Boluses 1051390050, 
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6460), sss2Ids.Concat(sss3Ids).ToArray()); //Magic Fortification
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6450), sss2Ids); //Flame Fortification
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6400), sss4Ids); //Rejection
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6000), sss3Ids2.Concat(sss2Ids2).Concat(new int[] { 1037540050 }).ToArray()); //Catch Flame, Missionary's Cookbook [3] 1046400030, Mt.Gelmir burned minor erdtree x5 Golden Arrow 
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6010), sss3Ids3.Concat(sss2Ids3).Concat(x8smolderingButterflyIds).ToArray()); //Flame Sling, Nomadic Warrior's Cookbook [14] 1046400050, cealid entrance overlook shed Golden Rune [3] 1046400020
-                    }
-
-                    //Finger Seal & Glintstone Staff
-                    {
-                        //x3 Smithing Stone [1] lines
-                        int[] is3xSS1LineIds =
-                            ItemLotParam_map.GetIDsWithCondition(new Condition.FieldIs(LotItem.categoryFIs[0], "1")
-                            .AND(new Condition.FieldIs(LotItem.amountFIs[0], "3"))
-                            .AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 10100, 10101, true)));
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 34000000), is3xSS1LineIds); //Finger Seal
-                        
-                        Lines glintStoneStaffDropLines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasLotItem(new LotItem(LotItem.Category.Weapon, 33000000), 2));
-                        glintStoneStaffDropLines.Operate(new SetLotItem(LotItem.newEmpty(),2));//remove second lot
-                        //var v1 = glintStoneStaffDropLines.lines.Count;
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 33000000, 1, 1000), is3xSS1LineIds.Concat(Util.makeNegative(glintStoneStaffDropLines.GetIDs())).ToArray()); //Glintstone Staff. lower chance than finger seal
-
-                    }
-
-                    //Other roundtable spells
-                    {
-                        //altus
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6422), sss5Ids.Concat(sss6Ids).ToArray()); //Great Heal
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6470), sss5Ids.Concat(sss6Ids).ToArray()); //Lightning Fortification
-                                                                                                                                      //goldmask
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6700), new int[] { 15000270 }); //Discus of Light, haligtree in front of miquella statue and misbegotten statue Ancient Dragon Smithing Stone
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6740), new int[] { 1040510400 }); //Immutable Shield, stormcaller church sacred tear
-
-
-                        //D Hunter of the Dead
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6750), new int[] { 1043350100 }); //Litany of Proper Death, church of pilgramige sacred tear (cant get id)
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6770), new int[] { 1036490000 }); //Order's Blade,  bellum church sacred tear
-
-                        //Gideon Ofnir
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6260), new int[] { 11050010 }); //Black Flame's Protection
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6760), new int[] { 11050030 }); //Law of Causality
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6490), new int[] { 11050050 }); //Lord's Divine Fortification
-
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 8859), new int[] { 10000960 }); //Assassin's Prayerbook,  stormveil picked turtle neck
-                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 190, 3));
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 43110000), new int[] { 11000126 }); //Crepus's black-key crossbow,  added to black key bolt in fortified manor
-                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(ItemLotParam_map.GetLineWithId(11000125), 1, true)); //Black-Key Arrows
-                    }
-
-                    //LONGBOW
-                    {
-                        LotItem lotItem = new LotItem(LotItem.Category.Weapon, 41000000); //Longbow
-                        LotItem arrowLotItem = new LotItem(LotItem.Category.Weapon, 50000000, 10); //Arrow
-                        LotItem fireArrowLotItem = new LotItem(LotItem.Category.Weapon, 50010000); //Fire Arrow
-                        Condition isAnArrowCond = new Condition.Either(new Condition.HasLotItem(arrowLotItem, 1), new Condition.HasLotItem(fireArrowLotItem, 1));
-                        Condition isABowTalismanCond =
-                            new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Accessory.ToString()).AND(
-                            new Condition.HasInName("Arrow's Reach Talisman")
-                            .OR(new Condition.HasInName("Arrow's Sting Talisman"))
-                            );
-                        int[] linesToAddToIds = ItemLotParam_map.GetIDsWithCondition(
-                            isABowTalismanCond
-                            .OR(isAnArrowCond));
-                        for (int i = 0; i < linesToAddToIds.Length; i++)
+                        //brother corhyn spells
                         {
-                            linesToAddToIds[i]++; //doesnt replace original drop, bow is added to arrow drops
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6420), sss1Ids); //Urgent Heal
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6421), sss1Ids); //Heal
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6440), neutralizingBolusesIds); //Cure Poison , Fort Faroth Neutralizing Boluses 1051390050, 
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6460), sss2Ids.Concat(sss3Ids).ToArray()); //Magic Fortification
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6450), sss2Ids); //Flame Fortification
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6400), sss4Ids); //Rejection
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6000), sss3Ids2.Concat(sss2Ids2).Concat(new int[] { 1037540050 }).ToArray()); //Catch Flame, Missionary's Cookbook [3] 1046400030, Mt.Gelmir burned minor erdtree x5 Golden Arrow 
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6010), sss3Ids3.Concat(sss2Ids3).Concat(x8smolderingButterflyIds).ToArray()); //Flame Sling, Nomadic Warrior's Cookbook [14] 1046400050, cealid entrance overlook shed Golden Rune [3] 1046400020
                         }
-                        ItemsToReplacementItemLotId.Add(lotItem, linesToAddToIds); //Assassin's Prayerbook,  stormveil picked turtle neck
-                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] { arrowLotItem });
-                        ConditionForAdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), isABowTalismanCond);
-                    }
+
+                        //Finger Seal & Glintstone Staff
+                        {
+                            //x3 Smithing Stone [1] lines
+                            int[] is3xSS1LineIds =
+                                ItemLotParam_map.GetIDsWithCondition(new Condition.FieldIs(LotItem.categoryFIs[0], "1")
+                                .AND(new Condition.FieldIs(LotItem.amountFIs[0], "3"))
+                                .AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 10100, 10101, true)));
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 34000000), is3xSS1LineIds); //Finger Seal
+
+                            Lines glintStoneStaffDropLines = ItemLotParam_enemy.GetLinesOnCondition(new LotItem.HasLotItem(new LotItem(LotItem.Category.Weapon, 33000000), 2));
+                            glintStoneStaffDropLines.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 2));//remove second lot
+                                                                                                            //var v1 = glintStoneStaffDropLines.lines.Count;
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 33000000, 1, 1000), is3xSS1LineIds.Concat(Util.makeNegative(glintStoneStaffDropLines.GetIDs())).ToArray()); //Glintstone Staff. lower chance than finger seal
+
+                        }
+
+                        //Other roundtable spells
+                        {
+                            //altus
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6422), sss5Ids.Concat(sss6Ids).ToArray()); //Great Heal
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6470), sss5Ids.Concat(sss6Ids).ToArray()); //Lightning Fortification
+                                                                                                                                          //goldmask
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6700), new int[] { 15000270 }); //Discus of Light, haligtree in front of miquella statue and misbegotten statue Ancient Dragon Smithing Stone
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6740), new int[] { 1040510400 }); //Immutable Shield, stormcaller church sacred tear
 
 
-                    //KNIGHT ARMOR
-                    ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false), new int[] { 1045370010, 31010100 }); //Empty,  mistwood ruins chest, earthbore cave chest,
-                    AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                            //D Hunter of the Dead
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6750), new int[] { 1043350100 }); //Litany of Proper Death, church of pilgramige sacred tear (cant get id)
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6770), new int[] { 1036490000 }); //Order's Blade,  bellum church sacred tear
+
+                            //Gideon Ofnir
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6260), new int[] { 11050010 }); //Black Flame's Protection
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6760), new int[] { 11050030 }); //Law of Causality
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 6490), new int[] { 11050050 }); //Lord's Divine Fortification
+
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 8859), new int[] { 10000960 }); //Assassin's Prayerbook,  stormveil picked turtle neck
+                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 190, 3));
+                            ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 43110000), new int[] { 11000126 }); //Crepus's black-key crossbow,  added to black key bolt in fortified manor
+                            BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(ItemLotParam_map.GetLineWithId(11000125), 1, true)); //Black-Key Arrows
+                        }
+
+                        //LONGBOW
+                        {
+                            LotItem lotItem = new LotItem(LotItem.Category.Weapon, 41000000); //Longbow
+                            LotItem arrowLotItem = new LotItem(LotItem.Category.Weapon, 50000000, 10); //Arrow
+                            LotItem fireArrowLotItem = new LotItem(LotItem.Category.Weapon, 50010000); //Fire Arrow
+                            Condition isAnArrowCond = new Condition.Either(new LotItem.HasLotItem(arrowLotItem, 1), new LotItem.HasLotItem(fireArrowLotItem, 1));
+                            Condition isABowTalismanCond =
+                                new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Accessory.ToString()).AND(
+                                new Condition.HasInName("Arrow's Reach Talisman")
+                                .OR(new Condition.HasInName("Arrow's Sting Talisman"))
+                                );
+                            int[] linesToAddToIds = ItemLotParam_map.GetIDsWithCondition(
+                                isABowTalismanCond
+                                .OR(isAnArrowCond));
+                            for (int i = 0; i < linesToAddToIds.Length; i++)
+                            {
+                                linesToAddToIds[i]++; //doesnt replace original drop, bow is added to arrow drops
+                            }
+                            ItemsToReplacementItemLotId.Add(lotItem, linesToAddToIds); //Assassin's Prayerbook,  stormveil picked turtle neck
+                            AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] { arrowLotItem });
+                            ConditionForAdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), isABowTalismanCond);
+                        }
+
+
+                        //KNIGHT ARMOR
+                        ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false), new int[] { 1045370010, 31010100 }); //Empty,  mistwood ruins chest, earthbore cave chest,
+                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
                         new LotItem(LotItem.Category.Armor, 1500000), //Knight Helm
                         new LotItem(LotItem.Category.Armor, 1500100), //Knight Armor
                         new LotItem(LotItem.Category.Armor, 1500200), //Knight Gauntlets
                         new LotItem(LotItem.Category.Armor, 1500300), //Knight Greaves
                     });
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 31330000), new int[] { 1045350000, 1042340020, 1046400040 }); //Heater Shield
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 31330000), new int[] { 1045350000, 1042340020, 1046400040 }); //Heater Shield
 
-                    //ROYAL REMAINS SET
-                    {
-                        ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400490), sss8Ids2); //Empty
-                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                        //ROYAL REMAINS SET
+                        {
+                            ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400490), sss8Ids2); //Empty
+                            AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
                         new LotItem(LotItem.Category.Armor, 690000),
                         new LotItem(LotItem.Category.Armor, 690100), //Royal Remains Set
                         new LotItem(LotItem.Category.Armor, 690200), //
                         new LotItem(LotItem.Category.Armor, 690300), //
                         });
-                    }
-                    //CLINGING BONE 
-                    //ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21110000, 1, 200), sss7ValidIds); //Clinging Bone
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21110000), sss8Ids2.Concat(sss7ValidIds).ToArray()); //Clinging Bone
+                        }
+                        //CLINGING BONE 
+                        //ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21110000, 1, 200), sss7ValidIds); //Clinging Bone
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21110000), sss8Ids2.Concat(sss7ValidIds).ToArray()); //Clinging Bone
 
-                    //ARSENAL CHARM
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Accessory, 1030), new int[] { 100612, 110601, 110611, 110622 }); //Arsenal Charm, Banished Knight's Halberd +8 - Spinning Strikes. 
-                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 10163));// Somber Smithing Stone [4]
+                        //ARSENAL CHARM
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Accessory, 1030), new int[] { 100612, 110601, 110611, 110622 }); //Arsenal Charm, Banished Knight's Halberd +8 - Spinning Strikes. 
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 10163));// Somber Smithing Stone [4]
 
-                    //TWINNED SET
-                    ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400349), new int[] { 13000200 }); //Empty , rejuvinating boluses in farum azula surounded by worm faces
-                    AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                        //TWINNED SET
+                        ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400349), new int[] { 13000200 }); //Empty , rejuvinating boluses in farum azula surounded by worm faces
+                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
                         new LotItem(LotItem.Category.Armor, 600000), //
                         new LotItem(LotItem.Category.Armor, 600100), //Twinned Set
                         new LotItem(LotItem.Category.Armor, 600200), //
                         new LotItem(LotItem.Category.Armor, 600300), //
                     });
-                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 100250, 10));
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 100250, 10));
 
-                    //Fevor's Cookbook [3]
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 9421), gr13_ow); //Fevors Cookbook [3],  found in open world golden rune [13]s
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 9421, 1, 150, true), gr5_ow); //Fevors Cookbook [3],  found in open world golden rune [5]s
-                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 1290, 3)); //x3 Starlight Shards
+                        //Fevor's Cookbook [3]
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 9421), gr13_ow); //Fevors Cookbook [3],  found in open world golden rune [13]s
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Good, 9421, 1, 150, true), gr5_ow); //Fevors Cookbook [3],  found in open world golden rune [5]s
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 1290, 3)); //x3 Starlight Shards
 
-                    //Cipher Pata
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21130000), sss6ValidIds); //Cipher Pata,  found along side two fingers heirloom, found in exchange for any golden rune [7]
-                    ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21130000, 1, 300, true), gr7); //Cipher Pata,  found along side two fingers heirloom, found in exchange for any golden rune [7]
-                    BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 190, 2)); //x2 Rune Arcs
+                        //Cipher Pata
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21130000), sss6ValidIds); //Cipher Pata,  found along side two fingers heirloom, found in exchange for any golden rune [7]
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 21130000, 1, 300, true), gr7); //Cipher Pata,  found along side two fingers heirloom, found in exchange for any golden rune [7]
+                        BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 190, 2)); //x2 Rune Arcs
 
-                    //1046370000, 1035450030, 1038430000, 1049560320 strips of white flesh x2 - x3
-                    //church of pilgramige blood grease 1042340000
-                    //Missionary's Cookbook [3] 1046400050, Nomadic Warrior's Cookbook [14] 1046400030
+                        //1046370000, 1035450030, 1038430000, 1049560320 strips of white flesh x2 - x3
+                        //church of pilgramige blood grease 1042340000
+                        //Missionary's Cookbook [3] 1046400050, Nomadic Warrior's Cookbook [14] 1046400030
 
-                    //used for heater shield
-                    //rot view balcony perserving bouluses 1046400040
-                    //weeping pennisula Golden Rune [2] 1042340020
-                    //mistwood shore Golden Rune [1] 1045350000
+                        //used for heater shield
+                        //rot view balcony perserving bouluses 1046400040
+                        //weeping pennisula Golden Rune [2] 1042340020
+                        //mistwood shore Golden Rune [1] 1045350000
+
+                    }
 
                     LotItem.Default_Chance = 1000;
 
@@ -1266,43 +1366,37 @@ namespace EldenRingCSVHelper
                     {
                         {
                             int currentGetItemFlagId = -1;
-                            if (lotItem.hasLotItem_getItemFlagIdFIs)
+                            if (lotItem.hasLotItem_getItemFlagIdFIs && lotItem.lotItem_getItemFlagId != -1)
+                                currentGetItemFlagId = lotItem.lotItem_getItemFlagId;
+                            Line l = null;
+                            var hasLotCond = new LotItem.HasLotItem(lotItem, 1);
+                            if (!lotItem.IsEmpty())
                             {
-                                if(lotItem.lotItem_getItemFlagId == -1)
-                                    currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RandomizedItem_getItemFlagIDFilter, usedGetItemFlagId);
-                                else
-                                    currentGetItemFlagId = lotItem.lotItem_getItemFlagId;
+                                l = ((Lines)ItemLotParam_map.GetLinesWithId(((Lines)ItemLotParam_map.vanillaParamFile.GetLinesOnCondition(hasLotCond)).GetIDs())).GetLineOnCondition(hasLotCond); //both vanilla and current lines have the lot
+                                if (l == null)
+                                    l = EnemyDropLinesWorthCheckingForFlagIds.GetLineOnCondition(new LotItem.HasLotItem(lotItem, 1));
                             }
-                            else
+                            else if (!AdditionalItemLots.ContainsKey(lotItem))
+                                continue; //no point in continueing
+                            if (l != null)
                             {
-                                Line l = null;
-                                if (!lotItem.IsEmpty())
-                                {
-                                    var hasLotCond = new Condition.HasLotItem(lotItem, 1);
-                                    l = ((Lines)ItemLotParam_map.GetLinesWithId(((Lines)ItemLotParam_map.vanillaParamFile.GetLinesOnCondition(hasLotCond)).GetIDs())).GetLineOnCondition(hasLotCond); //both vanilla and current lines have the lot
-                                    if (l == null)
-                                        l = EnemyDropLinesWorthCheckingForFlagIds.GetLineOnCondition(new Condition.HasLotItem(lotItem, 1));
-                                }
-                                else if (!AdditionalItemLots.ContainsKey(lotItem))
-                                    continue; //no point in continueing
-                                if (l != null)
-                                {
+                                if(currentGetItemFlagId == -1)
                                     currentGetItemFlagId = l.GetFieldAsInt(LotItem.getItemFlagIdFI);
-                                    if (BackupExistingItemLot.ContainsKey(lotItem) && l.file == ItemLotParam_map)
-                                    {
-                                        var backUpLI = BackupExistingItemLot[lotItem];
-                                        backUpLI.SetLotItemToLine(l, 2, 1, backUpLI.amount, false, currentGetItemFlagId);
-                                        int newGetItemFlagIdForOldLine = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
-                                        usedGetItemFlagId.Add(newGetItemFlagIdForOldLine);
+                                if (BackupExistingItemLot.ContainsKey(lotItem) && l.file == ItemLotParam_map)
+                                {
+                                    var backUpLI = BackupExistingItemLot[lotItem];
+                                    backUpLI.SetLotItemToLine(l, 2, 1, backUpLI.amount, false);
+                                    l.SetField(LotItem.lotItem_getItemFlagIdFIs[lotItem.GetLotItemIndex(l,false)-1], currentGetItemFlagId);
+                                    int newGetItemFlagIdForOldLine = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                    usedGetItemFlagId.Add(newGetItemFlagIdForOldLine);
 
-                                        //replaces all line with currentGetItemFlagId to the newGetItemFlagId
-                                        ItemLotParam_map.Operate(new SetFieldTo(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine), new Condition.FieldIs(LotItem.getItemFlagIdFI, currentGetItemFlagId), true);
-                                        //l.SetField(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine);
-                                    }
+                                    //replaces all line with currentGetItemFlagId to the newGetItemFlagId
+                                    ItemLotParam_map.Operate(new SetFieldTo(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine), new Condition.FieldIs(LotItem.getItemFlagIdFI, currentGetItemFlagId), true);
+                                    //l.SetField(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine);
                                 }
-                                else
-                                    currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                             }
+                            else if(currentGetItemFlagId == -1)
+                                currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                             usedGetItemFlagId.Add(currentGetItemFlagId);
                             lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
                         }
@@ -1366,9 +1460,9 @@ namespace EldenRingCSVHelper
                                 name);
                             ItemLotFile.OverrideOrAddLine(line);
                         }
-                        else if (new LotItem(line, 1).IsEmpty())
+                        else 
                         {
-                            lotIndex = 1;
+                            lotIndex = new LotItem(0, 0, 0, 0, false).GetLotItemIndex(line,true);
                         }
 
 
@@ -1385,7 +1479,7 @@ namespace EldenRingCSVHelper
                                 {
 
                                     Line newLine = baseLine.Copy().SetField(0, line.GetNextFreeId());
-                                    newLine.Operate(new SetLotItem(AdditionalItemLot, 1));
+                                    newLine.Operate(new LotItem.SetLotItem(AdditionalItemLot, 1));
                                     //Util.println(AdditionalItemLot.id);
                                     newLine.SetField(1, AdditionalItemLot.Name);
                                     newLine.SetField(getItemFlagIdFI, line.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
@@ -1394,13 +1488,6 @@ namespace EldenRingCSVHelper
                                 }
 
                             }
-                            if (!isNewLine)
-                                line.SetField(1, line.name + " & " + lotItem.Name);
-                           
-
-                            if (lotItem.chance == LotItem.MAX_CHANCE)
-                                line.SetField(LotItem.chanceFIs[0], 1); //set regular drop to 1
-
                             if (false)//testing
                             {
                                 var t = ItemLotFile.paramName;
@@ -1412,7 +1499,18 @@ namespace EldenRingCSVHelper
                                 var test = 429000700;
                                 if (line.id_int == test)
                                     Util.p();
+
                             }
+
+                            if (!isNewLine && !lotItem.IsEmpty())
+                                line.SetField(1, line.name + " & " + lotItem.Name);
+
+
+                            
+                            if (lotItem.chance == LotItem.MAX_CHANCE)
+                                line.SetField(LotItem.chanceFIs[0], 1); //set regular drop to 1
+
+
                             lotItem.SetLotItemToLine(line, lotIndex, lotItem.chance, lotItem.amount, false, lotItemToFlagIdDict[lotItem]);
                             lotIndex++;
                         }
@@ -1424,8 +1522,669 @@ namespace EldenRingCSVHelper
             }
 
         }
+        static void enemyDrops_IncreasedMaterialDrops(float DROPMULT = 1)
+        {
+            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy }))
+                return;
+            int good = LotItem.Category.Good;
 
-      
+
+            //More Drops
+            {
+                Dictionary<LotItem, int[]> lotItemToLineIDsDict = new Dictionary<LotItem, int[]>();
+
+                //starlight shard, nox, glintsone sorcerer
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                            new Condition.FloatFieldBetween(NpcParam.GetFieldIndex("ItemLotId_enemy"),-1,0,true).IsFalse.AND(
+                            new Condition.HasInName(new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden" })))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")))).GetNextFreeIds();
+
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards"), ids); 
+                }
+
+                //raw meat dumpling - misbegotten
+                {
+                    //keyword conditions , keywordStartsWith, keywordContains, keywordValueBetween
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(NpcParam.GetFieldIndex("ItemLotId_enemy"), -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName("Misbegotten")
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Castle Morne", "Village Windmill" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")))).GetNextFreeIds();
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling"), ids);
+                }
+                //raw meat dumpling - misbegotten
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesOnCondition(new Condition.NextLineIsFree().AND(new Condition.HasInName(
+                        new string[] { "[Living Pot -" })))).GetIDs(1);
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling"), ids);
+                }
+                //Large Glintstone Scrap - increased chance from sorcerer miner, greater amount dropped
+                //
+                //root resin - skeletons
+                //Golden rowa - lleyndel foot soldier, celebrant
+                //Rimmed row - snowfield troll
+                //Crystal Bud - cuckoo foot soldiers, albinauric crabs, crayfish (in luirnuia), miranda (magic varient)?, highwayman
+                //gold firefly bear, rune bear
+                //cavemoss demihumans (inside caves)
+
+                //throwing dart - imps that throw darts?
+                //cuckoo lintstone - cuckoo soldiers?
+                //glintstone scrap - miners?
+
+                //we will simply create a line with lot of the requested item, Increased Material Drops will st the lots to out prefrence.
+            }
+
+
+            //Increased Materal Drops
+            {
+                Condition isMaterial =
+                    new Condition.NameStartsWith("[").AND(
+                    new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[1], 15000, 25000))
+                    .OR(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 15000, 25000))));
+
+                var materialLines = ItemLotParam_enemy.GetLinesOnCondition(isMaterial);
+
+                LotItem[] materials_to_exclude = new LotItem[] {
+
+                };
+
+                const int defaultMax = 3;
+                const int chanceAdjPercent = 125;
+                //const int chanceAdjPercent_PerXamount = 50;
+                const int minChance = 0;
+
+                LotItem.Default_Chance = -1;
+
+                LotItem[] material_chancePercent_multipler = new LotItem[]
+                {
+
+                    new LotItem(good,"Four-Toed Fowl Foot",0, 125),
+                    new LotItem(good,"Trina's Lily",0,300),
+                    new LotItem(good,"Miquella's Lily",0,300),
+                    new LotItem(good,"Beast Liver",0,200),
+                    new LotItem(good,"Turtle Neck Meat",0,200),
+
+                    new LotItem(good,"Stormhawk Feather",0,200).addKW("[Warhawk]"),
+                    new LotItem(good,"Stormhawk Feather",0,250).addKW(""),
+
+                    new LotItem(good,"Flight Pinion",0,250).addKW("[Warhawk]"),
+
+                    new LotItem(good,"Land Octopus Ovary",0, 200),
+
+
+                    new LotItem(good,"Thin Beast Bones",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]"),
+                    new LotItem(good,"Thin Beast Bones",0,150),
+
+                    new LotItem(good,"Hefty Beast Bone",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]"),
+                    new LotItem(good,"Hefty Beast Bone",0,125).addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",0,150).addKW("Putrid Flesh]"),
+                    new LotItem(good,"Hefty Beast Bone",0,200),
+
+                    new LotItem(good,"Budding Horn",0,250),
+
+                    new LotItem(good,"Old Fang",0,200),
+
+                    new LotItem(good,"String",0,160).addKW("[Large Demi-Human]"),
+                };
+
+                LotItem[] materials_to_set_max = new LotItem[] {
+                    new LotItem(good,"Four-Toed Fowl Foot",2), //
+                    new LotItem(good,"Trina's Lily",1), //maintain rarity
+                    new LotItem(good,"Beast Liver",1),
+                    new LotItem(good,"Turtle Neck Meat",1),
+
+                    new LotItem(good,"Stormhawk Feather",5),
+                    new LotItem(good,"Flight Pinion",5).addKW("[Warhawk]"),
+
+                    new LotItem(good,"Land Octopus Ovary",2),  //only 2 overies in body
+                    new LotItem(good,"Budding Horn",1).addKW("Perfumer"),
+                    new LotItem(good,"Budding Horn",4).addKW("Ancestral Follower"),
+                    new LotItem(good,"Budding Horn",2),
+
+                    new LotItem(good,"Old Fang",3).addKW("Misbegotten]"),
+                    new LotItem(good,"Old Fang",2),
+
+                    new LotItem(good,"Hefty Beast Bone",3).addKW("[Giant Putrid Flesh]"),
+                    new LotItem(good,"Hefty Beast Bone",1).addKW("[Small Putrid Flesh]"),
+                };
+
+                LotItem[] setLots = new LotItem[]
+                {
+                    new LotItem(good,"String",1,50).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",2,100).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",3,75).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",4,25).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+
+                    new LotItem(good,"String",3,100).addKW("[Demi-Human Beastman]"),
+                    new LotItem(good,"String",4,200).addKW("[Demi-Human Beastman]"),
+                    new LotItem(good,"String",5,150).addKW("[Demi-Human Beastman]"),
+                    new LotItem(good,"String",6,50).addKW("[Demi-Human Beastman]"),
+
+
+                    new LotItem(good,"Thin Beast Bones",1,550).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+                    new LotItem(good,"Thin Beast Bones",2,150).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+                    new LotItem(good,"Thin Beast Bones",3,50).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+
+                    new LotItem(good,"Thin Beast Bones",1,20).addKW("").addKW("%"),
+                    new LotItem(good,"Thin Beast Bones",2,30).addKW("").addKW("%"),
+                    new LotItem(good,"Thin Beast Bones",3,40).addKW("").addKW("%"),
+                    new LotItem(good,"Thin Beast Bones",4,10).addKW("").addKW("%"),
+
+
+                    new LotItem(good,"Stormhawk Feather",1,30).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Stormhawk Feather",2,40).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Stormhawk Feather",3,20).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Stormhawk Feather",4,10).addKW("[Warhawk]").addKW("%"),
+
+                    new LotItem(good,"Flight Pinion",1,20).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Flight Pinion",2,30).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Flight Pinion",3,40).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Flight Pinion",4,10).addKW("[Warhawk]").addKW("%"),
+
+                    new LotItem(good,"Flight Pinion",1,36).addKW("").addKW("%"),
+                    new LotItem(good,"Flight Pinion",2,25).addKW("").addKW("%"),
+                    new LotItem(good,"Flight Pinion",3,10).addKW("").addKW("%"),
+                    new LotItem(good,"Flight Pinion",4,4).addKW("").addKW("%"),
+
+                    new LotItem(good,"Hefty Beast Bone",1,200).addKW("[Bear]"),
+                    new LotItem(good,"Hefty Beast Bone",2,350).addKW("[Bear]"),
+                    new LotItem(good,"Hefty Beast Bone",3,50).addKW("[Bear]"),
+
+                    new LotItem(good,"Hefty Beast Bone",1,200).addKW("[Boar]"),
+                    new LotItem(good,"Hefty Beast Bone",2,125).addKW("[Boar]"),
+                    new LotItem(good,"Hefty Beast Bone",3,25).addKW("[Boar]"),
+
+                    new LotItem(good,"Hefty Beast Bone",2,20).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",3,40).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",4,30).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",5,10).addKW("%").addKW("[Runebear]"),
+
+
+                    new LotItem(good,"Hefty Beast Bone",1,65).addKW("[Small Putrid Flesh]").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",2,35).addKW("[Small Putrid Flesh]").addKW("%"),
+
+
+                    new LotItem(good,"Hefty Beast Bone",1,20).addKW("[Giant Putrid Flesh]").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",2,40).addKW("[Giant Putrid Flesh]").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",3,30).addKW("[Giant Putrid Flesh]").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",4,10).addKW("[Giant Putrid Flesh]").addKW("%"),
+
+
+                    new LotItem(good,"Hefty Beast Bone",1,20).addKW("").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",2,30).addKW("").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",3,40).addKW("").addKW("%"),
+                    new LotItem(good,"Hefty Beast Bone",4,10).addKW("").addKW("%"),
+
+                    new LotItem(good,"Smoldering Butterfly",1,200).addKW("[Guilty]"),
+                    new LotItem(good,"Smoldering Butterfly",2,50).addKW("[Guilty]"),
+
+                    new LotItem(good,"Smoldering Butterfly",2,45).addKW("[Fire Monk]"),
+                    new LotItem(good,"Smoldering Butterfly",3,60).addKW("[Fire Monk]"),
+                    new LotItem(good,"Smoldering Butterfly",4,45).addKW("[Fire Monk]"),
+
+                    new LotItem(good,"Smoldering Butterfly",4,45).addKW("[Blackflame Monk]"),
+                    new LotItem(good,"Smoldering Butterfly",5,60).addKW("[Blackflame Monk]"),
+                    new LotItem(good,"Smoldering Butterfly",6,45).addKW("[Blackflame Monk]"),
+
+                };
+
+                foreach (Line curLine in materialLines)
+                {
+                    bool test = curLine.id == "410100001";
+                    string debugName = curLine._idName;
+
+                    int totalEmptyPercent = LotItem.GetEmptyChanceTotal(curLine);
+                    bool firstLotEmpty = totalEmptyPercent > 0;
+                    int totalItemPercent = LotItem.GetItemChanceTotal(curLine);
+                    int lotIndex = 1;
+                    if (test)
+                        Util.p();
+                    foreach (LotItem li in materials_to_exclude)
+                    {
+                        if (li.LineHasLotItem(curLine, false))
+                            continue;
+                    }
+                    float chanceMult = (float)chanceAdjPercent / 100;
+                    foreach (LotItem li in material_chancePercent_multipler)
+                    {
+                        if (!li.LineHasLotItem(curLine, false))
+                            continue;
+                        if (test)
+                            Util.p();
+                        if (li.keywords.Count == 0)
+                        {
+                            if (test)
+                                Util.p();
+                            chanceMult = (float)li.chance / 100;
+                            break;
+                        }
+                        else
+                        {
+                            bool doBreak = false;
+                            foreach (Keyword k in li.keywords)
+                            {
+                                if (curLine.name.Contains(k.keyword))
+                                {
+                                    chanceMult = (float)li.chance / 100;
+                                    doBreak = true;
+                                    break;
+                                }
+                            }
+                            if (doBreak)
+                                break;
+                        }
+                    }
+                    int maxAmount = defaultMax;
+                    foreach (LotItem li in materials_to_set_max)
+                    {
+                        if (!li.LineHasLotItem(curLine, false))
+                            continue;
+                        if (li.keywords.Count == 0)
+                        {
+                            maxAmount = li.amount;
+                            break;
+                        }
+                        else
+                        {
+                            bool doBreak = false;
+                            foreach (Keyword k in li.keywords)
+                            {
+                                if (curLine.name.Contains(k.keyword))
+                                {
+                                    maxAmount = li.amount;
+                                    doBreak = true;
+                                    break;
+                                }
+                            }
+                            if (doBreak)
+                                break;
+                        }
+                    }
+                    List<LotItem> lotItemsSelected = new List<LotItem>();
+                    {
+                        int state = 0;
+                        const int lookingForLotsState = 0;
+                        const int foundLotsGeneralState = 1;
+                        const int foundLotsSpecificState = 2;
+                        for (int i = 0; i < setLots.Length; i++)
+                        {
+                            LotItem li = setLots[i];
+                            if (test)
+                                Util.p();
+                            if (!li.LineHasLotItem(curLine, false))
+                            {
+                                if (state != lookingForLotsState)
+                                    break;
+                                continue;
+                            }
+                            if (state != foundLotsSpecificState && li.hasKeyword(""))
+                            {
+                                if (maxAmount < li.amount)
+                                    maxAmount = li.amount;
+                                state = foundLotsGeneralState;
+                                lotItemsSelected.Add(li.Copy());
+                                continue;
+                            }
+                            else if (state == foundLotsGeneralState)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                bool found = false;
+                                foreach (Keyword k in li.keywords)
+                                {
+                                    if (k.keyword == "" || k.keyword == "%")
+                                        continue;
+                                    if (curLine.name.Contains(k.keyword))
+                                    {
+                                        found = true;
+                                        if (maxAmount < li.amount)
+                                            maxAmount = li.amount;
+                                        state = foundLotsSpecificState;
+                                        lotItemsSelected.Add(li.Copy().addKW("!Specified!"));
+                                        break;
+                                    }
+                                }
+                                if (!found && state == foundLotsSpecificState)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (test)
+                        Util.p();
+                    LotItem baseLotItem = new LotItem(curLine, LotItem.GetFirstNonEmptyItemLotIndex(curLine), true);
+                    var baseLineAmount = baseLotItem.amount;
+                    int startingAmount = Math.Max(baseLineAmount, (maxAmount - defaultMax));
+                    maxAmount += Math.Max(0, baseLineAmount - 1);
+                    if (test)
+                        Util.p();
+                    if (lotItemsSelected.Count == 0)
+                    {
+                        lotItemsSelected = new LotItem[] {
+                        new LotItem(good, baseLotItem.id, startingAmount-2,7).addKW("%"),
+                        new LotItem(good, baseLotItem.id, startingAmount-1,18).addKW("%"),
+                        new LotItem(good, baseLotItem.id, startingAmount,41).addKW("%"),
+                        new LotItem(good, baseLotItem.id, startingAmount+1,26).addKW("%"),
+                        new LotItem(good, baseLotItem.id, startingAmount+2,12).addKW("%"),
+                    }.ToList();
+                    }
+                    else
+                    {
+                        int newTotalItemPercent = 0;
+                        totalEmptyPercent = 1000;
+                        for (int i = 0; i < lotItemsSelected.Count; i++)
+                        {
+                            if (lotItemsSelected[i].hasKeyword("!Specified!"))
+                                lotItemsSelected[i].amount = lotItemsSelected[i].amount;
+                            else
+                                lotItemsSelected[i].amount = startingAmount + (lotItemsSelected[i].amount - 1);
+                            int chance = lotItemsSelected[i].chance;
+                            if (lotItemsSelected[i].hasKeyword("%"))
+                            {
+                                chance = (int)Math.Round(((double)chance / 100f) * totalItemPercent);
+                            }
+
+                            newTotalItemPercent += chance;
+                            totalEmptyPercent -= chance;
+                        }
+                        totalItemPercent = newTotalItemPercent;
+                    }
+                    int lostPercent = 0;
+                    int chanceMultAddedChance = 0;
+                    for (int i = 0; i < lotItemsSelected.Count; i++)
+                    {
+                        var li = lotItemsSelected[i];
+
+                        int chance = li.chance;
+                        if (li.hasKeyword("%"))
+                        {
+                            chance = (int)Math.Round((double)(totalItemPercent * (float)li.chance / 100));
+                            chanceMultAddedChance += (int)(Math.Round((double)chance * chanceMult * DROPMULT)) - chance;
+                            if (test)
+                                Util.p();
+                            //li.chance = chance;
+                        }
+                        if (li.amount < 1 || li.amount > maxAmount || chance < minChance)
+                        {
+                            lostPercent += chance; //* Math.Max(1,li.amount);
+                            lotItemsSelected.Remove(li);
+                            if (test)
+                                Util.p();
+                            i--;
+                            continue;
+                        }
+
+                    }
+                    //float newChanceMult = (totalItemPercent / ((float)totalItemPercent - lostPercent));
+                    //if (test)
+                    //    Util.p();
+                    if (firstLotEmpty)
+                    {
+                        //int prevTotalPercent = (int)Math.Round((double)(totalItemPercent));
+                        //int afterTotalItemPercent = (int) Math.Round( ((double)totalItemPercent) * chanceMult);
+                        //int dif = afterTotalItemPercent - prevTotalPercent;
+                        int newEmptyPercent = totalEmptyPercent - chanceMultAddedChance;
+
+                        if (test)
+                            Util.p();
+                        //newEmptyPercent -= lostPercent;
+                        if (newEmptyPercent <= 0)
+                        {
+                            firstLotEmpty = false;
+                        }
+                        if (firstLotEmpty)
+                        {
+                            LotItem.newEmpty(newEmptyPercent).SetLotItemToLine(curLine, lotIndex);
+                            lotIndex++;
+                        }
+
+                    }
+
+                    foreach (var li in lotItemsSelected)
+                    {
+                        double chance = li.chance;
+                        if (li.hasKeyword("%"))
+                            chance = totalItemPercent * (double)(li.chance / (100f)) * chanceMult * DROPMULT;
+
+                        double lostPercentAdd = (li.chance / (totalItemPercent - lostPercent)) * lostPercent * chanceMult * DROPMULT;
+                        chance += lostPercentAdd;
+                        int ichance = (int)Math.Round(chance);
+                        if (ichance < 0)
+                            Util.p();
+                        li.chance = ichance;
+                        curLine.Operate(new LotItem.SetLotItem(li, lotIndex));
+                        if (firstLotEmpty)
+                            curLine.SetField(LotItem.affectByLuckFIs[lotIndex - 1], true);
+
+                        if (test)
+                            Util.p();
+                        lotIndex++;
+                        if (lotIndex > LotItem.MAX_LOT_INDEX)
+                            break;
+                    }
+                    for (; lotIndex <= LotItem.MAX_LOT_INDEX; lotIndex++)
+                    {
+                        LotItem.newEmpty().SetLotItemToLine(curLine, lotIndex);
+                    }
+                    //check set slots
+                    //check if lotitem applies to line  if not next.
+                    //manual check all kws to see if it contains the name
+                    //use kw "" as a sign to use percentages not numbers.
+                }
+                LotItem.Default_Chance = 1000;
+            }
+
+
+            /*ItemLotParam_enemy.PrintCompareLineChanges();
+            var ml = ItemLotParam_enemy.numberOfModifiedOrAddedLines;
+            RunSettings.PrintFile_VerifyFieldCounts = true;
+            Util.println(ItemLotParam_enemy.VerifyFieldCounts());*/
+
+        }
+        static void enemyDrops_OneTimeEquipmentDrops()
+        {
+
+            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy }))
+                return;
+
+            var usedGetItemFlagId = FlagIds.usedGetItemFlagId;
+
+            const float OneTimeWeaponAndArmorDrops_WeaponDropChanceMult = 1.6f;
+            const float OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult = 0.4f;
+            const float OneTimeWeaponAndArmorDrops_ArmorDropChanceMult = 2f;
+            const float OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult = 0.2f;
+
+            var OneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 9, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+
+            Dictionary<int, int> AssignedWeaponsFlagIdDict;
+            Dictionary<int, int> AssignedArmorsFlagIdDict;
+            AssignedWeaponsFlagIdDict = new Dictionary<int, int>();
+            AssignedArmorsFlagIdDict = new Dictionary<int, int>();
+
+            {
+                Lines oneTimeWeaponDropLines = ItemLotParam_enemy.GetLinesOnCondition(
+                    new Condition.FieldIs(LotItem.idFIs[0], LotItem.Category.Weapon.ToString())
+                    .AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, "0"))
+                    );
+                oneTimeWeaponDropLines.PrintIDAndNames(" - pre assigned - ");
+                foreach (Line line in oneTimeWeaponDropLines.lines)
+                {
+                    AssignedWeaponsFlagIdDict.Add(line.GetFieldAsInt(LotItem.idFIs[0]), line.GetFieldAsInt(LotItem.getItemFlagIdFI));
+                }
+
+                Lines oneTimeArmorDropLines = ItemLotParam_enemy.GetLinesOnCondition(
+                    new Condition.FieldIs(LotItem.idFIs[0], LotItem.Category.Armor.ToString())
+                    .AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, "0"))
+                    );
+                oneTimeArmorDropLines.PrintIDAndNames(" - pre assigned - ");
+                foreach (Line line in oneTimeArmorDropLines.lines)
+                {
+                    AssignedArmorsFlagIdDict.Add(line.GetFieldAsInt(LotItem.idFIs[0]), line.GetFieldAsInt(LotItem.getItemFlagIdFI));
+                }
+            }
+
+            var isArmorAdjustExceptionCond = new Condition.HasInName("Banished Knight");
+            var isNotArrowCond = new Condition.FloatFieldCompare(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), Condition.LESS_THAN, 50000000);
+            var isWeaponCond = new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemCategory02"), "2");
+            var isArmorCond = new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemCategory02"), "3");
+
+            var curLineHasOneItemCond = //naturally excludes any guarenteed drops (1000 chance_ that are narmally at lot 01.
+                new Condition.AllOf(
+                new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId01"), "0"),
+                //new Condition.FloatFieldCompare(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), Condition.GREATER_THAN, 0),
+                new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId03"), "0"));
+
+
+            foreach (Line curLine in ItemLotParam_enemy.lines)
+            {
+
+                if (curLineHasOneItemCond.Pass(curLine))
+                {
+                    //
+                    int FlagId = -1;
+                    int OtherFlagId = -1;
+                    //OR
+                    bool createUniqueFlagId = false;
+                    bool createUniqueFlagIdForOther = false;
+                    //
+
+                    string addToName = "";
+                    float PercentMult = 1;
+
+                    int OtherToAddId = -1;
+                    float OtherToAddPercentMult = 1;
+                    int OtherCategory = 0;
+
+                    int _curLot2Id = int.Parse(curLine.GetField("lotItemId02"));
+
+                    bool isWeapon = isWeaponCond.Pass(curLine);
+                    bool isArmor = isArmorCond.Pass(curLine);
+                    bool isNotArrow = isNotArrowCond.Pass(curLine);
+
+                    if (isArmor)
+                    {
+                        isArmor = true;
+                        const bool ALLOW_REVERSE_ALTERED_DROP = false;
+                        OtherToAddId = _curLot2Id + 1000;
+                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithId(OtherToAddId);
+                        if (OtherToAddEquipLine != null)
+                        {
+                            if (isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
+                            {
+                                OtherToAddId = -1;
+                            }
+                        }
+                        else if (ALLOW_REVERSE_ALTERED_DROP)         // if we want to allow revers altering (this tends to always be problematic
+                        {
+                            OtherToAddId = _curLot2Id - 1000;
+                            OtherToAddEquipLine = EquipParamWeapon.GetLineWithId(OtherToAddId);
+                            if (OtherToAddEquipLine == null || isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
+                                OtherToAddId = -1;
+                        }
+                        else
+                            OtherToAddId = -1;
+
+                        if (AssignedArmorsFlagIdDict.ContainsKey(_curLot2Id))
+                            FlagId = AssignedArmorsFlagIdDict[_curLot2Id];
+                        else
+                            createUniqueFlagId = true;
+
+                        if (OtherToAddId != -1)
+                        {
+                            OtherCategory = 3;
+                            if (AssignedArmorsFlagIdDict.ContainsKey(OtherToAddId))   //fair to assume it exists
+                                OtherFlagId = AssignedArmorsFlagIdDict[OtherToAddId];
+                            else
+                                createUniqueFlagIdForOther = true;
+                            PercentMult = OneTimeWeaponAndArmorDrops_ArmorDropChanceMult;
+                            OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult;
+                            addToName = " & " + OtherToAddEquipLine.name;
+                        }
+                    }
+                    else if (isWeapon && isNotArrow)
+                    {
+                        isWeapon = true;
+                        PercentMult = OneTimeWeaponAndArmorDrops_WeaponDropChanceMult;
+                        OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult;
+                        if (AssignedWeaponsFlagIdDict.ContainsKey(_curLot2Id))
+                            FlagId = AssignedWeaponsFlagIdDict[_curLot2Id];
+                        else
+                            createUniqueFlagId = true;
+                        //createUniqueFlagIdForOther = true; //if we dont want to drop infinitly
+                        OtherCategory = 2;
+                        OtherToAddId = _curLot2Id;
+                    }
+                    int _curLot2Percent = int.Parse(curLine.GetField("lotItemBasePoint02"));
+                    if (OtherToAddId != -1)
+                    {
+                        curLine.SetField("lotItemId03", OtherToAddId);
+                        curLine.SetField("lotItemNum03", 1);
+                        curLine.SetField("enableLuck03", 1);
+                        curLine.SetField("lotItemCategory03", OtherCategory);
+                        int OtherPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * OtherToAddPercentMult));
+                        curLine.SetField("lotItemBasePoint03", Math.Min(34463, OtherPercent));
+                        int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
+                        curLine.SetField("lotItemBasePoint01", Math.Max(1, Math.Min(34463, _curLot1Percent - OtherPercent)));
+                    }
+                    curLine.SetField(1, curLine.name + addToName);
+                    if (PercentMult != -1)
+                    {
+                        int NewPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * PercentMult));
+                        int addedAmount = NewPercent - _curLot2Percent;
+                        curLine.SetField("lotItemBasePoint02", Math.Min(34463, NewPercent));
+                        int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
+                        curLine.SetField("lotItemBasePoint01", Math.Min(34463, Math.Max(1, _curLot1Percent - addedAmount)));
+                    }
+
+
+                    if (FlagId != -1)
+                    {
+                        if (OtherToAddId == -1)
+                            curLine.SetField("getItemFlagId", FlagId);
+                        else
+                            curLine.SetField("getItemFlagId02", FlagId);
+                    }
+                    else if (createUniqueFlagId)
+                    {
+                        int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
+                        usedGetItemFlagId.Add(currentGetItemFlagId);
+
+                        if (isArmor)
+                            AssignedArmorsFlagIdDict.Add(_curLot2Id, currentGetItemFlagId);
+                        else if (isWeapon)
+                            AssignedWeaponsFlagIdDict.Add(_curLot2Id, currentGetItemFlagId);
+
+                        if (OtherToAddId == -1)
+                        {
+                            curLine.SetField("getItemFlagId", currentGetItemFlagId);
+                            //line.SetField("canExecByFriendlyGhost", "0");
+                        }
+                        else
+                            curLine.SetField("getItemFlagId02", currentGetItemFlagId);
+                    }
+                    if (OtherFlagId != -1)
+                        curLine.SetField("getItemFlagId02", OtherFlagId);
+                    else if (createUniqueFlagIdForOther)
+                    {
+                        int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
+                        usedGetItemFlagId.Add(currentGetItemFlagId);
+                        if (isArmor)
+                            AssignedArmorsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
+                        else if (isWeapon)
+                            AssignedWeaponsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
+                        curLine.SetField("getItemFlagId03", currentGetItemFlagId);
+                    }
+                }
+            }
+
+        }
+
+
 
         static void limitWarpPoints()
         {
@@ -1519,7 +2278,7 @@ namespace EldenRingCSVHelper
 
         }
 
-        static void giveEnemieSmithingStoneDrops(bool RUNES = false, bool STONES = true, float DROPMULT = 1, bool OneTimeWeaponAndArmorDrops = false, float MATDROPMULT = 1)
+        static void enemyDrops_MoreSmithingStoneDrops(bool RUNES = false, bool STONES = true, float DROPMULT = 1)
         {
 
             if (!IsRunningParamFile(new ParamFile[]{ ItemLotParam_enemy, NpcParam, ItemLotParam_map}))
@@ -1527,1226 +2286,25 @@ namespace EldenRingCSVHelper
 
             Lines StoneLines = new Lines(ItemLotParam_enemy);
 
-            const float OneTimeWeaponAndArmorDrops_WeaponDropChanceMult = 1.6f;
-            const float OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult = 0.4f;
-            const float OneTimeWeaponAndArmorDrops_ArmorDropChanceMult = 2f;
-            const float OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult = 0.2f;
+
+            ItemLotParam_enemy.GetLineWithId(429000000).addKW("!ADD BUFFER LINE!1"); //compatability plead
+            ItemLotParam_map.GetLineWithId(20370).addKW("!ADD BUFFER LINE!"); //compatability plead
 
             const int maxLotIndex = 8;
 
 
-
-            Dictionary<int, float> npcsDocDifficultyDict = new Dictionary<int, float>();
-            Dictionary<int, int> npcsIdToSpLevelsDict= new Dictionary<int, int>();
-            //misbegotten drop too much.
             //set npc Difficulty Dict using NPC Locations
             const float levelEstimateIntreval = 0.5f;
 
+            var npcsDocDifficultyDict = NpcData.NpcsDocDifficultyDict;
+            var npcsIdToSpLevelsDict = NpcData.NpcsIdToSpLevelsDict;
+            var spLevelToDifficultyDict = NpcData.SpLevelToDifficultyDict;
 
+            var BossOrMiniBossIds = NpcData.BossOrMiniBossIds;
+            var BossOrMiniBossToItemLotMapDict = NpcData.BossOrMiniBossToItemLotMapDict;
+            var BossOrMiniBossToItemLotMapDict2 = NpcData.BossOrMiniBossToItemLotMapDict2;
 
-            List<int> BossOrMiniBossIds = new List<int>();
-            BossOrMiniBossIds = new int[]
-            {
-20300024,// Rennala, Queen of the Full Moon
-20310024,// Rennala, Queen of the Full Moon
-21000820,// Black Knife Assassin (Boss)
-21000830,// Black Knife Assassin (Boss)
-21000930,// Black Knife Assassin (Boss)
-21001010,// Black Knife Assassin (Limgrave Catacombs Boss)
-21002922,// Alecto, Black Knife Ringleader
-21100072,// Beast Clergyman (Farum Azula)
-21101072,// Maliketh (Farum Azula)
-21200056,// Malenia, Blade of Miquella
-21202056,// Malenia, Blade of Miquella
-21300014,// Margit, the Fell Omen
-21300534,// Morgott, the Omen King
-21403050,// Fell Twin
-21403150,// Fell Twin
-21900078,// Radagon of the Golden Order
-22000078,// Elden Beast
-25000010,// Crucible Knight (Limgrave Evergaol Boss)
-25000933,// Crucible Knight Ordovis
-25000941,// Crucible Knight (Redmane Boss)
-25001066,// Crucible Knight Siluria
-25001933,// Crucible Knight Ordovis (Auriza Boss)
-30500051,// Commander Niall
-30500140,// Commander O'Neil
-31000010,// Bell Bearing Hunter (Limgrave)
-31000020,// Bell Bearing Hunter
-31000033,// Bell Bearing Hunter
-31000042,// Bell Bearing Hunter
-31000931,// Elemer of the Briar (Shaded Castle)
-31500010,// Night's Cavalry (Limgrave Boss)
-31500020,// Night's Cavalry
-31500042,// Night's Cavalry
-31500050,// Night's Cavalry
-31500052,// Night's Cavalry (Glaive)
-31501012,// Night's Cavalry (Weeping Peninsula Boss)
-31501030,// Night's Cavalry
-31501040,// Night's Cavalry
-31501052,// Night's Cavalry (Flail)
-31811024,// Red Wolf of Radagon Sword (Archives)
-31811032,// Red Wolf of the Champion
-32500033,// Draconic Tree Sentinel (Capital Outskirts)
-32510010,// Tree Sentinel (Limgrave)
-32510030,// Tree Sentinel (Altus Plateua)
-32511030,// Tree Sentinel - Torch (Altus Plateua)
-32520054,// Loretta, Knight of the Haligtree
-32520921,// Royal Knight Loretta
-33000940,// Nox Swordstress (Boss)
-33001940,// Nox Monk (Boss)
-33500920,// Crystalian (Boss)
-33500930,// Crystalian (Ringblade)
-33500940,// Putrid Crystalian (Ringblade)
-33501920,// Crystalian (Spear)
-33501930,// Crystalian (Spear)
-33501940,// Putrid Crystalian (Spear)
-33502920,// Crystalian (Staff)
-33502940,// Putrid Crystalian (Staff)
-34000940,// Frenzied Grave Warden Duelist (Boss)
-34000952,// Putrid Grave Warden Duelist (Boss)
-34001110,// Grave Warden Duelist (Boss)
-34001133,// Grave Warden Duelist (Auriza Boss)
-34510912,// Scaly Misbegotten (Morne Tunnel Boss)
-34600913,// Leonine Misbegotten (Castle Morne Boss)
-34600930,// Misbegotten Warrior
-34600941,// Misbegotten Warrior
-34601952,// Misbegotten Crusader
-35500930,// Sanguine Noble (Boss)
-35600030,// Godskin Apostle
-35600042,// Godskin Apostle
-35600172,// Godskin Apostle {Godskin Duo)
-35600950,// Godskin Apostle
-35600972,// Godskin Apostle (Godskin Duo HP)
-35700038,// Godskin Noble (Volcano Manor)
-35700172,// Godskin Noble (Godskin Duo)
-35700950,// Godskin Noble
-36001920,// Onyx Lord (Boss)
-36001933,// Onyx Lord (Boss)
-36640012,// Cemetery Shade (Weeping Peninsula)
-36640040,// Cemetery Shade (Boss)
-36640920,// Cemetery Shade (Boss)
-37011930,// Perfumer Tricia
-37040940,// Battlemage Hugues (Boss)
-38000920,// Cleanrot Knight (Boss)
-38000940,// Cleanrot Knight (Boss)
-38001940,// Cleanrot Knight (Boss)
-38100932,// Kindred of Rot (Boss)
-38102932,// Kindred of Rot (Boss)
-39701910,// Beastman of Farum Azula (Limgrave Cave Boss)
-39701942,// Armored Beastman of Farum Azula (Boss)
-39702942,// Azula Beastman (Boss)
-40200920,// Royal Revenant (Boss)
-41200910,// Demi-Human Chief (Duo Boss)
-41300032,// Demi-Human Queen Maggie
-41301030,// Demi-Human Queen Gilika
-41301932,// Demi-Human Queen Margot
-41402920,// Spiritcaller Snail
-41402950,// Spiritcaller Snail
-42600110,// Erdtree Burial Watchdog (Limgrave Catacombs)
-42600512,// Erdtree Burial Watchdog (Impalers Catacombs)
-42600940,// Erdtree Burial Watchdog (Minor Erdtree Catacombs)
-42601920,// Erdtree Burial Watchdog (Cliffbottom Catacombs)
-42601940,// Erdtree Burial Watchdog (Minor Erdtree Catacombs)
-42602932,// Erdtree Burial Watchdog (Wyndham Catacombs)
-42900010,// Bloodhound Knight Darriwil
-42900920,// Bloodhound Knight (Boss)
-43400910,// Mad Pumpkin Head (Boss)
-43400940,// Mad Pumpkin Head (Flail)
-43401940,// Mad Pumpkin Head (Hammer)
-44700938,// Abductor Virgin (Boss)
-44701938,// Abductor Virgin (Boss)
-44800912,// Miranda Blossom
-44800930,// Miranda the Blighted Bloom
-45000010,// Flying Dragon Agheel (Limgrave)
-45000042,// Flying Dragon Greyll (Caelid)
-45010040,// Decaying Ekzykes (Caelid)
-45020920,// Glintstone Dragon Smarag
-45021920,// Glintstone Dragon Smarag
-45021922,// Glintstone Dragon Adula
-45030050,// Borealis the Freezing Fog (Mountaintops)
-45102030,// Ancient Dragon Lansseax (Boss)
-45110066,// Lichdragon Fortissax
-45200072,// Dragonlord Placidusax
-45800030,// Wormface (Boss)
-46010920,// Carian Knight Bols (Boss)
-46030910,// Stonedigger Troll (Boss)
-46030930,// Stonedigger Troll (Boss)
-46200062,// Astel, Stars of Darkness
-46200952,// Astel, Stars of Darkness (Snowfield Mine)
-46300912,// Runebear (Boss)
-46400007,// Ulcerated Tree Spirit (Boss)
-46400032,// Ulcerated Tree Spirit (Boss)
-46400942,// Ulcerated Tree Spirit (Boss)
-46400950,// Ulcerated Tree Spirit (Boss)
 
-46500262,// Dragonkin Soldier (Lake of Rot)
-46500265,// Dragonkin Soldier (Nokron)
-46500960,// Dragonkin Soldier of Nokstella Healthbar (Boss)
-46600910,// Guardian Golem (Limgrave Boss)
-46700065,// Ancestor Spirit (Regal)
-46700964,// Ancestor Spirit (Nonregal)
-46800032,// Full-Grown Fallingstar Beast (Volcano Top)
-46801930,// Fallingstar Beast (Altus Plateau)
-46801940,// Fallingstar Beast (Sellia Tunnel)
-46900008,// Grafted Scion (Boss)
-47100038,// God-Devouring Serpent
-47101038,// Rykard- Lord of Blasphemy
-47200070,// Godfrey- First Elden Lord
-47200134,// Godfrey- First Elden Lord (Phantom)
-47210070,// Hoarah Loux
-47300040,// Starscourge Radahn
-47500014,// Godrick the Grafted (Stormveil Castle)
-47500030,// Godefroy the Grafted (Altus)
-47600050,// Fire Giant
-47601050,// Fire Giant
-47700165,// Valiant Gargoyle (Twinblade)
-47700250,// Black Blade Kindred (Forbidden Lands)
-47701165,// Valiant Gargoyle
-47701242,// Black Blade Kindred
-48000068,// Mohg, Lord of Blood
-48001935,// Mohg- The Omen (Sewers)
-48100012,// Erdtree Avatar (Weeping Peninsula Boss)
-48100020,// Erdtree Avatar (North Liurnia)
-48100150,// Erdtree Avatar (Giants Mountaintops)
-48100920,// Erdtree Avatar (South Liurnia)
-48110040,// Putrid Erdtree Avatar
-48110042,// Putrid Erdtree Avatar
-48110052,// Putrid Erdtree Avatar (Snowfield)
-48200920,// Omenkiller (Boss)
-48200930,// Omenkiller (Boss Village)
-49100026,// Magma Wyrm Makar (Boss)
-49100032,// Magma Wyrm (Lava Lake Boss)
-49100940,// Magma Wyrm (Gael Tunnel Boss)
-49110052,// Great Wyrm Theodorix (Boss)
-49500010,// Tibia Mariner (Limgrave)
-49500020,// Tibia Mariner (Boss)
-49500032,// Tibia Mariner (Boss)
-49800010,// Death Bird (Limgrave)
-49800012,// Death Bird (Weeping Peninsula)
-49800020,// Death Bird (Liurnia)
-49800033,// Death Bird (Altus)
-49801020,// Death Rite Bird
-49801040,// Death Rite Bird
-49801050,// Death Rite Bird
-49801052,// Death Rite Bird
-71000012,// Ancient Hero of Zamor (Weeping Peninsula Boss)
-71000030,// Ancient Hero of Zamor (Boss)
-71000950,// Ancient Hero of Zamor (Boss)
-523040050,// Roundtable Knight Vyke
-523240070,// Sir Gideon Ofnir, the All-Knowing
-523250066,// Sorcerer Rogier
-523290066,// Lionel the Lionhearted
-523560020,// Adan, Thief of Fire
-523610066,// Fia's Champion 1
-523760930,// Necromancer Garris
-523860000,// Esgar, Priest of Blood
-526100965,// Mimic Tear
-
-//Exceptions not natrually included
-
-526100052,  //Stray Mimic Tear (Hidden Path to Haligtree) (rare exception that isnt technically considered boss)
-49100038,   //Magma Wyrm (Volcano Manor) (rare exception that isnt technically considered boss) //since its not considered a boss, and drops a dragon heart (like many other enemies) im not going to make it map based drop.
-            }.ToList();
-            if(BossOrMiniBossIds.Count == 0){   //only runs if list is empty, its not but if we want to upfdate the list, we leave it empty.
-                
-                Condition isBossExceptionCond;          //unused
-                {
-
-
-                    int[] BossExceptionIDs = new int[]  
-                    //list of ids of characters that technically pass our BossConditions and Appropriate Group Conditions but we dont want to be Bosses.
-                    {
-
-46500060,// Dragonkin Soldier (Ice Lightning) (Nokstella)
-46500160,// Dragonkin Soldier (Ice Lightning)
-43113906,// Soldier of Godrick (Boss)   //design choice. should not drop anything PERIOD.
-
-30106051,// Banished Knight (Niall Boss)
-30107051,// Banished Knight (Niall Boss)
-30008040,// Exile Soldier (Boss)
-30208040,// Large Exile Soldier (Boss)
-46209152,// Astel- Stars of Darkness (Snowfield Mine Clone)
-44910933,// Living Jar
-44810912,// Miranda Sprout (Boss)
-30800912,// Imp (Boss)
-41403930,// Snail (Sage's Cave)
-41002910,// Demihuman (Coastal Cave)
-41000910,// Demihuman (Coastal Cave)
-
-31600010,// Funeral Steed (Limgrave)
-31600012,// Funeral Steed (Weeping Peninsula)
-31600020,// Funeral Steed
-31600030,// Funeral Steed
-31600042,// Funeral Steed
-31600040,// Funeral Steed
-31600050,// Funeral Steed
-31600052,// Funeral Steed
-
-25006020,// Crucible Knight (Boss) (spawned by snail)
-25006120,// Crucible Knight (Boss) (spawned by snail)
-25007020,// Crucible Knight (Boss) (spawned by snail)
-25007120,// Crucible Knight (Boss) (spawned by snail)
-
-35100920,// Catacombs Skeleton (Scimitar) (Boss)    //Black Knife Catacombs
-35101920,// Catacombs Skeleton (Grossmesser) (Boss)
-35102920,// Catacombs Skeleton (Bow) (Boss)
-
-41650935,// Bloodbane Stray (Boss)
-
-                    };
-                    isBossExceptionCond = new Condition.FieldIs(0, Util.ToStrings(BossExceptionIDs));
-                }
-                //get group after npc id. create an exception that allows boses to sill be allowed if ni group/
-                var isBossCondition = new Condition.TRUE().IsFalse;
-                {
-                    var BossSoulDropCond = new Condition.FieldIs(NpcParam.GetFieldIndex("isSoulGetByBoss"), "1");
-                    var BossSpEffectCond = new Condition.FieldIs(NpcParam.GetFieldIndex("spEffectID31"), "4301");
-                    var scaledCond = new Condition.HasInName("(Unscaled)").IsFalse;
-                    isBossCondition = new Condition.AllOf(
-                        new Condition.Either(
-                            BossSoulDropCond
-                            , BossSpEffectCond
-                        ),
-                        scaledCond,
-                        isBossExceptionCond.IsFalse
-                    );
-                }
-                Line testline = NpcParam.GetLineWithId(21000830);
-                //Util.println(1 + " " + isBossCondition.Pass(testline).ToString());
-
-                Condition isDocumentedIDCond;
-                Condition isGroupAppropriateCond = new Condition.TRUE();
-                const bool EXCLUDE_IN_GROUP = false;
-                using (var sr = new StreamReader(@"C:\CODING\Souls Modding\ModdingTools\Docs\NPCLocations.txt"))
-                {
-                    List<int> isDocumentedIDs = new List<int>();
-                    int[] ignoreIsInGroupIDs = new int[]
-                    {
-                        //watchdog with imps protected
-                        //any bos with guards in the boss fight.
-
-                        //or weird exceptions
-                        31810020,// Red Wolf of Radagon
-                        30500051,// Commander Niall
-                        42600512,// Erdtree Burial Watchdog (Impalers Catacombs)
-                        42900010,// Bloodhound Knight Darriwil
-                        44800912,// Miranda Blossom
-                        45800030,// Wormface (Boss)
-                        41402920,// Spiritcaller Snail
-                        41402950,// Spiritcaller Snail
-                        46500060,// Dragonkin Soldier (Ice Lightning) (Nokstella)
-                        46500160,// Dragonkin Soldier (Ice Lightning)
-                        46500960,// Dragonkin Soldier of Nokstella Healthbar (Boss)
-                        523760930,// Necromancer Garris
-                        523860000,// Esgar, Priest of Blood
-                        21101072,//Malitketh (Farum Azula)
-
-                    };
-                    Dictionary<int, List<int>> idToGroups = new Dictionary<int, List<int>>();
-                    List<int> inAGroupIDs = new List<int>();
-                    string line;
-                    string npcRegexPattern = @"npc (\d+)";
-                    string groupRegexPattern = @"group (\d+(\,\d+)?)";
-                    //Util.println(1);
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        var match = System.Text.RegularExpressions.Regex.Match(line, npcRegexPattern);
-                        if (!match.Success)
-                        {
-                            //Util.println("line:\n" + line + "\nfailed to find npc id.");
-                            continue;
-                        }
-                        var npcID = int.Parse(match.Groups[1].Value);
-                        if (!isDocumentedIDs.Contains(npcID))
-                            isDocumentedIDs.Add(npcID);
-                        if (!EXCLUDE_IN_GROUP)
-                            continue;
-
-                        int groupAmount = 0;
-                        int[] groups = null;
-                        match = System.Text.RegularExpressions.Regex.Match(line, groupRegexPattern);
-                        if (match.Success)
-                        {
-                            groups = Util.ToInts(match.Groups[1].Value.Split(','));
-                            groupAmount = groups.Count();
-                        }
-                        //Util.println(1 + " " + npcID +" "+groupAmount);
-                        if (groupAmount == 0)
-                            continue;
-
-                        int prevGroupAmount = 0;
-                        if (idToGroups.ContainsKey(npcID))
-                        {
-                            prevGroupAmount = idToGroups[npcID].Count;
-                            if (groupAmount < prevGroupAmount)
-                                continue;
-                            idToGroups[npcID] = groups.ToList();
-                        }
-                        else
-                        {
-                            idToGroups.Add(npcID, groups.ToList());
-                        }
-                    }
-                    isDocumentedIDCond = new Condition.FieldIs(0, Util.ToStrings(isDocumentedIDs.ToArray()));
-                    if (EXCLUDE_IN_GROUP)
-                    {
-                        List<int> SharesIDsWithBosses = new List<int>();
-                        List<int> ShareAGroupIDs = new List<int>();
-                        //Util.println(2 + " " + isBossCondition.Pass(testline).ToString());
-                        foreach (int npcId in idToGroups.Keys)
-                        {
-                            //if (ShareAGroupIDs.Contains(npcId))
-                            //    continue;
-                            Line npcLine = NpcParam.GetLineWithId(npcId);
-                            bool isBoss = isBossCondition.Pass(npcLine);
-                            if (!isBoss)
-                                continue;
-                            bool foundGroup = false;
-                            var groups = idToGroups[npcId];
-                            foreach (int group in groups)
-                            {
-                                foreach (int _npcId in idToGroups.Keys)
-                                {
-                                    if (npcId == _npcId)
-                                        continue;
-                                    bool _isBoss = isBossCondition.Pass(NpcParam.GetLineWithId(_npcId));
-                                    var _groups = idToGroups[_npcId];
-                                    foreach (int _group in _groups)
-                                    {
-                                        if (_group == group)
-                                        {
-                                            ShareAGroupIDs.Add(npcId);
-                                            //.Add(_npcId);
-                                            if (_isBoss)
-                                                SharesIDsWithBosses.Add(npcId);
-                                            //if (isBoss)
-                                            //    SharesIDsWithBosses.Add(_npcId);
-                                            //foundGroup = true;
-                                            break;
-                                        }
-                                    }
-                                    if (foundGroup)
-                                        break;
-                                }
-                                if (foundGroup)
-                                    break;
-                            }
-                        }
-                        //Util.println(3 + " " + isBossCondition.Pass(testline).ToString());
-                        //Util.println(2);
-                        isGroupAppropriateCond = new Condition.FieldIs(0, Util.ToStrings(ignoreIsInGroupIDs.ToArray())).OR(
-                            new Condition.FieldIs(0, Util.ToStrings(SharesIDsWithBosses.ToArray())).IsFalse
-                            );
-                    }
-                }
-                var isGroupAppropriateBossCondition = new Condition.AllOf(isDocumentedIDCond, isBossCondition, isGroupAppropriateCond);
-                //Util.println(4.5 + " isBoss" + isBossCondition.Pass(testline).ToString() + " isDocu" + isDocumentedIDCond.Pass(testline).ToString() + " isGroup" + isGroupAppropriateCond.Pass(testline).ToString());     //WIERD THIS MAKES IT FALSE FOR SOME REASON
-
-
-                //-------Might be used later. These lines may be used as refrence to make duo bosses drop stuff via the itemLotParam_map drop refrence.
-                //var isNonGroupAppropriateBossCondition = new Condition.AllOf(isDocumentedIDCond,isBossCondition,isGroupAppropriateCond.IsFalse);
-                //var isNonGroupAppropriateBossCondition = isDocumentedIDCond.AND(isBossCondition.AND(isGroupAppropriateCond.IsFalse));
-                //Util.println(4.5 + " isBoss" + isBossCondition.Pass(testline).ToString() + " isDocu" + isDocumentedIDCond.Pass(testline).ToString() + " isGroup" + isGroupAppropriateCond.IsFalse.Pass(testline).ToString());     //WIERD THIS MAKES IT FALSE FOR SOME REASON
-
-
-                //Util.println(3);
-                //((Lines)NpcParam.GetLinesOnCondition(isInAGroupCondition)).PrintIDAndNames();
-                //return;
-
-                var lines =(Lines)NpcParam.GetLinesOnCondition(isGroupAppropriateBossCondition);
-                //-------print lines debug.
-                //lines.PrintIDAndNames();
-
-
-                //-------comparison debug.
-                //var lines2 = (Lines)NpcParam.GetLinesOnCondition(isNonGroupAppropriateBossCondition);
-                // LineFunctions.CompareLines(lines, lines2);
-
-
-                //-------boss condition weirdness check. conclusion: there is weirdness with making falses inside an AND for some reason. idc mocing on.
-                /*var isBossCondition1 = scaledCond.AND(
-                    new Condition.Either(
-                        BossSoulDropCond
-                        , BossSpEffectCond
-                    ));
-                foreach (Line l in NpcParam.lines)
-                {
-                    if (l == testline)
-                    {
-                        Util.println("GO HERE");
-                        Util.println(5.5 + " " + isBossCondition.Pass(testline).ToString());
-                    }
-                    Util.println( l._idName +" isGroupAppropriate" +
-                                isGroupAppropriateCond.Pass(l).ToString() + " & isDocu" +
-                                isDocumentedIDCond.Pass(l).ToString() + " & "+
-                                                                    "isBoss" +
-                                isBossCondition.Pass(l).ToString() + ">> ((bossSoul" +
-                                BossSoulDropCond.Pass(l).ToString() + " || bossSp" +
-                                BossSpEffectCond.Pass(l).ToString() + ") & scaled" +
-                                scaledCond.Pass(l).ToString() + ") " +
-                                                                      "isBossNEW"+
-                                isBossCondition1.Pass(l).ToString()
-                                );
-                }*/
-
-                
-                
-                BossOrMiniBossIds = lines.GetIntFields(0).ToList();
-
-                //-------if you want to print a bunch of lineIDs to out them into an Array..
-                LineFunctions.PrintLineIDsAsToPutInArray(lines);
-                Util.println("FOR EFFICIENCY copy and paste the following ids into the array which assigns to BossOrMiniBossIds ." +
-                    " Then rerun the program. You can also comment out the return after this debug if you dont care about ineffeicency.");
-                return;
-
-            }
-
-            var BossOrMiniBossToItemLotMapDict = new Dictionary<int, int>();
-            var BossOrMiniBossToItemLotMapDict2 = new Dictionary<int, int>();
-
-            //Preassign bosses to itemlotmap
-            {
-
-                BossOrMiniBossToItemLotMapDict.Add(21300534, 10040);    //Morgott
-                BossOrMiniBossToItemLotMapDict.Add(47210070, 10070);    //Hoarah Loux
-                BossOrMiniBossToItemLotMapDict.Add(21403050, 10740);    //Fell Twins
-                BossOrMiniBossToItemLotMapDict.Add(21403150, 10740);    //Fell Twins
-                BossOrMiniBossToItemLotMapDict.Add(71000030, 20080);    //Ancient Hero of Zamor (Sainted Hero's Grave)
-
-                BossOrMiniBossToItemLotMapDict.Add(31500010, 1043370400);    //Night's Cavalry (Repeating Thrust)
-                BossOrMiniBossToItemLotMapDict.Add(31500042, 1052410100);    //Night's Cavalry (BHS Drop)
-                BossOrMiniBossToItemLotMapDict.Add(31501040, 1049370100);    //Night's Cavalry (Poison Moth Flight Drop)
-                BossOrMiniBossToItemLotMapDict.Add(31500052, 1048550710);    //Night's Cavalry (Night's Cavalry Set + Ancient  Drop) Duo
-                BossOrMiniBossToItemLotMapDict.Add(31501052, 1048550710);    //Night's Cavalry (Night's Cavalry Set + Ancient  Drop) Duo
-                BossOrMiniBossToItemLotMapDict.Add(31500050, 1048510700);    //Night's Cavalry (Phantom Slash Drop)
-                BossOrMiniBossToItemLotMapDict.Add(31500020, 1036480400);    //Night's Cavalry (Giant's Hunt + Glaive Drop) //shares id
-                BossOrMiniBossToItemLotMapDict2.Add(31500020, 1039430400);    //Night's Cavalry (Ice Spear Drop)    //shares id.
-                BossOrMiniBossToItemLotMapDict.Add(31501030, 1039510200);    //Night's Cavalry (Shared Order Drop)
-                BossOrMiniBossToItemLotMapDict.Add(31501012, 1044320410);    //Night's Cavalry (Barricade Shield + Flail Drop)
-
-
-                BossOrMiniBossToItemLotMapDict.Add(25000010, 30120);    //crucible Knight (Stormhill) (Tail spell Drop)
-                BossOrMiniBossToItemLotMapDict.Add(25000014, 10001295);    //crucible Knight (Stormveil Castle) (Horn spell Drop)
-                BossOrMiniBossToItemLotMapDict.Add(25000165, 12020435);    //crucible Knight (Siofra Aquaduct) (Horn Shield Drop)
-                BossOrMiniBossToItemLotMapDict.Add(25009138, 16000950);    //tanith's crucible Knight (Volcano Manor) (Horn Shield Drop)
-
-                BossOrMiniBossToItemLotMapDict.Add(41300012, 1043340400);    //Demi-human Queen (Weeping peninsula) (Demi-human queen staff + Crystal Burst drop)
-                BossOrMiniBossToItemLotMapDict.Add(41301030, 1038510050);    //Demi-human Queen Gilika (Lux Ruins) (Ritual Sword Talisman staff drop)
-                BossOrMiniBossToItemLotMapDict.Add(41301932, 20400);    //Demi-human Queen Margot (Volcano Cave) (Jar Canon staff drop) // could be done auto
-                BossOrMiniBossToItemLotMapDict.Add(41300032, 30395);    //Demi-human Queen Maggie (Sorcerer Azur) (Memory Stone drop) // could be done auto
-                //btw Gilika drops nothing if your wondering.
-
-
-                BossOrMiniBossToItemLotMapDict.Add(42700014, 10001085);    //Elder Lion (Stormveil Castle) (SSS+Beastblood+OldFang drop)
-                BossOrMiniBossToItemLotMapDict.Add(42700040, 1047380700);    //Elder Lion (Fort Gael) (Lion's Claw AOW drop)    //shares id and dropId
-                BossOrMiniBossToItemLotMapDict2.Add(42700040, 1049370700);    //Elder Lion (Caelid) (SSS+Beastblood+OldFang drop)    //shares id and dropId
-                BossOrMiniBossToItemLotMapDict.Add(42700041, 1051360700);    //Elder Lion (Redmane Castle) (SSS+Beastblood+OldFang drop)    //shares id and dropId
-                BossOrMiniBossToItemLotMapDict2.Add(42700041, 1051360800);    //Elder Lion (Redmane Castle) (SSS+Beastblood+OldFang drop)    //shares id and dropId
-                BossOrMiniBossToItemLotMapDict.Add(42700034, 11000195);    //Elder Lion (Lleyndel) (SSS+Beastblood+OldFang drop)    //shares id and dropId
-                BossOrMiniBossToItemLotMapDict.Add(42700030, 11000185);    //Elder Lion (Lleyndel Outskirts) (SSS+Beastblood+OldFang drop)    //shares id and dropId
-                BossOrMiniBossToItemLotMapDict.Add(42701051, 1051570800);    //Elder Lion (Castle Sol) (SSS+Beastblood+OldFang drop)
-                BossOrMiniBossToItemLotMapDict2.Add(42701051, 1051570810);    //Elder Lion (Castle Sol) (SSS+Beastblood+OldFang drop)
-                //wiki has no information on other lion drops, assuming no drops for them.
-
-                BossOrMiniBossToItemLotMapDict.Add(32500072, 13002095);    //Draconic Tree Sentinel (Farum Azula) (Malformed Dragon Set Drop)
-                BossOrMiniBossToItemLotMapDict.Add(32500033, 30315);    //Draconic Tree Sentinel (Lleyndel Entrence) (Dragonclaw Shield + Dragon Greatclaw Drop)
-
-                
-                BossOrMiniBossToItemLotMapDict.Add(49100032, 16002000);    //Magma Wyrm (Volcano Manor) (Dragon Heart)
-                BossOrMiniBossToItemLotMapDict.Add(49100038, 30390);    //Magma Wyrm (Lava Lake Boss) (Dragon Heart) //no sure which is the "real" ItemLotMap lot so ill set it to both.
-                BossOrMiniBossToItemLotMapDict2.Add(49100038, 30400);    //Magma Wyrm (Lava Lake Boss) (Dragon Heart) //no sure which is the "real" ItemLotMap lot so ill set it to both.
-
-
-                BossOrMiniBossToItemLotMapDict.Add(32510030, 30335);    // Tree Sentinel (Altus Plateua) (Erdtree Shield Drop)
-                BossOrMiniBossToItemLotMapDict.Add(32511030, 30335);    // Tree Sentinel - Torch (Altus Plateua) (Erdtree Shield Srop)
-
-                BossOrMiniBossToItemLotMapDict.Add(33001940, 1049390800);   //Nox Monk (Boss) (Nox Flowing Sword Drop)
-                BossOrMiniBossToItemLotMapDict.Add(33000940, 1049390800);   //Nox Swordstress (Boss) (Nox Flowing Sword Drop)
-
-                BossOrMiniBossToItemLotMapDict.Add(31000010, 1042380410);    //Bell Bearing Hunter (Limgrave) Bone Peddelers Bell Bearing
-                BossOrMiniBossToItemLotMapDict.Add(31000020, 1037460400);    //Bell Bearing Hunter (Church of Vows) Meat Peddlers Bell Bearing
-                BossOrMiniBossToItemLotMapDict.Add(31000033, 1043530400);    //Bell Bearing Hunter (Hermit's Shack) Medicine Peddlers Bell Bearing
-                BossOrMiniBossToItemLotMapDict.Add(31000042, 1048410800);    //Bell Bearing Hunter (Hermit's Shack) Medicine Peddlers Bell Bearing
-
-
-                BossOrMiniBossToItemLotMapDict.Add(71000012, 1042330100);    //Ancient Hero of Zamor (Weeping Peninsula Boss) Radagon's Scarseal
-
-                BossOrMiniBossToItemLotMapDict.Add(49801052, 1048570700);    //Death Rite Bird (Ordina, Liturgical Town) Explosive Ghostflame
-                BossOrMiniBossToItemLotMapDict.Add(49801040, 1049370110);    //Death Rite Bird (Southern Aeonia Swamp Bank) Death's Poker
-                BossOrMiniBossToItemLotMapDict.Add(49801020, 1036450400);    //Death Rite Bird (Liurnia of the Lakes - Gate Town Northwest) Ancient Death Rancor
-                BossOrMiniBossToItemLotMapDict.Add(49800020, 1037420400);    //Death Bird (Liurnia of the Lakes - Scenic Isle, Laskyar Ruins) Red-Feathered Branchsword
-                BossOrMiniBossToItemLotMapDict.Add(49800033, 1044530300);    //Death Bird (Capital Outskirts - Minor Erdtree) Twinbird Kiteshield
-                BossOrMiniBossToItemLotMapDict.Add(49800012, 1044320400);    //Death Bird (Weeping Peninsula - Castle Morne Approach North) Sacrificial Axe
-                BossOrMiniBossToItemLotMapDict.Add(49800010, 1042380400);    //Death Bird (Stormhill - Warmaster's Shack, Stormgate) Blue-Feathered Branchsword
-
-                BossOrMiniBossToItemLotMapDict.Add(48100150, 30525);    //Erdtree Avatar (Cerulean Crystal Tear Drop)
-
-                BossOrMiniBossToItemLotMapDict.Add(47700033, 1042510900);    //Gargoyle (Lleyndel Outskirts) (Gargoyle's Great Axe Drop)
-                BossOrMiniBossToItemLotMapDict.Add(47700250, 30505);    //Gargoyle (Rold Lift) (G's Black Blades + G's Black Axe Drop)
-                BossOrMiniBossToItemLotMapDict.Add(47701242, 30425);    //Gargoyle (Bestial Sanctum) (G's Blackblade + G's Black Halberd Drop)
-                BossOrMiniBossToItemLotMapDict.Add(47702034, 11001187);    //Gargoyle (Lleyndel) (Gargoyle's Halberd Drop)
-                //BossOrMiniBossToItemLotMapDict.Add(47700070, );    //Gargoyle (Lleyndel Ashen Capital) // we accually want this one to drop since it respawns
-                BossOrMiniBossToItemLotMapDict.Add(47701165, 10100);    //Valiant Gargoyle Duo (Siofra River) (Gargoyle's Greatsword Drop)
-                BossOrMiniBossToItemLotMapDict.Add(47700165, 10100);    //Valiant Gargoyle Duo (Siofra River) (Gargoyle's Twinblade drop Drop)
-
-
-
-                //47701034 documented in lleyndel, but only ones compared to 47701034 which is documented 3 times in lleyndel. im assuming is unused due to it having a weirld assigned itemLot_enemy unlike 47701034
-                //47700034 is tagged fore lleyndel, undocumented
-                //47702066 has item lot, undocumented
-
-
-                BossOrMiniBossToItemLotMapDict.Add(31811032, 20090);    //Red Wolf of the Champion (Floh Drop)
-                BossOrMiniBossToItemLotMapDict.Add(25001066, 12030950);    //Crucible Knight Siluria (Siluria Tree Drop)
-
-                BossOrMiniBossToItemLotMapDict.Add(44800912, 20300);    //Miranda the Blighted Bloom
-                BossOrMiniBossToItemLotMapDict.Add(48200930, 20410);    //Omenkiller (Boss Village) - duo fight
-                BossOrMiniBossToItemLotMapDict.Add(44800930, 20410);    //Miranda the Blighted Bloom - duo fight
-
-                BossOrMiniBossToItemLotMapDict.Add(523290066, 10350);    //Lionel the Lionhearted - Fia's Champions (Fia's Mist)
-
-                BossOrMiniBossToItemLotMapDict.Add(47500030, 1039500100);    //Godefroy the Grafted (Godfrey Icon Drop)
-                BossOrMiniBossToItemLotMapDict.Add(47200134, 101100);    //Godfrey, First Elden Lord (Phantom) (Talisman Pouch Drop)
-
-                BossOrMiniBossToItemLotMapDict.Add(35600042, 34110400);    //Godskin Apostle (Divine Tower of Caelid) (Godskin Apostle Set Drop)
-                BossOrMiniBossToItemLotMapDict.Add(37040940, 1049390850);  //Battlemage Hughes (Battlemage Hughes Ashes Drop)(Evergoal) (weirdly, the name and doc location points to diffrent things, just trust)
-                BossOrMiniBossToItemLotMapDict.Add(40200920, 1034480100);  //Royal Revenant (Frozen Needle Drop)
-
-
-                BossOrMiniBossToItemLotMapDict.Add(35500930, 1040530010);  //Sanguine Noble (Bloody Helice Drop)
-
-            }
-
-            using (var sr = new StreamReader(@"C:\CODING\Souls Modding\ModdingTools\Docs\NPCLocations.txt"))
-            {
-                var ALLordered = new Dictionary<int, Dictionary<int, List<Line>>>();
-                var ItemLotMapToBossOrMiniBoss = new Dictionary<int, int>();
-                var ItemLotMapToHighestMatchScoreDict = new Dictionary<int, int>();
-                var ItemLotMapToCurIndexDict = new Dictionary<int, int>();
-                var ItemLotMapToAssignedDataDict = new Dictionary<int, string>();
-                var BossOrMiniBossToDataDict = new Dictionary<int, string>();
-
-                foreach (var key in BossOrMiniBossToItemLotMapDict.Keys)
-                {
-                    int mapId = BossOrMiniBossToItemLotMapDict[key];
-                    if (ItemLotMapToBossOrMiniBoss.ContainsKey(mapId))
-                        continue;
-                    ItemLotMapToBossOrMiniBoss.Add(mapId, key);
-                    ItemLotMapToCurIndexDict.Add(mapId, -100);
-                    ItemLotMapToHighestMatchScoreDict.Add(mapId, int.MaxValue);
-                    
-                }
-                //get all boss _map param lots related map param lots.
-                var BossItemLotMapLines = ItemLotParam_map.GetLinesOnCondition(
-                    //	ids 10000 - 30600
-                    new Condition.FloatBetween(new FloatFieldRef(0), 10000, 40000, true)
-                    // ids end with 0 (start of the lot)
-                    .AND(new Condition.Either(
-                        new Condition.FieldEndsWith(0, "0"),
-                        new Condition.FieldEndsWith(0, "5")
-                        ))
-                    .AND(new Condition.IDCheck(10050).IsFalse) //dont include* 10050;[Enia - 2 Great Runes] Talisman Pouch
-                    );
-
-
-
-                string line;
-                var vanillaLinesList = new List<Line>();
-                Dictionary<string[], float> difficultyOfLocationDict = new Dictionary<string[], float>();
-                List<string[]> allLocationGroups = new List<string[]>();
-
-                {
-                    string[] limgraveLocations =
-                         "Stormveil Castle Entrance\nLimgrave\nBridge of Sacrifice\nChapel of Anticipation\nChurch of Dragon Communion\nChurch of Elleh\nCoastal Cave\nDeathtouched Catacombs\nDivine Tower of Limgrave\nDragon-Burnt Ruins\nForlorn Hound Evergaol\nFort Haight\nFringefolk Hero's Grave\nGatefront Ruins\nGroveside Cave\nHighroad Cave\nLimgrave Colosseum\nLimgrave Tunnels\nMistwood\nMistwood Ruins\nMurkwater Catacombs\nMurkwater Cave\nSiofra River Well\nStarfall Crater\nStormfoot Catacombs\nStormgate\nStormhill\nStormhill Evergaol\nStormhill Shack\nStranded Graveyard\nSummonwater Village\nThird Church of Marika\nWarmaster's Shack"
-                         .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(limgraveLocations);
-                    difficultyOfLocationDict.Add(limgraveLocations, 1);
-
-                    string[] stormveilCastleLocations =
-                    {
-                    "Stormveil Castle",
-                    };
-                    allLocationGroups.Add(stormveilCastleLocations);
-                    difficultyOfLocationDict.Add(stormveilCastleLocations, 2);
-
-                    string[] castleMorneLocations =
-                    {
-                    "Castle Morne\nWeeping Peninsula - Castle Morne", //longer on purpose
-                    };
-                    allLocationGroups.Add(castleMorneLocations);
-                    difficultyOfLocationDict.Add(castleMorneLocations, 1.5f);
-
-
-                    string[] weepingPenninsulaLocation =
-                        "Weeping Peninsula\nAiling Village\nBridge of Sacrifice\nCallu Baptismal Church\nChurch of Pilgrimage\nDemi-Human Forest Ruins\nEarthbore Cave\nForest Lookout Tower\nFourth Church of Marika\nImpaler's Catacombs\nMinor Erdtree(Weeping Peninsula)\nMorne Tunnel\nOridys's Rise\nTombsward Catacombs\nTombsward Cave\nTombsward Ruins\nTower of Return\nWeeping Evergaol\nWitchbane Ruins"
-                          .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(weepingPenninsulaLocation);
-                    difficultyOfLocationDict.Add(weepingPenninsulaLocation, 1.3f);
-
-                    string[] luriniaOfTheLakesLocations =
-                    "(Liur\nSouthwest Liurnia\nWest Liurnia\nEast Liurnia\nAcademy Crystal Cave\nAcademy Gate Town\nAinsel River Well\nArtist's Shack (Liurnia)\nBlack Knife Catacombs\nBoil Prawn Shack\nCarian Study Hall\nChurch of Irith\nChurch of Vows\nCliffbottom Catacombs\nConverted Fringe Tower\nConverted Tower\nCuckoo's Evergaol\nDeep Ainsel Well\nDivine Tower of Liurnia\nJarburg\nKingsrealm Ruins\nLakeside Crystal Cave\nLaskyar Ruins\nLunar Estate Ruins\nMalefactor's Evergaol\nMinor Erdtree(Liurnia Northeast)\nMinor Erdtree(Liurnia Southwest)\nPurified Ruins\nAcademy of\nLucaria Crystal Tunnel\nRevenger's Shack\nRoad's End Catacombs\nRose Church\nSlumbering Wolf's Shack\nStillwater Cave\nTemple Quarter\nTestu's Rise\nThe Four Belfries\nVillage of the Albinaurics\nStormveil Castle Exit\nWest Albinauric Village"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(luriniaOfTheLakesLocations);
-                    difficultyOfLocationDict.Add(luriniaOfTheLakesLocations, 3);
-
-                    string[] cariaManorLocations =
-                        "Caria Manor\nBehind Caria Manor\nRanni's Rise\nRenna's Risen"
-                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(cariaManorLocations);
-                    difficultyOfLocationDict.Add(cariaManorLocations, 4);
-
-                    string[] extralevel4Locations =
-                    "Liurnia to Altus Plateau\nFrenzied Flame Village\nFrenzy-Flaming Tower\nSouthwest of Grand Lift of Dectus\nBellum Church\nBellum Highway\nRuin-Strewn Precipice\nChurch of Inhibition"
-                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(extralevel4Locations);
-                    difficultyOfLocationDict.Add(extralevel4Locations, 4);
-
-                    string[] moonlightAltarLocations =
-                    "Moonlight Altar\nWest of Deep Ainsel Well\nMoonlight Altar - Ringleader's Evergaol\nLunar Estate Ruins"
-                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(moonlightAltarLocations);
-                    difficultyOfLocationDict.Add(moonlightAltarLocations, 7.2f);
-
-
-                    /*string[] caelidLocations =
-                    "Caelid\nCaelem Ruins\nCaelid Catacombs\nCaelid Colosseum\nCaelid Waypoint Ruins\nCathedral of Dragon Communion\nChurch of the Plague\nDivine Tower of Caelid\nForsaken Ruins\nFort Gael\nGael Tunnel\nGaol Cave\nGowry's Shack\nMinor Erdtree (Caelid)\nMinor Erdtree Catacombs\nSellia Crystal Tunnel\nSellia Gateway\nSellia, Town of Sorcery\nShack of the Rotting\nSmoldering Church\nStreet of Sages Ruins\nSwamp Lookout Tower\nSwamp of Aeonia\nWailing Dunes\nWar-Dead Catacombs"
-
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(caelidLocations);
-                    difficultyOfLocationDict.Add(caelidLocations, 4);*/
-
-                    string[] caelidLvl5Locations =
-                    "Redmane Castle"
-                     .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(caelidLvl5Locations);
-                    difficultyOfLocationDict.Add(caelidLvl5Locations, 5);
-
-                    string[] dragonBarrowLocations =
-                        //"Greyoll's Dragonbarrow\nAbandoned Cave\nBestial Sanctum\nDragonbarrow Cave\nDivine Tower of Caelid\nDeep Siofra Well\nFort Faroth\nLenne's Rise\nMinor Erdtree (Dragonbarrow)\nSellia Evergaol\nSellia Hideaway"
-                        "Fort Faroth"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(dragonBarrowLocations);
-                    difficultyOfLocationDict.Add(dragonBarrowLocations, 7f);
-
-
-
-                    string[] altusLocations =
-                        "Altus Plateau\nAltus Tunnel\nDominula, Windmill Village\nEast Windmill Pasture\nAltus Plateau - East Windmill Village\nGolden Lineage Evergaol\nGrand Lift of Dectus\nLux Ruins\nMinor Erdtree (Altus Plateau)\nMirage Rise\nOld Altus Tunnel\nPerfumer's Grotto\nPerfumer's Ruins\nSage's Cave\nSainted Hero's Grave\nSecond Church of Marika\nStormcaller Church\nThe Shaded Castle\nUnsightly Catacombs\nVillage Windmill Pasture\nWest Windmill Pasture\nWoodfolk Ruins\nWritheblood Ruins\nWyndham Catacombs\nWyndham Ruins\nRoad of Iniquity Side Path\nAltus Plateau - Altus Plateau"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(altusLocations);
-                    difficultyOfLocationDict.Add(altusLocations, 4.7f);
-
-                    string[] mountGelmirLocations =
-                        "Gelmir\nCorpse - Stench Shack\nSeethewater Cave\nCraftsman's Shack\nFort Laiedd\nGelmir Hero's Grave\nHermit Village\nHermit's Shack\nMinor Erdtree (Mt. Gelmir)\nRoad of Iniquity\nVolcano Manor Entrance\nVolcano Cave Entrance\nAltus Plateau - West of Shaded Castle\nMt. Gelmir - Primeval Sorcerer Azur\nAbductor Virgins Exit"
-                          .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(mountGelmirLocations);
-                    difficultyOfLocationDict.Add(mountGelmirLocations, 4); //changed from 6
-
-                    string[] mountGelmirLvl5 =
-                        "Volcano Manor\nVolcano Cave"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(mountGelmirLvl5);
-                    difficultyOfLocationDict.Add(mountGelmirLvl5, 6);
-
-                    string[] CapitalOutskirtsLocations =    //5
-                        "Capital Outskirts\nAuriza Hero's Grave\nAuriza Side Tomb\nDivine Tower of East Altus\nDivine Tower of West Altus\nHermit Merchant's Shack\nMinor Erdtree (Capital Outskirts)\nMinor Erdtree Church\nSealed Tunnel"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(CapitalOutskirtsLocations);
-                    difficultyOfLocationDict.Add(CapitalOutskirtsLocations, 5);
-
-                    string[] UpperLleyndelLocations =
-                        "Royal Colosseum\nLeyndell, Royal Capital\nIsolated Divine Tower"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(UpperLleyndelLocations);
-                    difficultyOfLocationDict.Add(UpperLleyndelLocations, 6);
-
-                    string[] LowerLleyndelLocations =
-                        "Subterranean Shunning-Grounds\nLeyndell Catacombs"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(LowerLleyndelLocations);
-                    difficultyOfLocationDict.Add(LowerLleyndelLocations, 7);
-
-                    string[] deeprootDepthsLocations = {
-                    "Deeproot Depths"
-                    };
-                    allLocationGroups.Add(deeprootDepthsLocations);
-                    difficultyOfLocationDict.Add(deeprootDepthsLocations, 6f);
-
-                    /*string[] siofraRiverLocations = {
-                    "Siofra River",
-                    "Nokron",
-                    };
-                    allLocationGroups.Add(siofraRiverLocations);
-                    difficultyOfLocationDict.Add(siofraRiverLocations, 3);
-
-                    string[] AinselRiverLocations = {
-                    "Ainsel River"
-                    };
-                    allLocationGroups.Add(AinselRiverLocations);
-                    difficultyOfLocationDict.Add(AinselRiverLocations, 3);*/
-
-
-                    string[] MoghwynPalaceLocations = {
-                    "Mohgwyn Palace"
-                    };
-                    allLocationGroups.Add(MoghwynPalaceLocations);
-                    difficultyOfLocationDict.Add(MoghwynPalaceLocations, 8);
-
-                    string[] mountainTopsLocations =    //7
-                        "Mountaintops\nCastle Sol\nChurch of Repose\nFirst Church of Marika\nFlame Peak\nForbidden Lands\nForge of the Giants\nGrand Lift of Rold\nGiant-Conquering Hero's Grave\nGiants' Mountaintop Catacombs\nGuardians' Garrison\nHeretical Rise\nLord Contender's Evergaol\nMinor Erdtree (Mountaintops East)\nShack of the Lofty\nSpiritcaller Cave\nStargazers' Ruins\nZamor Ruins"
-                          .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(mountainTopsLocations);
-                    difficultyOfLocationDict.Add(mountainTopsLocations, 7);
-
-                    string[] farumAzulaLocations = //8
-                        "Crumbling Farum Azula"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(farumAzulaLocations);
-                    difficultyOfLocationDict.Add(farumAzulaLocations, 8);
-
-                    string[] pathToHaligTreeLocations =
-                        "Hidden Path to the Haligtree"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(pathToHaligTreeLocations);
-                    difficultyOfLocationDict.Add(pathToHaligTreeLocations, 7);
-
-                    string[] concentratedSnowfieldsLocations =
-                        "West of Castle Sol\nOrdina\nConsecrated Snowfield\nAlbinauric Rise\nApostate Derelict\nCave of the Forlorn\nConsecrated Snowfield Catacombs\nMinor Erdtree (Consecrated Snowfield)\nOrdina, Liturgical Town\nYelough Anix Ruins\nYelough Anix Tunnel"
-                        .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(concentratedSnowfieldsLocations);
-                    difficultyOfLocationDict.Add(concentratedSnowfieldsLocations, 7.3f);
-
-                    string[] haligtreeLocations =
-                        "Miquella's Haligtree"
-                         .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    allLocationGroups.Add(haligtreeLocations);
-                    difficultyOfLocationDict.Add(haligtreeLocations, 7.85f);
-
-
-                    string[] AshenCapitalLocations = {
-                    "Ashen Capital"
-                    };
-                    allLocationGroups.Add(AshenCapitalLocations);
-                    difficultyOfLocationDict.Add(AshenCapitalLocations, 8);
-                }   //all locations setting
-
-                while ((line = sr.ReadLine()) != null)
-                {
-                    string pattern = @"\((.*?)\)"; // Regular expression pattern to match text between parentheses
-                    Match match = Regex.Match(line, pattern);
-                    if (!match.Success)
-                    {
-                        //Util.println("line:\n" + line + "\nfailed to find location name.");
-                        continue;
-                    }
-                    var locationName = match.Groups[1].Value;
-
-                    match = Regex.Match(line.Remove(0,line.IndexOf(")")+1),pattern);    //gets second parrentheses that contains name.
-                    if (!match.Success)
-                    {
-                        //Util.println("line:\n" + line + "\nfailed to find npc name.");
-                        continue;
-                    }
-                    var npcname = match.Groups[1].Value;
-                    //rename to Leyndell Margit to Morgott
-
-                    pattern = @"npc (\d+)";
-                    match = System.Text.RegularExpressions.Regex.Match(line, pattern);
-                    if (!match.Success)
-                    {
-                        //Util.println("line:\n" + line + "\nfailed to find npc id.");
-                        continue;
-                    }
-
-                    var npcID = int.Parse(match.Groups[1].Value);
-
-                    float difficulty = -1;
-                    string selectedString = "";
-                    int selectedLength = 0;
-                    //allLocationGroups.Reverse(); //used to debug difficulty conflicts/changes/priority.
-                    foreach (string[] group in allLocationGroups)
-                    {
-                        foreach (string s in group)
-                        {
-
-                            if (s.Length > selectedLength && locationName.Contains(s))
-                            {
-                                float oldDif = difficulty;
-                                string oldSelectedString = selectedString;
-                                difficulty = difficultyOfLocationDict[group];
-                                //break;
-                                selectedString = s;
-                                selectedLength = s.Length;
-                                //if (oldDif != -1 && oldDif != difficulty) //debug difficulty conflicts / changes / priority.
-                                //    Util.println( Util.IndentedText(NpcParam.GetLineWithId(npcID)._idName, 50) + oldDif +" -> "+difficulty+ "   "+ oldSelectedString+" -> "+ selectedString);
-                            }
-
-                        }
-                    }
-
-
-                    //if (difficulty == -1)
-                    //continue;
-                    //Util.println("no difficulty group found for: "+ locationName + "  enemy name: "+ NpcParam.GetFieldWithLineID(1,npcID.ToString()));
-
-
-
-                    if (!npcsDocDifficultyDict.ContainsKey(npcID))
-                    {
-                        if (difficulty != -1)
-                            npcsDocDifficultyDict.Add(npcID, difficulty);
-
-                        //MAIN set bosses itemlotmap and data and stuff
-                        if (   BossOrMiniBossIds.Contains(npcID) && !BossOrMiniBossToDataDict.ContainsKey(npcID))
-                        {
-
-                            string data = "(" + locationName + ")" + " " + "(" + npcname + ")";
-                            BossOrMiniBossToDataDict.Add(npcID, data);
-
-                            if (BossOrMiniBossToItemLotMapDict.ContainsKey(npcID))
-                            {
-                                if (!ItemLotMapToAssignedDataDict.ContainsKey(BossOrMiniBossToItemLotMapDict[npcID]))
-                                ItemLotMapToAssignedDataDict.Add(BossOrMiniBossToItemLotMapDict[npcID], "(" + locationName + ")" + " " + "(" + npcname + ")");
-                                continue;
-                            }
-
-                            var importantWords = npcname.Split(LineFunctions.wordSplitters2, StringSplitOptions.RemoveEmptyEntries);
-                            string npcLineName = NpcParam.GetLineWithId(npcID).name;
-                            int npcLineNameEndIndex = npcLineName.IndexOf("(");
-                            string npcLineNameForImportantWords = npcLineName;
-                            string npcLineNameExtraWords = "";
-                            if (npcLineNameEndIndex > -1) {
-                                npcLineNameForImportantWords = npcLineName.Remove(npcLineNameEndIndex);
-                                npcLineNameExtraWords = npcLineName.Remove(0, npcLineNameEndIndex);
-                            }
-
-                            importantWords = importantWords.Concat(npcLineNameForImportantWords.Split(LineFunctions.wordSplitters2, StringSplitOptions.RemoveEmptyEntries)).Distinct().ToArray();
-                            string[] targetWords = (locationName +" "+ npcLineNameExtraWords).Split(LineFunctions.wordSplitters2, StringSplitOptions.RemoveEmptyEntries);
-                            //targetWords = targetWords.Concat(importantWords).ToArray();
-                            //if (npcID == 49100038)
-                            //    Util.p();
-                            string[] exclusions = new string[] { " of ", " the " };
-                            var orderedLines = LineFunctions.GetOrderedWordMatchedLinesDict(targetWords, BossItemLotMapLines, out int maxMatchCount, out int curScore, 0, importantWords, false, exclusions, "[", "]"," - ");
-
-                            Util.p(LineFunctions.Debug_LastBestlWordsTogether);
-                            Util.p(LineFunctions.Debug_LastBesttargetWordsTogether);
-                            Util.p(LineFunctions.Debug_LastBestintersectTogether);
-                            Util.p(LineFunctions.Debug_LastBestlWordsTogether2);
-                            Util.p(LineFunctions.Debug_LastBesttargetWordsTogether2);
-                            Util.p(LineFunctions.Debug_LastBestintersectTogether2);
-
-                            ALLordered.Add(npcID, orderedLines);
-                            int curIndex = 0;
-                            var favoriteLine = orderedLines[curScore][curIndex];
-                            //if (favoriteLine == null)
-                            //    Util.p();
-
-                            string favName = favoriteLine.name;
-                            int favoriteId = favoriteLine.id_int;
-
-
-
-                            while (true)
-                            {
-                                //if (npcID == 49100038)
-                                //   Util.p();
-                                if (ItemLotMapToHighestMatchScoreDict.ContainsKey(favoriteId))
-                                {
-                                    int oldCurIndex = ItemLotMapToCurIndexDict[favoriteId];
-                                    int oldScore = ItemLotMapToHighestMatchScoreDict[favoriteId];
-                                    int oldNpcId = ItemLotMapToBossOrMiniBoss[favoriteId];
-                                    string oldData = "";
-                                    if(ItemLotMapToAssignedDataDict.ContainsKey(favoriteId))
-                                        oldData = ItemLotMapToAssignedDataDict[favoriteId];
-
-                                    if (curScore > ItemLotMapToHighestMatchScoreDict[favoriteId])
-                                    {
-                                        int prevCurScore = curScore;
-                                        int prevOldScore = oldScore;
-                                        int prevFavoriteId = favoriteId;
-                                        int prevNPCId = npcID;
-
-                                        ItemLotMapToCurIndexDict[favoriteId] = curIndex;
-                                        ItemLotMapToBossOrMiniBoss[favoriteId] = npcID;
-                                        ItemLotMapToHighestMatchScoreDict[favoriteId] = curScore;
-                                        ItemLotMapToAssignedDataDict[favoriteId] =  data;
-
-                                        curIndex = oldCurIndex;
-                                        curScore = oldScore;
-                                        npcID = oldNpcId;
-                                        data = oldData;
-
-                                        orderedLines = ALLordered[oldNpcId];
-                                        favoriteLine = orderedLines[oldScore][oldCurIndex];
-                                        favName = favoriteLine.name;
-                                        bool n = favoriteLine == null;
-                                        favoriteId = favoriteLine.id_int;
-                                        if (favoriteId == 30620)
-                                            Util.p();
-                                        break;
-                                        //Util.println(npcname + "\n   " + locationName + "\n   " + favoriteLine._idName + "\n   " +
-                                        //    "BossOrMiniBossToItemLotMapDict.Add(" + npcID + ", " + favoriteLine.id + ");   //" + npcname + "\n");
-
-                                        //BossOrMiniBossToItemLotMapDict.Add(npcID, favoriteLine);
-                                        //if (AssignedBossItemLotMapLines.Contains(favoriteLine))
-                                        //    Util.p();
-                                        //else
-                                    }
-                                    else
-                                    {
-                                        //if (npcID == 49100038 && oldScore == curScore)
-                                        //    Util.p();
-                                        curIndex++;
-                                        if (curIndex >= orderedLines[curScore].Count)
-                                        {
-                                            curIndex = 0;
-                                            curScore--;
-                                            while (curScore > -1 && (!orderedLines.ContainsKey(curScore) || orderedLines[curScore].Count == 0))
-                                            {
-                                                curScore--;
-                                            }
-                                        }
-                                        if (curScore >= 0)
-                                        {
-                                            favoriteLine = orderedLines[curScore][curIndex];
-                                            favoriteId = favoriteLine.id_int;
-                                        }
-                                        else
-                                            break;
-                                        
-                                    }
-                                }
-                                else
-                                {
-
-                                    ItemLotMapToBossOrMiniBoss.Add(favoriteId, npcID);
-                                    ItemLotMapToHighestMatchScoreDict.Add(favoriteId, curScore);
-                                    ItemLotMapToCurIndexDict.Add(favoriteId, curIndex);
-                                    ItemLotMapToAssignedDataDict.Add(favoriteId,data);
-
-                                    //if (npcID == 49100038)
-                                    //    Util.p();
-                                    break;
-                                }
-                            }
-                        }
-                       
-                    }
-                    else if (difficulty != -1 && npcsDocDifficultyDict[npcID]!= difficulty)
-                    {
-                        float oldDifficulty = npcsDocDifficultyDict[npcID];
-                        //Util.println(NpcParam.GetFieldWithLineID(1, npcID.ToString()) + " difficulty conflict: " + oldDifficulty + " and " + difficulty);
-                        
-                        //prioritises the lower difficulty to avoid  enemies in the same region dropping the same shard.
-                        npcsDocDifficultyDict[npcID] = Math.Min(difficulty, npcsDocDifficultyDict[npcID]);
-                    }
-
-                }
-
-                /*foreach(int npcID in npcsDocDifficultyDict.Keys)
-                {
-                    Line npcLine = NpcParam.GetLineWithId(npcID);
-                    float difficulty = npcsDocDifficultyDict[npcID];
-                    string keywordCode = "SS 60 ##4.5";
-                    string searchName = "Leyndell Knight";
-                    string overrideExtension = "(Altus Override)";
-                    if (difficulty == 4.7f && npcLine.name.Contains(searchName) && !npcLine.name.Contains("Horse"))
-                        Util.println("keywordOverrideIDsDict.Add("+ npcID + ", \""+keywordCode+" "+searchName+" "+overrideExtension+"\");");
-                }*/
-                const bool debugAssignMapLots = false;
-                //added new assigned itemlotmaps to main dict
-                foreach (var lineKey in ItemLotMapToBossOrMiniBoss.Keys)   
-                {
-                    int npcId = ItemLotMapToBossOrMiniBoss[lineKey];
-                    if (BossOrMiniBossToItemLotMapDict.ContainsKey(npcId))
-                        continue;
-                    BossOrMiniBossToItemLotMapDict.Add(npcId, lineKey);
-                }
-
-                //debug: rate bosses itemlotmaps in main dict
-                if (debugAssignMapLots)
-                {
-                    foreach (var key in BossOrMiniBossToItemLotMapDict.Keys)
-                    {
-                        int lotId = BossOrMiniBossToItemLotMapDict[key];
-                        string data = "";
-                        if (ItemLotMapToAssignedDataDict.ContainsKey(lotId))
-                            data = ItemLotMapToAssignedDataDict[lotId];
-                        int score = ItemLotMapToHighestMatchScoreDict[lotId];
-                        string scoreRating = "HIGH";
-                        if (score < 30)
-                            scoreRating = "MID";
-                        if (score < 20)
-                            scoreRating = "LOW";
-                        if (score < 11)
-                            scoreRating = "VERY LOW";
-                        var npcLine = NpcParam.GetLineWithId(key);
-                        var lotLine = ItemLotParam_map.GetLineWithId(lotId);
-                        string npcName = npcLine._idName;
-                        string lotName = lotLine._idName;
-                        string addLine = "BossOrMiniBossToItemLotMapDict.Add(" + npcLine.id + ", " + lotLine.id + ");    //" + npcLine.name;
-                        Util.println(npcLine.id + " - " + lotLine.id + "  score: " + score + "  " + scoreRating + "\n" + addLine + "\n" + npcLine.name + "\n   " + data + "\n   " + lotLine.name + "\n");
-                    }
-                }
-
-                
-                //add remaining unassigned bosses (duo bosses)to maindict
-                foreach(var id in BossOrMiniBossIds)
-                {
-                    if (!BossOrMiniBossToItemLotMapDict.Keys.Contains(id))
-                    {
-                        var npcLine = NpcParam.GetLineWithId(id);
-                        var idName = npcLine._idName;
-                        var data = BossOrMiniBossToDataDict[id];
-                        var location = BossOrMiniBossToDataDict[id];
-                        location = location.Remove(location.IndexOf(")"));
-                        if (debugAssignMapLots)
-                        {
-                            Util.println("DID NOT ASSIGN:   " + idName);
-                            Util.println("    My Data:          " + data);
-                        }
-
-                        bool foundOther = false;
-                        string foundOtherData = "";
-                        int foundItemLotId = -1;
-                        int curScore = 0;
-
-                        foreach (var key in ItemLotMapToAssignedDataDict.Keys)
-                        {
-                            var otherData = ItemLotMapToAssignedDataDict[key];
-                            var otherLocation = ItemLotMapToAssignedDataDict[key];
-                            otherLocation = otherLocation.Remove(otherLocation.IndexOf(")"));
-
-                            var otherId = ItemLotMapToBossOrMiniBoss[key];
-                            if (otherId == id)
-                                continue;
-                            //if (otherId == 47210070)
-                            //    Util.p();
-                            if (location == otherLocation)
-                            {
-                                //if (id == 47200070)
-                                //   Util.p();
-
-                                int prevScore = curScore;
-                                if (curScore < 10)
-                                {
-                                    curScore = 10;
-                                }
-                                {
-                                    string first3Dig = id.ToString().Remove(3);
-                                    string other_first3Dig = otherId.ToString().Remove(3);
-                                    if (curScore < 20 && first3Dig == other_first3Dig)
-                                    {
-                                        curScore = 20;
-                                    }
-
-                                }
-
-                                if (prevScore < curScore)
-                                {
-                                    foundOther = true;
-                                    foundItemLotId = otherId;
-                                    foundItemLotId = key;
-                                    foundOtherData = otherData;
-                                    if (prevScore == 0)
-                                        BossOrMiniBossToItemLotMapDict.Add(id, key);
-                                    else
-                                        BossOrMiniBossToItemLotMapDict[id] = key;
-                                }
-                            }
-                        }
-                        if (foundOther && debugAssignMapLots)
-                        {
-                            Util.println("    Other Data:       " + foundOtherData);
-                            Util.println("  ALLY FOUND BossOrMiniBossToItemLotMapDict.Add(" + id + ", " + foundItemLotId + ");    //" + npcLine.name);
-                        }
-                        if(debugAssignMapLots)
-                            Util.println();
-                    }
-                }
-
-                //debug: unassigned itemlotmap lines
-                if (debugAssignMapLots)
-                {
-                    foreach (var itemlotline in BossItemLotMapLines)
-                    {
-                        if (!ItemLotMapToBossOrMiniBoss.Keys.Contains(itemlotline.id_int))
-                        {
-                            Util.println("DID NOT FIND:   " + itemlotline._idName);
-                        }
-                    }
-                }
-
-                //return;
-            }
-
-
-            var spLevelToDifficultyDict = new Dictionary<int, float>();
-            {
-                {
-                    spLevelToDifficultyDict.Add(1, 1);
-                    spLevelToDifficultyDict.Add(2, 1);
-                    spLevelToDifficultyDict.Add(3, 1.3f);
-                    spLevelToDifficultyDict.Add(4, 1.15f);
-                    spLevelToDifficultyDict.Add(5, 2f);
-                    spLevelToDifficultyDict.Add(6, 3.85f);
-                    spLevelToDifficultyDict.Add(7, 2.85f);
-                    spLevelToDifficultyDict.Add(8, 3f);
-                    spLevelToDifficultyDict.Add(9, 3.15f);
-                    spLevelToDifficultyDict.Add(10, 4f);
-                    spLevelToDifficultyDict.Add(11, 5);
-                    spLevelToDifficultyDict.Add(12, 6);
-                    spLevelToDifficultyDict.Add(13, 6f);
-                    {
-                        spLevelToDifficultyDict.Add(14, 3);
-                        spLevelToDifficultyDict.Add(15, 3);
-                        spLevelToDifficultyDict.Add(16, 3);
-                        spLevelToDifficultyDict.Add(17, 3);
-                        spLevelToDifficultyDict.Add(18, 3);
-                        spLevelToDifficultyDict.Add(19, 3);
-                        spLevelToDifficultyDict.Add(20, 3);
-                        spLevelToDifficultyDict.Add(21, 3);
-                    }//unused
-                    spLevelToDifficultyDict.Add(22, 6.85f);
-                    spLevelToDifficultyDict.Add(23, 7.2f);
-                    spLevelToDifficultyDict.Add(24, 8.15f);
-                    spLevelToDifficultyDict.Add(25, 8.25f);
-                    spLevelToDifficultyDict.Add(26, 8);
-                    spLevelToDifficultyDict.Add(27, 7.85f);
-                    spLevelToDifficultyDict.Add(28, 7.85f);
-                    spLevelToDifficultyDict.Add(29, 7.85f);
-                }
-                int agreers = 0;
-                int disagreers = 0;
-                foreach (Line npcLine in NpcParam.lines)
-                {
-                    //if (npcsDifficultyDict2.ContainsKey(npcLine.id_int))
-                    //    continue;
-                    string locSpEffectID = npcLine.GetField("spEffectID3");
-                    if (locSpEffectID == "0" || locSpEffectID == "-1")
-                        continue;               //this seems to be npcs. we already excpetions.
-                    var spLine = SpEffectParam.GetLineWithId(locSpEffectID);
-                    if (!spLine.name.Contains("Area Scaling"))
-                        continue;
-                    bool isBoss = BossOrMiniBossIds.Contains( npcLine.id_int );
-                    if (!isBoss && npcLine.GetField("getSoul") == "0")
-                        continue;
-                    int mySpTier = Util.GetFirstIntInString(spLine.name);
-                    npcsIdToSpLevelsDict.Add(npcLine.id_int,mySpTier);
-                    if (npcsDocDifficultyDict.ContainsKey(npcLine.id_int)) {
-                        if(npcsDocDifficultyDict[npcLine.id_int] != spLevelToDifficultyDict[mySpTier])
-                        {
-                            if(Math.Abs(npcsDocDifficultyDict[npcLine.id_int] - spLevelToDifficultyDict[mySpTier]) > 1.5 && Math.Abs(npcsDocDifficultyDict[npcLine.id_int] - spLevelToDifficultyDict[mySpTier]) < 2)
-                            //Util.println("LEVELS DISAGREE " + npcLine._idName + "  spLevel:" + spLevelToDifficultyDict[mySpTier] + "  docLevel:" + npcsDocDifficultyDict[npcLine.id_int]);
-                            disagreers++;
-                        }
-                        else
-                            agreers++;
-                    }
-                }
-                //Util.println("agreers" + agreers + "   disagreeers:" + disagreers);
-            }
 
             string[] smithingKeywords;
             string[] somberKeywords;
@@ -2777,6 +2335,8 @@ namespace EldenRingCSVHelper
                 // /number is the percent split for somberstones if drops both.
                 // spnumber is the decimal from 0 - 1 that represents the percent of spLevel that goes into the level (if applicable)
                 // & is single line. one item type per drop.
+
+                // $ is first time guarendteed drop
                 // $$ is Guarrentee first Drop & avoiddropingx1 (includde only x2 and above *if available)
                 // $$$ is FTD drops only highest xAmount .
                 // $$$$ is FTD drops only highest xAmount & highestLevel.
@@ -2784,7 +2344,12 @@ namespace EldenRingCSVHelper
                 // $$$$$$ is FTD drops only highest xAmount & highestLevel & notSingleLine
                 // $$$$$$$ is FTD drops only forcedSomber & highestLevel
                 // $$$$$$$$ is FTD drops only firstType(normal -> somber) highest xAmount & highestLevel
+                // $$$$$$$$$ is FTD drops x1
                 // $number is to set the level adj the Guarrentee first Drop.
+
+                //@number is first drop x1 chance mult. 
+                //@@number is first drop x1 chance mult, excess chance is given to an empty lot
+
                 // ! is Force Boss Display. the item displays on screen, rather than on corpse.
                 // sss+number or sss-number adds and adjust to Somber Smithing Stones
                 //Only use if all instances are non respawning. 
@@ -2795,7 +2360,7 @@ namespace EldenRingCSVHelper
                 string x3Chance = " x3xxx xv0.65 xvv0.65 ";
                 string footSoldier = " -0.9 sp0.1 #4 }1.028 ";          //}0.965    //we changed them to drop more with higher levels.
                 string soldier = " %0.875 sp0.12 >2 #8 }1.035 {0.65 ";        //}0.985
-                string knight = " +0.15 sp0.1 #8 }1.05 & $$ ";            //}0.985 
+                string knight = " +0.15 sp0.1 #8 }1.05 & $ @0.175 ";            //}0.985 
                 string banishedK = " +0.2 sp0.15 " + knight;
                 string imp = " -1 #8 }1.035 %0.8 ";                   //}0.965
 
@@ -2907,6 +2472,7 @@ namespace EldenRingCSVHelper
                     "100 -0.3 ! Red Wolf of Radagon",        //override for bosses to avoid from catching "Wolf" in runeKeywords.
                     "0 $$$$ ##10 /100 Draconic Tree Sentinel",
                     "45 > +1 $$$$$$ {2 Tree Sentinel",
+
                     "4 Nox",
 
                     "13 #4 Ancestral Follower Shaman",  //ghost ones.
@@ -2940,9 +2506,12 @@ namespace EldenRingCSVHelper
 
                     "100 & ##3 Carian Knight Bols",
                     "15 %0.85 -1.35 > sp1 Snowfield Troll",
-                    "15 %0.85 x3xxx -1.35 > $$$$ sp1 Frenzied Troll",
+                    "12 %0.85"+x3Chance+"-1.35 > $$$$ sp1 @@0.33 Frenzied Troll",
                     
                     "5 -2.2 sp1 Skeletal Grave Warden",
+
+                    "15  %0.85 }0.85 #13 & Giant Wormface",
+                    "7  %0.85 }0.85 #13 & Wormface",
 
                 };
                 bothKeywords = new string[]{
@@ -3012,13 +2581,13 @@ namespace EldenRingCSVHelper
                     "60" + GiantCrab + "Giant Crab",
                     "10 %0.5 #1 }0.85 sp1 Crab",
 
-                    "20 %0.5 #5 }0.85 +1.5 sp1 Warhawk",
+                    //"20 %0.5 #5 }0.85 +1.5 sp1 Warhawk",
 
-                    "15 > #6 }0.45 +0.6 & sp1 & $0.6 White Wolf",
-                    "5 > %0.65 > #4 }0.85 -1 & sp1 Wolf",
-                     "10 %0.5 >> }0.85 #13 +1 & sp1 Large Azula Stray",
-                    "10 %0.5 >> }0.85 #13 +1 & sp1 Large Stray",
-                    "7.5 %0.5 >> }0.85 #5 & sp1 Stray",
+                    "15 > %0.65 #6 }0.85 +0.6 & sp1 & $$$$5 @@0.3  $0.6 White Wolf",
+                    "5 > %0.65 #4 }0.85 -1 & sp1 Wolf",
+                    "8.5 %0.5 >> }0.825 #13 +1.85 & sp1 Large Azula Stray",
+                    "8.5 %0.5 >> }0.825 #13 +1.85 & sp1 Large Stray",
+                    "3.5 %0.5 >> }0.825 #5 -0.65 & sp1 Stray",
 
                     "12 >> $1 %0.35 +2.5 }0.85 {1.2 #8 sp1 & $$ Giant Rat",
                     "5 >> %0.35 }0.85 #3 sp1 & Rat",
@@ -3027,30 +2596,30 @@ namespace EldenRingCSVHelper
                     "15 $4 ##5 Operatic Bat",   //uses flags that we want to keep.
                     "12 >>> %0.85 +0.7 |0 }0.875 {1.125 #5 sp1 Man-Bat",
                     "9 %0.5 > #6 }0.9 sp0.5 Dominula Celebrant", //already drops runes
-                    "30  $$ %0.5 > #13 +4 }0.85 sp1 & Giant Land Squirt",
-                    "30  $$ %0.5 > #13 +4 }0.85 sp1 & Giant Rotten Land Squirt",
-                    "10 %0.5 > #5 +3 }0.85 sp1 & Land Squirt",
-
-
-                    "45 %0.5 >> }0.85 +1 $1.5 sp1 & Giant Land Octopus",
-                    "15 #1 }0.85 sp1 & Small Land Octopus",
-
-                    "10 %0.5 #5 }0.85 sp1 & Guilty",
-                    "8 %0.75 $3 sp1 #10 Fire Monk", //lands between runes.
-                    "12 %0.75 $3 sp1 #10 Blackflame Monk",
-
-                    "30  %0.5 +1 }0.85 #13 sp1 & Miranda Blossom",
-                    "10  %0.5 }0.85 #3 & Miranda Sprout",
-
-                    "10 >>  %0.5 +2 }0.85 #13 sp1 & Giant Dog",
-                    "10 >>  %0.5 +2 }0.85 #13 sp1 & Giant Crow",
-
-                    "30  %0.65 +2 }0.85 #13 sp1 & Wormface",
-                    "30  %0.5 +2 }0.85 sp1 & Giant Ant",
+                    "12 $$$$6.5 @@0.02 %0.5 > #5 +1.5 }0.85 sp1 & Land Squirt",
+                    "60  $$$$8 @@0.3  %0.5 > #13 +2.5 }0.85 sp1 & Giant Land Squirt",
+                    "60  $$$$10 @@0.3  %0.5 > #13 +2.5 }0.85 sp1 & Giant Rotten Land Squirt",
                     
-                    "30  %0.65 +2 }0.85 sp1 & Giant Crayfish",
+
+
+                    "30 %0.5 > }0.85 +0.75 $$$4.2 @@0.45 sp1 & Giant Land Octopus",
+                    "8 #1 }0.85 sp1 & Land Octopus",
+
+                    //"10 %0.5 #5 }0.85 sp1 & Guilty",
+                    //"8 %0.75 $3 sp1 #10 Fire Monk", //lands between runes.
+                    //"12 %0.75 $3 sp1 #10 Blackflame Monk",
+
+                    "23 > $$$$4.3 @@0.2 %0.5 +1 }0.85 #13 sp1 & Miranda Blossom",
+                    "8 #2 %0.25 }0.55 sp1 &  Miranda Sprout",
+
+                    "15 >> $$$$10 @@0.2 %0.5 +1.65 }0.85 #13 sp1 & Giant Dog",
+                    "15 >> $$$$10 @@0.2 %0.5 +1.65 }0.85 #13 sp1 & Giant Crow",
+
+                    "12 > $$$$11 @@0.05 }0.85 ##4.3 & Giant Ant",
+
+                    "45 $$$$12 @@0.1 %0.65 +1.5 }0.85 sp1 & Giant Crayfish",
                     //"30  %0.5 +2 }0.85 sp1 Watcher Stones",
-                    "30  %0.65 +2 }0.85 sp1 & Abductor Virgin",
+                    "2.3 >> x8xxxxx $$$$$$$$$16 @@0.175 %0.15 #2 sp1 Abductor Virgin",
                     //"30  %0.65 +2 }0.85 sp1 & Snowfield Troll",
                 };
 
@@ -3182,8 +2751,12 @@ namespace EldenRingCSVHelper
             Dictionary<string, bool> isSomberDict = new Dictionary<string, bool>();
             Dictionary<string, bool> isForceBossDisplayDict = new Dictionary<string, bool>();
             Dictionary<string, bool> isRuneDict = new Dictionary<string, bool>();
+
             Dictionary<string, int> firstTimeDropDict = new Dictionary<string, int>();
             Dictionary<string, float> firstTimeDropAdjDict = new Dictionary<string, float>();
+            Dictionary<string, float> ftdx1ChanceMultDict = new Dictionary<string, float>();
+            Dictionary<string, bool> ftdx1ExcessToEmptyDict = new Dictionary<string, bool>();
+
             Dictionary<string, int[]> amountMultsDict = new Dictionary<string, int[]>();
             Dictionary<string, int> XasscadeDict = new Dictionary<string, int>();
             Dictionary<string, float> XasscadeMultToXDict = new Dictionary<string, float>();
@@ -3255,6 +2828,8 @@ namespace EldenRingCSVHelper
                     bool isForceBossDisplay = false;
                     int firstTimeDropSeverity = -1;
                     float firstTimeDropAdj = 0;
+                    float ftdx1ChanceMult = 1;
+                    bool ftdx1ExcessToEmpty = false;
 
                     float somberLevelAdj = 0;
 
@@ -3530,6 +3105,7 @@ namespace EldenRingCSVHelper
                             }
                             if (xFound!= 0)
                             {
+
                                 firstTimeDropSeverity = xFound;
                                 //fistTimeDropAdj
                                 string pattern = @"\$(\d+(\.\d+)?)";
@@ -3553,6 +3129,35 @@ namespace EldenRingCSVHelper
                                         if (match.Success)
                                         {
                                             firstTimeDropAdj = -float.Parse(match.Groups[1].Value);
+                                        }
+                                    }
+                                }
+
+                                xFound = 0;
+                                xx = "@";
+                                while (keyword.IndexOf(xx) != -1)
+                                {
+                                    xFound++;
+                                    xx += "@";
+                                }
+                                if (xFound != 0)
+                                {
+                                    ftdx1ExcessToEmpty = xFound >= 2;
+                                    ftdx1ChanceMult = 1;
+                                    //fistTimeDropAdj
+                                    pattern = @"\@(\d+(\.\d+)?)";
+                                    match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
+                                    {
+                                        ftdx1ChanceMult = float.Parse(match.Groups[1].Value);
+                                    }
+                                    else
+                                    {
+                                        pattern = @"\@\+(\d+(\.\d+)?)";
+                                        match = Regex.Match(keyword, pattern);
+                                        if (match.Success)
+                                        {
+                                            ftdx1ChanceMult = float.Parse(match.Groups[1].Value);
                                         }
                                     }
                                 }
@@ -3617,6 +3222,8 @@ namespace EldenRingCSVHelper
                     isForceBossDisplayDict.Add(keyword, isForceBossDisplay);
                     firstTimeDropDict.Add(keyword, firstTimeDropSeverity);
                     firstTimeDropAdjDict.Add(keyword, firstTimeDropAdj);
+                    ftdx1ChanceMultDict.Add(keyword, ftdx1ChanceMult);
+                    ftdx1ExcessToEmptyDict.Add(keyword, ftdx1ExcessToEmpty);
 
                     amountMultsDict.Add(keyword, amountMults.ToArray());
                     XasscadeDict.Add(keyword, xasscade);
@@ -3723,7 +3330,7 @@ namespace EldenRingCSVHelper
                 }
             }   //sets npcIDs, putting the documented ones first.
 
-            int test = -1;
+            int testId = -1;
 
             //List<int> freedFlagIds = new List<int>();
             int specialDropUniqueIndex = 0;
@@ -3739,50 +3346,18 @@ namespace EldenRingCSVHelper
                                                                                                  //Specific Filter Digit
             var StoneDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     1,      IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
             var RuneDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),      2,      IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
-            var OneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),   9,      IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
 
-            List<int> usedGetItemFlagId;
-            {
-                int _getItemFlagId = ItemLotParam_map.GetFieldIndex("getItemFlagId");
-                var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
-                usedGetItemFlagId = Util.ToInts(((Lines)ItemLotParam_enemy.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId)).ToList();
-                usedGetItemFlagId = usedGetItemFlagId.Concat(Util.ToInts(((Lines)ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
-            }
+            List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
 
             //Util.println("" + 7.5f);
-            Dictionary<int, int> AsssignedWeaponsFlagIdDict;
-            Dictionary<int, int> AsssignedArmorsFlagIdDict;
-            AsssignedWeaponsFlagIdDict = new Dictionary<int, int>();
-            AsssignedArmorsFlagIdDict = new Dictionary<int, int>();
 
-            {
-                Lines oneTimeWeaponDropLines = ItemLotParam_enemy.GetLinesOnCondition(
-                    new Condition.FieldIs(LotItem.idFIs[0],LotItem.Category.Weapon.ToString())
-                    .AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, "0"))
-                    );
-                oneTimeWeaponDropLines.PrintIDAndNames(" - pre assigned - ");
-                foreach(Line line in oneTimeWeaponDropLines.lines)
-                {
-                    AsssignedWeaponsFlagIdDict.Add(line.GetFieldAsInt(LotItem.idFIs[0]), line.GetFieldAsInt(LotItem.getItemFlagIdFI));
-                }
-
-                Lines oneTimeArmorDropLines = ItemLotParam_enemy.GetLinesOnCondition(
-                    new Condition.FieldIs(LotItem.idFIs[0], LotItem.Category.Armor.ToString())
-                    .AND(new Condition.FieldIs(LotItem.getItemFlagIdFI, "0"))
-                    );
-                oneTimeArmorDropLines.PrintIDAndNames(" - pre assigned - ");
-                foreach (Line line in oneTimeArmorDropLines.lines)
-                {
-                    AsssignedArmorsFlagIdDict.Add(line.GetFieldAsInt(LotItem.idFIs[0]), line.GetFieldAsInt(LotItem.getItemFlagIdFI));
-                }
-            }
 
             Dictionary<Line, string> idToVariantsDict = new Dictionary<Line, string>();
             Dictionary<Line, float> idToLevelDict = new Dictionary<Line, float>();
 
             foreach (int npcID in npcIDs)
             {
-                test = -1;
+                testId = -1;
                 //bool isDocumented = l.name.Contains(documentedMark);
 
                 //  Get the npcparam line with id. 
@@ -3879,17 +3454,19 @@ namespace EldenRingCSVHelper
                 }
 
                 //if(keywordOverrideIDsDict.ContainsKey(npcID))
-               // if(somberLevelAdjDict[keyword] != 0)\
-               //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
+                // if(somberLevelAdjDict[keyword] != 0)\
+                //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
                 //SET TEST
-                //if (npcID == 47702066)
+                if (npcID == 44701021)
                 //if( 
                 //    npcLine.name.Contains("Draconic Tree"))
                 //&& (keywordOverrideIDsDict.ContainsKey(npcID))
                 //  npcLine.name.Contains("Godrick Soldier") )
                 //if     (npcLine.name.Contains("igger"))
 
-                //test = npcID;
+                testId = npcID;
+
+                bool test = testId == npcID;
 
 
                 bool isBoss = BossOrMiniBossIds.Contains(npcLine.id_int);
@@ -3897,7 +3474,7 @@ namespace EldenRingCSVHelper
 
 
 
-                if (test == npcID)
+                if (test)
                     Util.println(npcLine._idName + " documented " + documented + "  isBoss:" + isBoss);
 
 
@@ -3932,7 +3509,7 @@ namespace EldenRingCSVHelper
                     {
 
                         level = npcsDocDifficultyDict[npcLine.id_int];
-                        if (test == npcID || debugAssignedLevels)
+                        if (test || debugAssignedLevels)
                             Util.println(npcLine._idName + " GOT DOCUMENTED LEVEL: " + level);
                     }
                     else
@@ -3960,7 +3537,7 @@ namespace EldenRingCSVHelper
 
 
 
-                            if (npcID == test)
+                            if (test)
                                 Util.println("Searched for \"" + target + "\"" + " maxMatchCount:" + maxMatchCount);
                             if (!npcsIdToSpLevelsDict.ContainsKey(npcID))
                                 continue;
@@ -3985,7 +3562,7 @@ namespace EldenRingCSVHelper
                                     break;
                                 foreach (List<Line> lines in orderedNestedLines)
                                 {
-                                    //if (npcID == test)
+                                    //if (test)
                                     //    Util.println("ll " + level);
                                     foreach (Line l in lines)
                                     {
@@ -4065,23 +3642,23 @@ namespace EldenRingCSVHelper
                                         //Debug.Assert(level != 0, ""+npcID);
                                         if (level == 0)
                                         {
-                                            if (testingEstimate || test == npcID)
+                                            if (testingEstimate || test)
                                                 Util.println(npcLine._idName + " FAILED |  myRunes:" + mySpLevelNum + "    minRune: " + minDocumentedLevel + "   maxRune: " + maxDocumentedLevel + "  minLvl: " + minLvl + "   maxLvl: " + maxLvl + "   level: " + level + "            minLine:" + minLine._idName + "     maxLine:" + maxLine._idName);
                                             continue;
                                         }
                                         if (level < 0)
                                         {
-                                            if (testingEstimate || test == npcID)
+                                            if (testingEstimate || test)
                                                 Util.println(npcLine._idName + " FAILED |  myRunes:" + mySpLevelNum + "    minRune: " + minDocumentedLevel + "   maxRune: " + maxDocumentedLevel + "  minLvl: " + minLvl + "   maxLvl: " + maxLvl + "   level: " + level + "            minLine:" + minLine._idName + "     maxLine:" + maxLine._idName);
                                             continue;
                                         }
                                         if (level > 10)
                                         {
-                                            if (testingEstimate || test == npcID)
+                                            if (testingEstimate || test)
                                                 Util.println(npcLine._idName + " FAILED |  myRunes:" + mySpLevelNum + "    minRune: " + minDocumentedLevel + "   maxRune: " + maxDocumentedLevel + "  minLvl: " + minLvl + "   maxLvl: " + maxLvl + "   level: " + level + "            minLine:" + minLine._idName + "     maxLine:" + maxLine._idName);
                                             continue;
                                         }
-                                        if (testingEstimate || test == npcID)
+                                        if (testingEstimate || test)
                                             Util.println(npcLine._idName + " ESTIMATED!!! |  myRunes:" + mySpLevelNum + "    minRune: " + minDocumentedLevel + "   maxRune: " + maxDocumentedLevel + "  minLvl: " + minLvl + "   maxLvl: " + maxLvl + "   level: " + level + "            minLine:" + minLine._idName + "     maxLine:" + maxLine._idName);
                                     }
                                     else
@@ -4103,22 +3680,22 @@ namespace EldenRingCSVHelper
                                         else
                                         {
                                             //Debug.Fail("" + npcID);
-                                            if (testingEstimate || test == npcID)
+                                            if (testingEstimate || test)
                                                 Util.println(npcLine._idName + " FAILED to estimate");
                                             continue;
                                         }
-                                        if (testingEstimate || test == npcID)
+                                        if (testingEstimate || test)
                                             Util.println(npcLine._idName + " CHOSE IMPERFECTLY myRunes:" + mySpLevelNum + "    minRune:" + minDocumentedLevel + "   minLvl: " + npcsDocDifficultyDict[minLine.id_int] + "   level:" + level);
 
                                     }
                                 }
-                                else if (test == npcID || debugAssignedLevels)
+                                else if (test || debugAssignedLevels)
                                     Util.println(npcLine._idName + " SP ASSIGNED LEVEL: " + level + "  mySpLevel:" + mySpLevelNum);
                             }
-                            else if (test == npcID || debugAssignedLevels)
+                            else if (test || debugAssignedLevels)
                                 Util.println(npcLine._idName + " FOUND MATCHED LEVEL: " + level + "   " + perfectLine._idName + " shares mySpLevel:" + mySpLevelNum);
                         }
-                        else if (test == npcID || debugAssignedLevels)
+                        else if (test || debugAssignedLevels)
                             Util.println(npcLine._idName + " FOUND SP LEVEL: " + level);
                         //check it has !
 
@@ -4129,7 +3706,7 @@ namespace EldenRingCSVHelper
                         //hpPerLvl = ((maxHP - minHP) / (maxLvl - minLvl))
                         //myHP / hpPerLvl
 
-                        //if (npcID == test)
+                        //if (test)
                         //   Util.println("Estimated level " + level);
 
                     }
@@ -4138,10 +3715,10 @@ namespace EldenRingCSVHelper
                     float preSplitLevel = level;
                     if (spLevelSplit != 0 && spLevel != -1 && level != spLevel)
                         level = (spLevelSplit * spLevel) + (level * (1 - spLevelSplit));
-                    if (test == npcID)//|| (spLevelSplit != 0 && preSplitLevel != level))
+                    if (test)//|| (spLevelSplit != 0 && preSplitLevel != level))
                         Util.println(npcLine._idName + " documented " + documented + " preSplitlevel " + preSplitLevel + "  spLevelSplit " + spLevelSplit + "  level " + level);
                 }
-                else if (test == npcID || debugAssignedLevels)
+                else if (test || debugAssignedLevels)
                     Util.println(npcLine._idName + " KEY WORD ASSIGNED LEVEL: " + level);
 
 
@@ -4188,10 +3765,31 @@ namespace EldenRingCSVHelper
                     if (IsItemLotMapDrop)
                         ItemLotParam = ItemLotParam_map;
 
+                    
+
                     if (itemLotID != -1)
                     {
                         itemLotLine = ItemLotParam.GetLineWithId(itemLotID);
                     }
+
+                    if (itemLotLine != null && (STONES || RUNES))
+                    {
+                        var kwIndex = itemLotLine.hasKeywordContaining("!ADD BUFFER LINE!");
+                        if (kwIndex != -1)
+                        {
+                            bool wasParsed = int.TryParse(itemLotLine.keywords[kwIndex].keyword.Replace("!ADD BUFFER LINE!", ""), out int bufferAmount);
+                            if (!wasParsed)
+                                bufferAmount = 1;
+                            for (int i = 0; i < bufferAmount; i++)
+                            {
+                                int newLineId = itemLotLine.GetNextFreeId();
+                                Line bufferLine = baseEmptyItemLotParamLine.Copy().SetField(0, newLineId ).SetField(1, "COMPATIBILITY BUFFER");
+                                ItemLotParam.OverrideOrAddLine(bufferLine);
+                            }
+                            itemLotLine.keywords.RemoveAt(kwIndex);
+                        }
+                    }
+
 
                     if (IsItemLotMapDrop)
                     {
@@ -4252,6 +3850,12 @@ namespace EldenRingCSVHelper
                     bool isForceBossDisplay = isForceBossDisplayDict[keyword];
                     int firstTimeDropStyle = firstTimeDropDict[keyword];
                     bool isFirstTimeDrop = firstTimeDropStyle != -1;
+                    float ftdx1ChanceMult = ftdx1ChanceMultDict[keyword];
+                    bool ftdx1ExcessToEmpty = ftdx1ExcessToEmptyDict[keyword];
+                    
+                    if (test)
+                        Util.p();
+
 
                     if (!IsItemLotMapDrop)
                     {
@@ -4291,11 +3895,12 @@ namespace EldenRingCSVHelper
                     bool FTD_OnlySomberType = firstTimeDropStyle == 7;
                     bool FTD_DropMultiple = firstTimeDropStyle == 5 || firstTimeDropStyle == 6; //$$$$
                     bool FTD_OnlyHighestLevel = firstTimeDropStyle == 4 || firstTimeDropStyle == 7 || firstTimeDropStyle == 8;
+                    bool FTD_Dropx1 = firstTimeDropStyle == 9;
                     bool FTD_AvoidDropx1 = firstTimeDropStyle > 1;   //because the other system didnt work so fuck it.
                     bool FTD_SeperateLineForEachType = false;
 
 
-                    //if (npcID == test)
+                    //if (test)
                     //    Util.println(npcLine.id + ":" + npcLine.name + "'s itemLotID set to " + itemLotID + " valid itemLotLine:" + (itemLotLine != null).ToString());
 
                     //if(itemLotLine == null)
@@ -4325,8 +3930,8 @@ namespace EldenRingCSVHelper
                         FTD_SeperateLineForEachType = true;
                     }
 
-                    if (!OneTimeWeaponAndArmorDrops)
-                    {
+                    //if (!OneTimeWeaponAndArmorDrops)
+                    /*{
                         if (!RUNES && !STONES)
                             continue;
                         bool dropStones = (dropSmithing || dropSomber);
@@ -4334,7 +3939,7 @@ namespace EldenRingCSVHelper
                             continue;
                         if (!RUNES && dropRune && !dropStones)
                             continue;
-                    }
+                    }*/
 
 
 
@@ -4352,10 +3957,7 @@ namespace EldenRingCSVHelper
                         "Lord Rune"
                     };
 
-                    var isArmorAdjustExceptionCond = new Condition.HasInName("Banished Knight");
-                    var isNotArrowCond = new Condition.FloatFieldCompare(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), Condition.LESS_THAN, 50000000);
-                    var isWeaponCond = new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemCategory02"), "2");
-                    var isArmorCond = new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemCategory02"), "3");
+                   
 
                     var isSmithingLineCondition = new Condition.HasInName(smithingStoneItemsToRemove);
                     var isRuneLineCondition = new Condition.HasInName(runeItemsToRemove);
@@ -4367,11 +3969,6 @@ namespace EldenRingCSVHelper
                                 new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId01"), "0"),
                                 new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), "0"))
                         );
-                    var curLineHasOneItemCond = //naturally excludes any guarenteed drops (1000 chance_ that are narmally at lot 01.
-                            new Condition.AllOf(
-                            new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId01"), "0"),
-                            //new Condition.FloatFieldCompare(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), Condition.GREATER_THAN, 0),
-                            new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId03"), "0"));
 
 
                     int HighestIdPossible = int.MaxValue;
@@ -4411,9 +4008,9 @@ namespace EldenRingCSVHelper
                                 break;
                             }
                             if (deleteOthers &&
-                                (curLineEmptyAndNoDropCondition.Pass(curLine) ||
+                                //(curLineEmptyAndNoDropCondition.Pass(curLine) ||
                                 ((dropSmithing || dropSomber) && isSmithingLineCondition.Pass(curLine)) ||
-                                (dropRune && isRuneLineCondition.Pass(curLine)))
+                                (dropRune && isRuneLineCondition.Pass(curLine))//)
                                )
                             {
                                 exit = true; // fuck it dont add if it already has one.
@@ -4477,7 +4074,7 @@ namespace EldenRingCSVHelper
                                 break;
                             }
                             if (
-                                curLineEmptyAndNoDropCondition.Pass(curLine) ||
+                                //curLineEmptyAndNoDropCondition.Pass(curLine) ||
                                 ((dropSmithing || dropSomber) && isSmithingLineCondition.Pass(curLine)) ||
                                 (dropRune && isRuneLineCondition.Pass(curLine))
                                )
@@ -4493,143 +4090,6 @@ namespace EldenRingCSVHelper
                             {
 
                                 curLine.SetField(0, curLine.id_int + idAdjust);
-                                if (OneTimeWeaponAndArmorDrops && curLineHasOneItemCond.Pass(curLine))
-                                {
-                                    //
-                                    int FlagId = -1;
-                                    int OtherFlagId = -1;
-                                    //OR
-                                    bool createUniqueFlagId = false;
-                                    bool createUniqueFlagIdForOther = false;
-                                    //
-
-                                    string addToName = "";
-                                    float PercentMult = 1;
-
-                                    int OtherToAddId = -1;
-                                    float OtherToAddPercentMult = 1;
-                                    int OtherCategory = 0;
-
-                                    int _curLot2Id = int.Parse(curLine.GetField("lotItemId02"));
-
-                                    bool isWeapon = isWeaponCond.Pass(curLine);
-                                    bool isArmor = isArmorCond.Pass(curLine);
-                                    bool isNotArrow = isNotArrowCond.Pass(curLine);
-
-                                    if (isArmor)
-                                    {
-                                        isArmor = true;
-                                        const bool ALLOW_REVERSE_ALTERED_DROP = false;
-                                        OtherToAddId = _curLot2Id + 1000;
-                                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithId(OtherToAddId);
-                                        if (OtherToAddEquipLine != null)
-                                        {
-                                            if (isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
-                                            {
-                                                OtherToAddId = -1;
-                                            }
-                                        }
-                                        else if (ALLOW_REVERSE_ALTERED_DROP)         // if we want to allow revers altering (this tends to always be problematic
-                                        {
-                                            OtherToAddId = _curLot2Id - 1000;
-                                            OtherToAddEquipLine = EquipParamWeapon.GetLineWithId(OtherToAddId);
-                                            if (OtherToAddEquipLine == null || isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
-                                                OtherToAddId = -1;
-                                        }
-                                        else
-                                            OtherToAddId = -1;
-
-                                        if (AsssignedArmorsFlagIdDict.ContainsKey(_curLot2Id))
-                                            FlagId = AsssignedArmorsFlagIdDict[_curLot2Id];
-                                        else
-                                            createUniqueFlagId = true;
-
-                                        if (OtherToAddId != -1)
-                                        {
-                                            OtherCategory = 3;
-                                            if (AsssignedArmorsFlagIdDict.ContainsKey(OtherToAddId))   //fair to assume it exists
-                                                OtherFlagId = AsssignedArmorsFlagIdDict[OtherToAddId];
-                                            else
-                                                createUniqueFlagIdForOther = true;
-                                            PercentMult = OneTimeWeaponAndArmorDrops_ArmorDropChanceMult;
-                                            OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult;
-                                            addToName = " & " + OtherToAddEquipLine.name;
-                                        }
-                                    }
-                                    else if (isWeapon && isNotArrow)
-                                    {
-                                        isWeapon = true;
-                                        PercentMult = OneTimeWeaponAndArmorDrops_WeaponDropChanceMult;
-                                        OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult;
-                                        if (AsssignedWeaponsFlagIdDict.ContainsKey(_curLot2Id))
-                                            FlagId = AsssignedWeaponsFlagIdDict[_curLot2Id];
-                                        else
-                                            createUniqueFlagId = true;
-                                        //createUniqueFlagIdForOther = true; //if we dont want to drop infinitly
-                                        OtherCategory = 2;
-                                        OtherToAddId = _curLot2Id;
-                                    }
-                                    int _curLot2Percent = int.Parse(curLine.GetField("lotItemBasePoint02"));
-                                    if (OtherToAddId != -1)
-                                    {
-                                        curLine.SetField("lotItemId03", OtherToAddId);
-                                        curLine.SetField("lotItemNum03", 1);
-                                        curLine.SetField("enableLuck03", 1);
-                                        curLine.SetField("lotItemCategory03", OtherCategory);
-                                        int OtherPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * OtherToAddPercentMult));
-                                        curLine.SetField("lotItemBasePoint03", Math.Min(34463,OtherPercent));
-                                        int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
-                                        curLine.SetField("lotItemBasePoint01", Math.Max(1, Math.Min(34463, _curLot1Percent - OtherPercent)));
-                                    }
-                                    curLine.SetField(1, curLine.name + addToName);
-                                    if (PercentMult != -1)
-                                    {
-                                        int NewPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * PercentMult));
-                                        int addedAmount = NewPercent - _curLot2Percent;
-                                        curLine.SetField("lotItemBasePoint02", Math.Min(34463, NewPercent));
-                                        int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
-                                        curLine.SetField("lotItemBasePoint01", Math.Min(34463, Math.Max(1, _curLot1Percent - addedAmount)));
-                                    }
-
-                                    
-                                    if (FlagId != -1)
-                                    {
-                                        if (OtherToAddId == -1)
-                                            curLine.SetField("getItemFlagId", FlagId);
-                                        else
-                                            curLine.SetField("getItemFlagId02", FlagId);
-                                    }
-                                    else if (createUniqueFlagId)
-                                    {
-                                        int currentGetItemFlagId = IntFilter.GetRandomInt(npcID, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
-                                        usedGetItemFlagId.Add(currentGetItemFlagId);
-
-                                        if (isArmor)
-                                            AsssignedArmorsFlagIdDict.Add(_curLot2Id, currentGetItemFlagId);
-                                        else if (isWeapon)
-                                            AsssignedWeaponsFlagIdDict.Add(_curLot2Id, currentGetItemFlagId);
-
-                                        if (OtherToAddId == -1)
-                                        {
-                                            curLine.SetField("getItemFlagId", currentGetItemFlagId);
-                                            //line.SetField("canExecByFriendlyGhost", "0");
-                                        }
-                                        else
-                                            curLine.SetField("getItemFlagId02", currentGetItemFlagId);
-                                    }
-                                    if (OtherFlagId != -1)
-                                        curLine.SetField("getItemFlagId02", OtherFlagId);
-                                    else if (createUniqueFlagIdForOther)
-                                    {
-                                        int currentGetItemFlagId = IntFilter.GetRandomInt(npcID, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
-                                        usedGetItemFlagId.Add(currentGetItemFlagId);
-                                        if (isArmor)
-                                            AsssignedArmorsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
-                                        else if (isWeapon)
-                                            AsssignedWeaponsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
-                                        curLine.SetField("getItemFlagId03", currentGetItemFlagId);
-                                    }
-                                }
                             }
                             nextID++;
                             curLine = ItemLotParam_enemy.GetLineWithId(nextID, out curLineIndex, curLineIndex);
@@ -4670,16 +4130,16 @@ namespace EldenRingCSVHelper
                             if (itemLotLine != null && idToLevelDict.ContainsKey(itemLotLine) && idToVariantsDict.ContainsKey(itemLotLine) && idToLevelDict[itemLotLine] == level && idToVariantsDict[itemLotLine] == variantID)
                             {
                                 //npcLine.MarkModified(false); //temp just so its considered modified
-                                if (npcID == test)
+                                if (test)
                                     Util.println(npcLine._idName + "   SUCCESS" + "    already had proper" + itemLotLine.id);
                                 continue;
                             }
                             else
                             {
                                 //properItemLotLineFound = itemLotMainLines.GetLineOnCondition(isProperItemLotCondition);
-                                foreach(var ilml in itemLotMainLines.lines)
+                                foreach (var ilml in itemLotMainLines.lines)
                                 {
-                                    if(idToLevelDict.ContainsKey(ilml) && idToVariantsDict.ContainsKey(ilml) && idToLevelDict[ilml] == level && idToVariantsDict[ilml] == variantID)
+                                    if (idToLevelDict.ContainsKey(ilml) && idToVariantsDict.ContainsKey(ilml) && idToLevelDict[ilml] == level && idToVariantsDict[ilml] == variantID)
                                     {
                                         properItemLotLineFound = ilml;
                                         break;
@@ -4689,13 +4149,13 @@ namespace EldenRingCSVHelper
 
                             //if we find one assign it.
 
-                            //if (npcID == test)
+                            //if (test)
                             //    Util.println("properItemLotLine Found: " + (properItemLotLineFound != null).ToString() + "   size = "+ itemLotMainLines.Length);;
 
                             if (properItemLotLineFound != null)
                             {
                                 npcLine.SetField("itemLotId_enemy", properItemLotLineFound.id);
-                                if (npcID == test)
+                                if (test)
                                     Util.println(npcLine._idName + "   SUCCESS" + "    found proper" + properItemLotLineFound.id);
                                 continue;
                             }
@@ -4766,7 +4226,7 @@ namespace EldenRingCSVHelper
                         {
                             startingSearchForLocationItemLotID = itemLotLine.id_int;
                         }
-                        //if (npcID == test)
+                        //if (test)
                         //    Util.println("startingSearchFOrLocationItemLotID: " + startingSearchForLocationItemLotID + "   " + npcLine.id + ":" + npcLine.name );
 
                         //now we search down for a free ID spot to create it.
@@ -4809,7 +4269,7 @@ namespace EldenRingCSVHelper
                                 break;
                             }
                             if (
-                                curLineEmptyAndNoDropCondition.Pass(curLine) ||
+                                //curLineEmptyAndNoDropCondition.Pass(curLine) ||
                                 ((dropSmithing || dropSomber) && isSmithingLineCondition.Pass(curLine)) ||
                                 (dropRune && isRuneLineCondition.Pass(curLine))
                                )
@@ -4828,156 +4288,16 @@ namespace EldenRingCSVHelper
                                 Line copy = ItemLotParam_enemy.GetLineWithId(currentLineToCopyID).Copy().SetField(0, currentNewLineCopyID);
                                 newLines.Add(copy);
                                 //ItemLotParam_enemy.OverrideOrAddLine(copy);
-                                if (OneTimeWeaponAndArmorDrops && curLineHasOneItemCond.Pass(copy))
-                                {
-                                    var xxxx = copy.GetField("lotItemCategory02");
-                                    //
-                                    int FlagId = -1;
-                                    int OtherFlagId = -1;
-                                    //OR
-                                    bool createUniqueFlagId = false;
-                                    bool createUniqueFlagIdForOther = false;
-                                    //
-
-                                    string addToName = "";
-                                    float PercentMult = 1;
-
-                                    int OtherToAddId = -1;
-                                    float OtherToAddPercentMult = 1;
-                                    int OtherCategory = 0;
-
-                                    int _curLot2Id = int.Parse(copy.GetField("lotItemId02"));
-
-                                    bool isWeapon = isWeaponCond.Pass(copy);
-                                    bool isArmor = isArmorCond.Pass(copy);
-                                    RunSettings.Testing_FunctionDebug = true;
-                                    bool isNotArrow = isNotArrowCond.Pass(curLine);
-                                    RunSettings.Testing_FunctionDebug = false;
-
-                                    if (isArmor)
-                                    {
-                                        foundOneTimeDrop = true;
-                                        isArmor = true;
-                                        const bool ALLOW_REVERSE_ALTERED_DROP = false;
-                                        OtherToAddId = _curLot2Id + 1000;
-                                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithId(OtherToAddId);
-                                        if (OtherToAddEquipLine != null)
-                                        {
-                                            if (isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
-                                            {
-                                                OtherToAddId = -1;
-                                            }
-                                        }
-                                        else if (ALLOW_REVERSE_ALTERED_DROP)         // if we want to allow revers altering (this tends to always be problematic
-                                        {
-                                            OtherToAddId = _curLot2Id - 1000;
-                                            OtherToAddEquipLine = EquipParamWeapon.GetLineWithId(OtherToAddId);
-                                            if (OtherToAddEquipLine == null || isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
-                                                OtherToAddId = -1;
-                                        }
-                                        else
-                                            OtherToAddId = -1;
-
-                                        if (AsssignedArmorsFlagIdDict.ContainsKey(_curLot2Id))
-                                            FlagId = AsssignedArmorsFlagIdDict[_curLot2Id];
-                                        else
-                                            createUniqueFlagId = true;
-
-                                        if (OtherToAddId != -1)
-                                        {
-                                            OtherCategory = 3;
-                                            if (AsssignedArmorsFlagIdDict.ContainsKey(OtherToAddId))   //fair to assume it exists
-                                                OtherFlagId = AsssignedArmorsFlagIdDict[OtherToAddId];
-                                            else
-                                                createUniqueFlagIdForOther = true;
-                                            PercentMult = OneTimeWeaponAndArmorDrops_ArmorDropChanceMult;
-                                            OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult;
-                                            addToName = " & " + OtherToAddEquipLine.name;
-                                        }
-                                    }
-                                    else if (isWeapon && isNotArrow)
-                                    {
-                                        foundOneTimeDrop = true;
-                                        isWeapon = true;
-                                        PercentMult = OneTimeWeaponAndArmorDrops_WeaponDropChanceMult;
-                                        OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult;
-                                        if (AsssignedWeaponsFlagIdDict.ContainsKey(_curLot2Id))
-                                            FlagId = AsssignedWeaponsFlagIdDict[_curLot2Id];
-                                        else
-                                            createUniqueFlagId = true;
-                                        //createUniqueFlagIdForOther = true; //if we dont want to drop infinitly
-                                        OtherCategory = 2;
-                                        OtherToAddId = _curLot2Id;
-                                    }
-                                    int _curLot2Percent = int.Parse(copy.GetField("lotItemBasePoint02"));
-                                    if (OtherToAddId != -1)
-                                    {
-                                        copy.SetField("lotItemId03", OtherToAddId);
-                                        copy.SetField("lotItemNum03", 1);
-                                        copy.SetField("enableLuck03", 1);
-                                        copy.SetField("lotItemCategory03", OtherCategory);
-                                        int OtherPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * OtherToAddPercentMult));
-                                        copy.SetField("lotItemBasePoint03", Math.Min(34463, OtherPercent));
-                                        int _curLot1Percent = int.Parse(copy.GetField("lotItemBasePoint01"));
-                                        copy.SetField("lotItemBasePoint01", Math.Min(34463, Math.Max(1, _curLot1Percent - OtherPercent)));
-                                    }
-                                    copy.SetField(1, copy.name + addToName);
-                                    if (PercentMult != -1)
-                                    {
-                                        int NewPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * PercentMult));
-                                        int addedAmount = NewPercent - _curLot2Percent;
-                                        copy.SetField("lotItemBasePoint02", Math.Min(34463, NewPercent));
-                                        int _curLot1Percent = int.Parse(copy.GetField("lotItemBasePoint01"));
-                                        copy.SetField("lotItemBasePoint01", Math.Min(34463, Math.Max(1, _curLot1Percent - addedAmount)));
-                                    }
-                                    if (FlagId != -1)
-                                    {
-                                        if (OtherToAddId == -1)
-                                            copy.SetField("getItemFlagId", FlagId);
-                                        else
-                                            copy.SetField("getItemFlagId02", FlagId);
-                                    }
-                                    else if (createUniqueFlagId)
-                                    {
-                                        int currentGetItemFlagId = IntFilter.GetRandomInt(npcID, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
-                                        usedGetItemFlagId.Add(currentGetItemFlagId);
-
-                                        if (isArmor)
-                                            AsssignedArmorsFlagIdDict.Add(_curLot2Id, currentGetItemFlagId);
-                                        else if (isWeapon)
-                                            AsssignedWeaponsFlagIdDict.Add(_curLot2Id, currentGetItemFlagId);
-
-                                        if (OtherToAddId == -1)
-                                        {
-                                            copy.SetField("getItemFlagId", currentGetItemFlagId);
-                                            //line.SetField("canExecByFriendlyGhost", "0");
-                                        }
-                                        else
-                                            copy.SetField("getItemFlagId02", currentGetItemFlagId);
-                                    }
-                                    if (OtherFlagId != -1)
-                                        copy.SetField("getItemFlagId02", OtherFlagId);
-                                    else if (createUniqueFlagIdForOther)
-                                    {
-                                        int currentGetItemFlagId = IntFilter.GetRandomInt(npcID, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
-                                        usedGetItemFlagId.Add(currentGetItemFlagId);
-                                        if (isArmor)
-                                            AsssignedArmorsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
-                                        else if (isWeapon)
-                                            AsssignedWeaponsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
-                                        copy.SetField("getItemFlagId03", currentGetItemFlagId);
-                                    }
-                                }
                             }
                             currentLineToCopyID++;
                             currentNewLineCopyID++;
                         }
 
-                            
+
 
                         Debug.Assert(newItemLotID != -1, npcLine._idName);
 
-                        //if (npcID == test)
+                        //if (test)
                         //    Util.println("newItemLotID: "+newItemLotID+"   "+npcLine.id+":"+npcLine.name+"   " +newItemLotID);
 
                         itemLotID = newItemLotID;
@@ -4999,14 +4319,30 @@ namespace EldenRingCSVHelper
 
                     }
 
+                    {
+                        if (!RUNES && !STONES)
+                        {
+                            foreach (Line line in newLines)
+                            {
+                                ItemLotParam.OverrideOrAddLine(line);
+                            }
+                            continue;
+                        }
+                        bool dropStones = (dropSmithing || dropSomber);
+                        if (!STONES && dropStones && !dropRune)
+                            continue;
+                        if (!RUNES && dropRune && !dropStones)
+                            continue;
+                    }
+
                     //create smithing stone line.
 
-                    if (npcID == test)
+                    if (test)
                         Util.println(npcLine._idName + "   SUCCESS" + "    making proper" + itemLotID);
 
                     float percentChance = percentNumDict[keyword] * 10;   //100 chance to 1000 item lot chance
 
-                    if (npcID == test)
+                    if (test)
                         Util.p();
 
                     int[] xAmounts = amountMultsDict[keyword];
@@ -5056,7 +4392,7 @@ namespace EldenRingCSVHelper
                         float MaxPercentMult = MaxPercent / effectivePercent;
                         DROPMULTpercentMult = Math.Min(MaxPercentMult, DROPMULTpercentMult);
                         DROPMULTamountMult = 1 + ((DROPMULT - 1) - (DROPMULTpercentMult - 1));
-                        if (test == npcID)
+                        if (test)
                             Util.p();
                     }
                     //percentChance *= DROPMULTpercentMult; done way later.
@@ -5124,7 +4460,7 @@ namespace EldenRingCSVHelper
                             for (int i = 0; i < keys.Length; i++)
                             {
                                 stoneLine.OperateField("lotItemNum0" + keys[i], new OperateIntField(Operation.MULTIPLY, postHok_amountMult));
-                                if (test == npcID)
+                                if (test)
                                     Util.p();
                             }
                             donePostHawkFix = true;
@@ -5167,11 +4503,17 @@ namespace EldenRingCSVHelper
 
 
 
-
+                        int currentRarity = -1;
 
                         if (currentlyFirstDropGuarentee || treatAsBoss)       // we made the firstTImeAdj also aply to bosses. Cuz why not. ALso helps us with making zamor better.
+                        {
                             curAdjustedLevel = adjustedLevel + currentFirstTimeLevelAdj;
 
+                            if(currentlyFirstDropGuarentee &&(((FTD_OnlyHighestX || FTD_DropMultiple) && xAmounts.Count() > 0 && xAmounts[xAmounts.Count()-1] > 1 ) || currentFirstTimeLevelAdj > 1))
+                            {
+                                currentRarity = 4;
+                            }
+                        }
                         if (treatAsBoss)
                         {
                             currentlyFirstDropGuarentee = false;
@@ -5193,13 +4535,18 @@ namespace EldenRingCSVHelper
                                 bossPercentDiv = (levelCasscade + 1);
                             }
 
-                            if (test == npcID)
+                            if (test)
                                 Util.p();
 
                             //if (createNewLineForSpecialDrop)
                             //{
-                            lotIndex = 1;
-                            emptyLotReplaced = true;
+                            if (treatAsBoss || !ftdx1ExcessToEmpty)
+                            {
+                                lotIndex = 1;
+                                emptyLotReplaced = true;
+                            }
+                            if (test)
+                                Util.p();
 
                             if (curPercentChance != 0 || isFirstTimeDrop)
                                 curPercentChance = 1000/bossPercentDiv;    //doesnt really cause it to work how we want but whaterver ts fine.
@@ -5217,7 +4564,7 @@ namespace EldenRingCSVHelper
 
 
 
-                        if (npcID == test)
+                        if (test)
                             Util.println("useSingleLine:" + useSingleLine + "   currentlyFirstDropGuarentee:" + currentlyFirstDropGuarentee + "   d:" + d + "   dmax:" + dmax);
 
 
@@ -5253,7 +4600,7 @@ namespace EldenRingCSVHelper
                                     curTypeAdjustedLevel = 1; //makes trolls still drop the chance.
 
                                 //if (30101172 == npcID)
-                                Util.p();
+                                    Util.p();
                                 //if (30101451 == npcID)
                                     Util.p();
                             }
@@ -5318,7 +4665,7 @@ namespace EldenRingCSVHelper
                                 lastLevelPercentMult *= 1 - startLevelPercentMult;    //level 0.04
                             }
 
-                            if (npcID == test)
+                            if (test)
                                 Util.println("level:" + level + "   curTypeAdjustedLevel:" + curTypeAdjustedLevel + "   startLevelPercentMult:" + startLevelPercentMult + "   secondLevelPercentMult:" + lastLevelPercentMult + " levelCascade" + levelCasscade + "    " + keyword);
 
                             int minLevel = startLevel;
@@ -5332,7 +4679,7 @@ namespace EldenRingCSVHelper
                             }
                             float curTypePercentChance = curPercentChance;
 
-                            if (test == npcID)
+                            if (test)
                                 Util.p();
 
                             if (startLevel <= 0)    // pushes up levels but reduces chance. 
@@ -5349,7 +4696,7 @@ namespace EldenRingCSVHelper
 
                             
 
-                            if (test == npcID)
+                            if (test)
                                 Util.p();
 
                             if (isBoth)   //if is both reduce chance for both
@@ -5360,7 +4707,7 @@ namespace EldenRingCSVHelper
                                     curTypePercentChance = curPercentChance * (bothPercentSplitForSomberDict[keyword] / 100f);
                             }
 
-                            if (test == npcID)
+                            if (test)
                                 Util.p();
 
                             float startLevelPercent = curTypePercentChance;
@@ -5400,7 +4747,7 @@ namespace EldenRingCSVHelper
                                 //    Util.println();
 
                             }
-                            if (test == npcID)
+                            if (test)
                                 Util.p();
                             float curTypelvl1Mult = 1;
                             if (minLevel <= 0)
@@ -5430,7 +4777,7 @@ namespace EldenRingCSVHelper
                                     }
 
                                     curTypelvl1Mult += lvlBelow1Mult * percentMult * casscadeLevelMult * curCasscadePoolingMult;
-                                    if (test == npcID)
+                                    if (test)
                                         Util.p();
                                 }
                             }
@@ -5443,6 +4790,9 @@ namespace EldenRingCSVHelper
 
 
                             int lastCasscadeXAmount = -1;
+
+                            if(test)
+                                Util.p();
 
                             for (int curLevel = startLevel; curLevel >= minLevel && curLevel > 0; curLevel--)
                             {
@@ -5457,7 +4807,9 @@ namespace EldenRingCSVHelper
                                 }
 
                                 float curLevelPercentChance = curTypePercentChance;
-                                bool canUseLuck = !treatAsBoss && !currentlyFirstDropGuarentee;
+
+
+                                bool canUseLuck = !treatAsBoss && !(currentlyFirstDropGuarentee && !ftdx1ExcessToEmpty);
                                 bool isAncient = false;
                                 //int curAmountMult = amountMult;
                                 bool canDropXAmount = true;
@@ -5484,7 +4836,7 @@ namespace EldenRingCSVHelper
                                     curLevelPercentChance *= curTypelvl1Mult;
                                     //if(lastLevelMult != 1) Util.println(Util.IndentedText(npcLine._idName +" lvl:" + level+" cas:"+levelCasscade+ " |  ", 50) + pre + " -> " + curLevelPercentChance);
                                 }
-                                if (!(curLevel == minLevel && isDecimalLevel)) //last dicimal level is excepmt from further manipulation.
+                                if (!(curLevel == minLevel && isDecimalLevel) && !((treatAsBoss || currentlyFirstDropGuarentee) && curLevel == minLevel)) //last dicimal level is excepmt from further manipulation.
                                 {
                                     //curLevelPercentChance *= (float)Math.Pow(levelToChanceMult, curLevel - 1);    //-1 so it doesnt effect level 1
                                     if (levelToChanceMult != 1)
@@ -5528,7 +4880,7 @@ namespace EldenRingCSVHelper
                                         //Util.println(npcLine._idName + "  StoneLine:" + itemLotEnemyName + " " + typeStrings[typeIndex] + " [" + curLevel + "]   SKIPPPED finalPercent <= 0  :" + curLevelPercentChance);
                                         //debugNoFinalPercent++;
                                         
-                                        if (test == npcID)
+                                        if (test)
                                             Util.println("curLevel:" + curLevel + " too small chance. skipped");
                                         continue;
                                     }
@@ -5554,13 +4906,12 @@ namespace EldenRingCSVHelper
                                         for (int i = 0; i < keys.Length; i++)
                                         {
                                             stoneLine.OperateField("lotItemNum0" + keys[i], new OperateIntField(Operation.MULTIPLY, postHok_amountMult));
-                                            if (test == npcID)
+                                            if (test)
                                                 Util.p();
                                         }
                                         donePostHawkFix = true;
                                     }
-
-                                    if ((treatAsBoss || currentlyFirstDropGuarentee))// special excpetion where we dont  
+                                    if (treatAsBoss || (currentlyFirstDropGuarentee && !ftdx1ExcessToEmpty ))// special excpetion where we dont  
                                     {
                                         lotIndex = 1;
                                         emptyLotReplaced = true;
@@ -5570,11 +4921,13 @@ namespace EldenRingCSVHelper
                                         emptyLotReplaced = false;
                                         lotIndex = 2;
                                     }
+                                    if (test)
+                                        Util.p();
                                     string spaceString = "";
                                     if (itemLotEnemyName != "")
                                         spaceString = " ";
 
-                                    if (test == npcID)
+                                    if (test)
                                         Util.p();
 
                                     if (linesToReplaceOrRemove.Count == 0)
@@ -5582,7 +4935,9 @@ namespace EldenRingCSVHelper
 
                                         stoneLine = baseEmptyItemLotParamLine.Copy(ItemLotParam)
                                             .SetField(0, targetSmithingStoneLineID)
-                                            .SetField(1, itemLotEnemyName + spaceString + newItemName);
+                                            .SetField(1, itemLotEnemyName + spaceString + newItemName)
+                                            .SetField("lotItem_Rarity", currentRarity)
+                                            ;
 
                                         targetSmithingStoneLineID = stoneLine.GetNextFreeId();
                                         if (targetSmithingStoneLineID > HighestIdPossible)
@@ -5662,20 +5017,34 @@ namespace EldenRingCSVHelper
 
                                 int HighestAmount = 0;
                                 int lowestAmount = Math.Max(1, curCasscadeXAmount - Xasscade);
+                                //int chanceToGiveToEmpty = 0;
                                 Dictionary<int, int> curLineAmountsToChanceDict = new Dictionary<int, int>();
                                 {
                                     int percentToAddToXasscadeNum1 = 0;
                                     int curXasscadeNumToDrop = curCasscadeXAmount;
+                                    if (curXasscadeNumToDrop != 1 && (treatAsBoss || currentlyFirstDropGuarentee) && FTD_Dropx1)
+                                    {
+                                        curXasscadeNumToDrop = 1;
+                                    }
                                     for (int curXasscade = 0; curXasscade <= Xasscade && curXasscadeNumToDrop > 0; curXasscade++)
                                     {
-
                                         int curXasscadeFinalPercentInt = finalPercentInt;
                                         float curXasscadeFinalPercent = curXasscadeFinalPercentInt;
                                         if (curXasscadeNumToDrop == lowestAmount)
                                         {
                                             curXasscadeFinalPercent += percentToAddToXasscadeNum1;
+                                            if(ftdx1ChanceMult != 1 && curXasscadeNumToDrop ==1 && currentlyFirstDropGuarentee)
+                                            {
+                                                float prevAmount = curXasscadeFinalPercent;
+                                                curXasscadeFinalPercent *= ftdx1ChanceMult;
+                                                if (ftdx1ExcessToEmpty && !emptyLotReplaced)
+                                                {
+                                                    int chanceToGiveToEmpty = Math.Max(0,(int)((curXasscadeFinalPercent - prevAmount) + 0.5));
+                                                    stoneLine.SetField("lotItemNum01", chanceToGiveToEmpty);
+                                                }
+                                            }
                                             curXasscadeFinalPercentInt = (int)(curXasscadeFinalPercent + 0.5);
-                                            if (test == npcID)
+                                            if (test)
                                                 Util.p();
                                             percentToAddToXasscadeNum1 = 0;
 
@@ -5689,7 +5058,7 @@ namespace EldenRingCSVHelper
                                             curXasscadeFinalPercentInt = (int)(curXasscadeFinalPercent + 0.5);
                                             percentToAddToXasscadeNum1 += finalPercentInt - curXasscadeFinalPercentInt;
 
-                                            if (test == npcID)
+                                            if (test)
                                                 Util.p();
 
                                         }
@@ -5703,7 +5072,7 @@ namespace EldenRingCSVHelper
                                         if (curXasscadeNumToDrop > HighestAmount)
                                             HighestAmount = curXasscadeNumToDrop;
                                         curLineAmountsToChanceDict.Add(curXasscadeNumToDrop, curXasscadeFinalPercentInt);
-                                        if (test == npcID)
+                                        if (test)
                                             Util.p();
                                         curXasscadeNumToDrop--;
 
@@ -5718,7 +5087,7 @@ namespace EldenRingCSVHelper
                                     }*/
 
                                     float curAmountMult = DROPMULTamountMult;
-                                    if (test == npcID)
+                                    if (test)
                                         Util.p();
                                     if (currentlyFirstDropGuarentee || treatAsBoss)
                                     {
@@ -5767,7 +5136,7 @@ namespace EldenRingCSVHelper
                                             if (newNumToDrop > HighestAmount)
                                                 HighestAmount = newNumToDrop;
 
-                                            if (test == npcID)
+                                            if (test)
                                                 Util.p();
 
                                             if (distributeToNext)
@@ -5793,7 +5162,7 @@ namespace EldenRingCSVHelper
                                                     newCurLineAmountsToChanceDict[key] += newCurLineAmountsToDistibutedOddsDict[key];
                                                 else
                                                     newCurLineAmountsToChanceDict.Add(key, newCurLineAmountsToDistibutedOddsDict[key]);
-                                                if (test == npcID)
+                                                if (test)
                                                     Util.println();
                                             }
                                         }
@@ -5804,7 +5173,7 @@ namespace EldenRingCSVHelper
                                     {
                                         int _curKeyAmount = curLineAmountsToChanceDict[key]; ;
                                         curTotalPercent += _curKeyAmount;
-                                        if (test == npcID)
+                                        if (test)
                                             Util.p();
                                     }
                                 }
@@ -5914,11 +5283,11 @@ namespace EldenRingCSVHelper
                                     }*/
 
 
-                                    if (test == npcID)
+                                    if (test)
                                         Util.println("      lot:" + lotIndex + " isSomber:" + (typeIndex == 1).ToString() + "  [" + curLevel + "]   x" + curNumToDrop);
                                 }
 
-                                if (test == npcID)
+                                if (test)
                                     Util.println(npcLine.name + " " + typeIndex + " " + casscadeIndex + " " + curTotalPercent + "  " + lotPercentTotal);
 
                                 if (!emptyLotReplaced)
@@ -6025,17 +5394,24 @@ namespace EldenRingCSVHelper
 
                         if (stoneLine == null)
                         {
-                            if (test == npcID)
+                            if (test)
                                 Util.println(npcLine._idName + "  stoneLine is null.");
                             if (d == 0 && dmax == 1)
                             {
-                                treatAsBoss = true; //i gues this is to skip to rune.
-                                d = -1;
-                                dmax = 0;
+                                if (!ftdx1ExcessToEmpty)
+                                {
+                                    treatAsBoss = true; //i gues this is to skip to rune.
+                                    d = -1;
+                                    dmax = 0;
 
-
-                                curPercentChance = 0;
-                                percentChance = 0;
+                                    curPercentChance = 0;
+                                    percentChance = 0;
+                                }
+                                else
+                                {
+                                    curPercentChance = 1000;
+                                    percentChance = 1000;
+                                }
                             }
                             else
                                 npcLine.RevertFieldToVanilla("itemLotId_enemy");
@@ -6204,44 +5580,115 @@ namespace EldenRingCSVHelper
                 l.Operate(new OperateIntField(value, Operation.DIVIDED, 10));
             }
         }
-        static void SmithingStoneShopLineupChanges()
+        static void ShopLineupChanges(bool VendorsSmithingStoneNerf, bool TwinMaidenSmithingStoneNerf, bool VendorsMaterialBuff, bool MiscNerfs)
         {
             if (!IsRunningParamFile(new ParamFile[] { ShopLineupParam }))
                 return;
+
             int sellQuantity = ShopLineupParam.GetFieldIndex("sellQuantity");
             int value = ShopLineupParam.GetFieldIndex("value");
             int equipId = ShopLineupParam.GetFieldIndex("equipId");
-            foreach (Line l in ShopLineupParam.GetLinesOnCondition(new Condition.HasInName("Smithing Stone [").AND(new Condition.HasInName("Merchant")))){
-                l.SetField(sellQuantity, 1);
-                l.Operate(new OperateIntField(value, Operation.MULTIPLY, 2f));
-            }
+            int equipType = ShopLineupParam.GetFieldIndex("equipType");
+            int goodsCategory = 3;
+            int weaponCategory = 0;
 
-            int i = 0;
-            foreach (Line l in ShopLineupParam.GetLinesOnCondition(new Condition.HasInName("Somber Smithing Stone [").AND(new Condition.HasInName("Iji"))))
+            if (VendorsSmithingStoneNerf)
             {
-                if (i == 3)
+                foreach (Line l in ShopLineupParam.GetLinesOnCondition(new Condition.HasInName("Smithing Stone [").AND(new Condition.HasInName("Merchant"))))
                 {
-                    l.SetField(1, "[Iji] Lost Ashes of War");
-                    l.SetField(sellQuantity, 3);
-                    l.SetField(value, 2000);
-                    l.SetField(equipId, 10070); //lost ash of war
-                }
-                else
-                {
-                    //string oldNum = l.GetField(sellQuantity);
-                    int num = Math.Max(1, (int)(2.5 - (i * 0.5)));
-                    //Util.println(l._idName + "  " + oldNum + " --> " + num);
-                    l.SetField(sellQuantity, num);
-
-                    //string oldprice = l.GetField(value);
-                    int price = (int)(((float.Parse(l.GetField(value)) / 1000) * (1 + (i * 0.2))) + 0.5) * 1000;
-                    //Util.println(l._idName + "  " + oldprice + " --> " + price);
-                    l.SetField(value, price);
+                    l.SetField(sellQuantity, 1);
+                    //l.Operate(new OperateIntField(value, Operation.MULTIPLY, 1.5f));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 400), new Condition.HasInName("Smithing Stone [1]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 600), new Condition.HasInName("Smithing Stone [2]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 900), new Condition.HasInName("Smithing Stone [3]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 1200), new Condition.HasInName("Smithing Stone [4]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 1600), new Condition.HasInName("Smithing Stone [5]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 2400), new Condition.HasInName("Smithing Stone [6]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 3200), new Condition.HasInName("Smithing Stone [7]"));
+                    l.Operate(new OperateIntField(value, Operation.EQUALS, 4500), new Condition.HasInName("Smithing Stone [8]"));
                 }
 
-                i++;
+                int i = 0;
+                foreach (Line l in ShopLineupParam.GetLinesOnCondition(new Condition.HasInName("Somber Smithing Stone [").AND(new Condition.HasInName("Iji"))))
+                {
+                    if (i == 3)
+                    {
+                        l.SetField(1, "[Iji] Lost Ashes of War");
+                        l.SetField(sellQuantity, 3);
+                        l.SetField(value, 2000);
+                        l.SetField(equipId, 10070); //lost ash of war
+                    }
+                    else
+                    {
+                        //string oldNum = l.GetField(sellQuantity);
+                        int num = Math.Max(1, (int)(2.5 - (i * 0.5)));
+                        //Util.println(l._idName + "  " + oldNum + " --> " + num);
+                        l.SetField(sellQuantity, num);
+
+                        //string oldprice = l.GetField(value);
+                        int price = (int)(((float.Parse(l.GetField(value)) / 1000) * (1 + (i * 0.2))) + 0.5) * 1000;
+                        //Util.println(l._idName + "  " + oldprice + " --> " + price);
+                        l.SetField(value, price);
+                    }
+
+                    i++;
+                }
             }
 
+            if (TwinMaidenSmithingStoneNerf)
+            {
+                Condition isSomberCond = new Condition.HasInName("Somber Smithing Stone [");
+                foreach (Line l in ShopLineupParam.GetLinesOnCondition(new Condition.HasInName("Smithing Stone [").AND(new Condition.HasInName("[Twin Maiden Husks]"))))
+                {
+                    l.Operate(new OperateIntField(value, Operation.MULTIPLY, 1.5f));
+
+                    if (isSomberCond.Pass(l))
+                    {
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 2000), new Condition.HasInName("Somber Smithing Stone [1]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 4000), new Condition.HasInName("Somber Smithing Stone [2]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 6000), new Condition.HasInName("Somber Smithing Stone [3]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 8000), new Condition.HasInName("Somber Smithing Stone [4]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 10000), new Condition.HasInName("Somber Smithing Stone [5]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 12000), new Condition.HasInName("Somber Smithing Stone [6]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 16000), new Condition.HasInName("Somber Smithing Stone [7]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 20000), new Condition.HasInName("Somber Smithing Stone [8]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 25000), new Condition.HasInName("Somber Smithing Stone [9]"));
+                    }
+                    else
+                    {
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 400), new Condition.HasInName("Smithing Stone [1]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 600), new Condition.HasInName("Smithing Stone [2]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 900), new Condition.HasInName("Smithing Stone [3]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 1200), new Condition.HasInName("Smithing Stone [4]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 1600), new Condition.HasInName("Smithing Stone [5]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 2400), new Condition.HasInName("Smithing Stone [6]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 3200), new Condition.HasInName("Smithing Stone [7]"));
+                        l.Operate(new OperateIntField(value, Operation.EQUALS, 4500), new Condition.HasInName("Smithing Stone [8]"));
+                    }
+                }
+            }
+
+            if (VendorsMaterialBuff)
+            {
+                var isMaterialCondition = new Condition.FieldIs(equipType, goodsCategory).AND(new Condition.FloatFieldBetween(equipId, 15000, 25000));
+                var quantityLimitedCond = new Condition.FieldIs(sellQuantity, -1).IsFalse;
+
+                foreach (Line l in ShopLineupParam.GetLinesOnCondition(isMaterialCondition.AND(quantityLimitedCond)))
+                {
+                    l.Operate(new OperateIntField(sellQuantity, Operation.MULTIPLY, 2f));
+                    l.Operate(new OperateIntField(value, Operation.DIVIDED, 2f));
+                }
+            }
+
+            if (MiscNerfs)
+            {
+                //arros cost 40 from 20
+                var isShittyArrow = new Condition.FieldIs(equipType, weaponCategory).AND(new Condition.FieldIs(equipId, 50000000));
+                foreach (Line l in ShopLineupParam.GetLinesOnCondition(isShittyArrow))
+                {
+                    l.Operate(new OperateIntField(sellQuantity, Operation.EQUALS, 40));
+                }
+            }
         }
         static void replaceOpenWorldSmithingStones()
         {
@@ -6545,7 +5992,8 @@ namespace EldenRingCSVHelper
                 }*/
             }
 
-
+            //ItemLotParam_map.PrintCompareLineChanges();
+            //var i = ItemLotParam_map.numberOfModifiedOrAddedLines;
         }
 
         static void naturalFpRegen()

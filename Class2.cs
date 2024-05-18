@@ -48,7 +48,7 @@ namespace EldenRingCSVHelper
             lines.Clear();
             foreach(Line line in vanillaParamFile.lines)
             {
-                lines.Add(line.Copy(this));
+                lines.Add(line.Copy(this,true));
             }
         }
         /// <summary> 
@@ -287,14 +287,20 @@ namespace EldenRingCSVHelper
         /// </summary>
         public void Operate(LineModifier operation, Condition condition = null, bool conditionOnVanillaLines = false)
         {
-            lines = Line.Operate(lines, operation, condition, vanillaParamFile.lines);
+            if (conditionOnVanillaLines)
+                lines = Line.Operate(lines, operation, condition, conditionOnVanillaLines);
+            else
+                lines = Line.Operate(lines, operation, condition, lines);
         }
         /// <summary> 
         /// Run line modifiers into all lines in this Param. Includes an optional Line Condition.  ConditionOnVanillaLines:the line is only modified if the condition passes on the vanilla version of the line.
         /// </summary>
         public void Operate(LineModifier[] operations, Condition condition = null, bool conditionOnVanillaLines = false)
         {
-            lines = Line.Operate(lines, operations, condition, vanillaParamFile.lines);
+            if (conditionOnVanillaLines)
+                lines = Line.Operate(lines, operations, condition, conditionOnVanillaLines);
+            else
+                lines = Line.Operate(lines, operations, condition, lines);
         }
 
 
@@ -474,6 +480,8 @@ namespace EldenRingCSVHelper
                     filesPrinted++;
                 }
             }
+            if (filesPrinted > 0)
+                Console.WriteLine();
             return filesPrinted;
         }
         /// <summary> 
@@ -642,7 +650,7 @@ namespace EldenRingCSVHelper
         /// </summary>
         public Lines(List<Line> lines)
         {
-            
+
             foreach (var line in lines)
             {
                 this.lines.Add(line);
@@ -650,14 +658,26 @@ namespace EldenRingCSVHelper
             if (lines.Count != 0)
                 file = lines[0].file;
         }
+
+
         /// <summary> 
         ///  Parentfile is the Paramfile these lines are associated with the lines in this Lines.
         /// </summary>
-        public Lines (ParamFile parentFile)
+        public Lines(ParamFile parentFile)
         {
             file = parentFile;
         }
 
+
+        public int[] GetNextFreeIds()
+        {
+            int[] ret = new int[lines.Count];
+            for (int i = 0; i < lines.Count; i++)
+            {
+                ret[i] = file.GetNextFreeId(lines[i].id_int, false, 0);
+            }
+            return ret;
+        }
 
     }
     public abstract class LineContainer
@@ -865,9 +885,16 @@ namespace EldenRingCSVHelper
             Condition condition = new Condition.FieldIs(0, id);
             return Line.GetFieldOnCondition(fieldIndex, lines, condition);
         }
-        public int[] GetIDs()
+        public int[] GetIDs(int adj = 0, int mult = 1)
         {
-            return Util.ToInts(Line.GetFields(0, lines));
+            var ret = Util.ToInts(Line.GetFields(0, lines));
+            for (int i = 0; i < ret.Length; i++)
+            {
+                ret[i] += adj;
+                ret[i] *= mult;
+            }
+            return ret;
+
         }
         /// <summary> 
         /// Gets the ID of the lines that pass the given condifiton.
@@ -988,8 +1015,17 @@ namespace EldenRingCSVHelper
             Util.PrintStrings(output); ; ;
         }
     }
-    public class Line
+    public class Line:Themescaped
     {
+        public Line addKW(string keyword, int scale = 100)
+        {
+            return addKW(new Keyword(keyword, scale));
+        }
+        public Line addKW(Keyword keyword)
+        {
+            keywords.Add(keyword);
+            return this;
+        }
         public ParamFile file
         {
             get;
@@ -1190,8 +1226,10 @@ namespace EldenRingCSVHelper
                 return this;
 
             if (fieldIndex == 0)
+            {
                 _extraLineCheckQued = true;
-               
+                vanillaLine = null;
+            }
             _data[fieldIndex] = setTo;
             queUpdateLine = true;
             queUpdateData = false;
@@ -1781,6 +1819,7 @@ namespace EldenRingCSVHelper
                         if (changingFile && lines[l].inFile)
                         {
                             overrideLines[lookingFor].inFile = true;
+                            overrideLines[lookingFor].vanillaLine = lines[l].vanillaLine;
                             lines[l].inFile = false;
                             if (lines[l].modified)
                                 fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
@@ -1798,6 +1837,7 @@ namespace EldenRingCSVHelper
                         if (changingFile)
                         {
                             overrideLines[lookingFor].inFile = true;
+                            overrideLines[lookingFor].vanillaLine = null;
                             if (overrideLines[lookingFor].modified)
                             {
                                 fileInto.numberOfModifiedOrAddedLines++;
@@ -1823,6 +1863,7 @@ namespace EldenRingCSVHelper
                             if (changingFile && lines[l].inFile)
                             {
                                 overrideLines[i].inFile = true;
+                                overrideLines[i].vanillaLine = lines[l].vanillaLine;
                                 lines[l].inFile = false;
                                 if (lines[l].modified)
                                     fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
@@ -1841,6 +1882,7 @@ namespace EldenRingCSVHelper
                             if (changingFile)
                             {
                                 overrideLines[i].inFile = true;
+                                overrideLines[i].vanillaLine = null;
                                 if (overrideLines[i].modified)
                                 {
                                     fileInto.numberOfModifiedOrAddedLines++;
@@ -1880,6 +1922,7 @@ namespace EldenRingCSVHelper
                         if (changingFile && lines[l].inFile)
                         {
                             overrideLine.inFile = true;
+                            overrideLine.vanillaLine = lines[l].vanillaLine;
                             lines[l].inFile = false;
                             if (lines[l].modified)
                                 fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
@@ -1899,6 +1942,7 @@ namespace EldenRingCSVHelper
                         if (changingFile)
                         {
                             overrideLine.inFile = true;
+                            overrideLine.vanillaLine = null;
                             if (overrideLine.modified)
                             {
                                 fileInto.numberOfModifiedOrAddedLines++;
@@ -1937,6 +1981,18 @@ namespace EldenRingCSVHelper
             }
             return lines;
         }
+        public static List<Line> Operate(List<Line> lines, LineModifier operation, Condition condition, bool useVanillaLinesForCondition)
+        {
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var conditionLine = lines[i];
+                if (useVanillaLinesForCondition && lines[i].vanillaLine != null)
+                    conditionLine =lines[i].vanillaLine;
+                if (condition == null || condition.Pass(conditionLine))
+                    lines[i].Operate(operation);
+            }
+            return lines;
+        }
         /// <summary> 
         /// Modifies the given lines with the given line modifiers. Includes an optional Line Condition. Condition Lines are the lines you wish to run the conditions on in place of the accual lines (Useful in niche senarios)
         /// </summary>
@@ -1948,6 +2004,21 @@ namespace EldenRingCSVHelper
                 {
                     if (condition == null || (conditionLines != null && condition.Pass(conditionLines[i])) || (conditionLines == null && condition.Pass(lines[i])))
                         op.Operate(lines[i]);
+                }
+            }
+            return lines;
+        }        
+        public static List<Line> Operate(List<Line> lines, LineModifier[] operations, Condition condition, bool useVanillaLinesForCondition)
+        {
+            foreach (var op in operations)
+            {
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    var conditionLine = lines[i];
+                    if (useVanillaLinesForCondition && lines[i].vanillaLine != null)
+                        conditionLine = lines[i].vanillaLine;
+                    if (condition == null || condition.Pass(conditionLine))
+                        lines[i].Operate(op);
                 }
             }
             return lines;
