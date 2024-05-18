@@ -1527,7 +1527,22 @@ namespace EldenRingCSVHelper
             if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy }))
                 return;
             int good = LotItem.Category.Good;
+            int itemLotId_enemy = NpcParam.GetFieldIndex("ItemLotId_enemy");
 
+                                                                                                           //specific num 1                    //specific num 2
+            var MaterialOneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),    3     , IntFilter.Digit(3, 5),     7      , 7, -1, -1, 0);
+
+            var NonMaterialLinesToAdd = new List<Line>();
+            Condition isMaterial =
+                    new Condition.NameStartsWith("[").AND(
+                    new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[1], 15000, 25000))
+                    .OR(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 15000, 25000))));
+
+
+            List<LotItem> materials_to_exclude = List<LotItem>();
+            List<LotItem> material_chancePercent_multipler = new List<LotItem>();
+            List<LotItem> materials_to_set_max = new List<LotItem>();
+            List<LotItem> setLots = new List<LotItem>();
 
             //More Drops
             {
@@ -1535,59 +1550,182 @@ namespace EldenRingCSVHelper
 
                 //starlight shard, nox, glintsone sorcerer
                 {
-                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
-                            new Condition.FloatFieldBetween(NpcParam.GetFieldIndex("ItemLotId_enemy"),-1,0,true).IsFalse.AND(
-                            new Condition.HasInName(new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden" })))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")))).GetNextFreeIds();
-
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards"), ids); 
+                    string[] names = new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden" };
+                    for (int i = 0; i < names.Length; i++)
+                    {
+                        var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                            new Condition.FloatFieldBetween(ItemLotId_enemy), -1, 0, true).IsFalse.AND(
+                            new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distict().ToArray())
+                            //.GetNextFreeIds()
+                            ;
+                        if (i == 0)
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 50,true), ids);
+                        if (i == 1)
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 50,true), ids);
+                        if (i == 2)
+                        {
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 3, 100, true), ids);
+                            int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, MaterialOneTimeDrop_getItemFlagIDFilter, FlagIds.usedGetItemFlagId);
+                            FlagIds.usedGetItemFlagId.Add(currentGetItemFlagId);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 3, 1000, false, currentGetItemFlagId), ids);
+                        }
+                    }
+                    materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 1));
                 }
 
                 //raw meat dumpling - misbegotten
                 {
-                    //keyword conditions , keywordStartsWith, keywordContains, keywordValueBetween
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
-                        new Condition.FloatFieldBetween(NpcParam.GetFieldIndex("ItemLotId_enemy"), -1, 0, true).IsFalse
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName("Misbegotten")
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Castle Morne", "Village Windmill" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")))).GetNextFreeIds();
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling"), ids);
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 40,true), ids);
                 }
-                //raw meat dumpling - misbegotten
+                //raw meat dumpling - Living Jar
                 {
-                    var ids = ((Lines)ItemLotParam_enemy.GetLinesOnCondition(new Condition.NextLineIsFree().AND(new Condition.HasInName(
-                        new string[] { "[Living Pot -" })))).GetIDs(1);
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling"), ids);
+                    string[] names = new string[] { "Living Jar", "Great Jar" };
+                    for (int i = 0; i < names.Length; i++)
+                    {
+                        var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                                new Condition.FloatFieldBetween(ItemLotId_enemy), -1, 0, true).IsFalse.AND(
+                                new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distict().ToArray())
+                                //.GetNextFreeIds()
+                                ;
+                        if (names[i] == "Living Jar")
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 25,true), ids);
+                        if (names[i] == "Great Jar")
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 100,true), ids);
+                    }
                 }
                 //Large Glintstone Scrap - increased chance from sorcerer miner, greater amount dropped
-                //
+                /*{
+                    //check the lines 
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                            new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse.AND(
+                            new Condition.HasInName(new string[] { "Glintstone Stonedigger", "Cuckoo Knight" })))).GetIntFields(itemLotId_enemy).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Large Glintstone Scrap"), ids);
+                }*/
+                NonMaterialLinesToAdd.Add(ItemLotParam_enemy.GetLineOnCondition(new Condition.HasInName("] Large Glintstone Scrap")));
                 //root resin - skeletons
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Skeleton" })
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 50,true), ids);
+                }
                 //Golden rowa - lleyndel foot soldier, celebrant
-                //Rimmed row - snowfield troll
-                //Crystal Bud - cuckoo foot soldiers, albinauric crabs, crayfish (in luirnuia), miranda (magic varient)?, highwayman
-                //gold firefly bear, rune bear
-                //cavemoss demihumans (inside caves)
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Leyndell Footsoldier", "Wandering Noble" })
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Altus" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Golden Rowa", 1, 50,true), ids);
+                }
+                //Rimmed rowa - snowfield troll, wandring noble in snowfield or mountain tops
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Wandering Noble", "Troll" })
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Snowfield","Mountaintop" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Rimmed Rowa", 1, 50, true), ids);
+                }
+                //Crystal Bud - cuckoo foot soldiers?, albinauric crabs?, crayfish (in luirnuia), miranda (magic varient)?, 
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] {"Crayfish"})
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Liurnia" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Crystal Bud",12,200, true), ids);
+                }
+                //gold firefly - bear, rune bear
+                {
+                    var names = new string[] { "Runebear", "Bear" };
+                    for (int i = 0; i < names.Length; i++)
+                    {
+                        var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(names[i])
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Mistwood" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                        if (names[i] == "Runebear")
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 4, 150), ids);
+                        else if(names[i] == "Bear")
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 1, 150), ids);
+                    }
+                    
+                }
+                //cavemoss - demihumans (inside caves), highwayman
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Demi-human" })
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Cave" }))))
+                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                            //.GetNextFreeIds();
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Cavemoss", 1, 120, true), ids);
+                }
 
                 //throwing dart - imps that throw darts?
-                //cuckoo lintstone - cuckoo soldiers?
+                //cuckoo glintstone - cuckoo soldiers?
                 //glintstone scrap - miners?
 
                 //we will simply create a line with lot of the requested item, Increased Material Drops will st the lots to out prefrence.
+                foreach(LotItem lotItem in lotItemToLineIDsDict.Keys)
+                {
+                    int[] ids = lotItemToLineIDsDict[lotItem];
+                    foreach (int id in ids)
+                    {
+                        
+                        Line ogLine = ItemLotParam_enemy.GetLineWithId(id);
+                        string lotName = ogLine.name.Replace(new LotItem(ogLine, LotItem.GetFirstNonEmptyItemLotIndex(l)).Name, "") +lotItem.name ;
+                        Line line = LotItem.newBaseItemLotLine(ItemLotParam_enemy).SetField(0,ItemLotParam_enemy.GetNextFreeId(id)).SetField(1, lotName)
+                            .Operate(new SetLotItems(new LotItem[] { LotItem.newEmpty(Math.Max(0,1000 - lotItem.chance)), lotItem }, 1));
+                        NonMaterialLinesToAdd.Add(line);
+                        if(!isMaterial.Pass(line))
+                            ItemLotParam_enemy.OverrideOrAddLine(line);
+                    }
+                }
             }
 
 
             //Increased Materal Drops
             {
-                Condition isMaterial =
-                    new Condition.NameStartsWith("[").AND(
-                    new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[1], 15000, 25000))
-                    .OR(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 15000, 25000))));
-
+                
                 var materialLines = ItemLotParam_enemy.GetLinesOnCondition(isMaterial);
 
-                LotItem[] materials_to_exclude = new LotItem[] {
+                materialLines.Concat(NonMaterialLinesToAdd).ToList();
 
-                };
+                materials_to_exclude = materials_to_exclude.Concat(new LotItem[] {
+
+                }).ToArray();
 
                 const int defaultMax = 3;
                 const int chanceAdjPercent = 125;
@@ -1596,7 +1734,7 @@ namespace EldenRingCSVHelper
 
                 LotItem.Default_Chance = -1;
 
-                LotItem[] material_chancePercent_multipler = new LotItem[]
+                material_chancePercent_multipler = material_chancePercent_multipler.Concat(new LotItem[]
                 {
 
                     new LotItem(good,"Four-Toed Fowl Foot",0, 125),
@@ -1626,9 +1764,9 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Old Fang",0,200),
 
                     new LotItem(good,"String",0,160).addKW("[Large Demi-Human]"),
-                };
+                }).ToArray();
 
-                LotItem[] materials_to_set_max = new LotItem[] {
+                materials_to_set_max = materials_to_set_max.Concat(new LotItem[] {
                     new LotItem(good,"Four-Toed Fowl Foot",2), //
                     new LotItem(good,"Trina's Lily",1), //maintain rarity
                     new LotItem(good,"Beast Liver",1),
@@ -1647,9 +1785,9 @@ namespace EldenRingCSVHelper
 
                     new LotItem(good,"Hefty Beast Bone",3).addKW("[Giant Putrid Flesh]"),
                     new LotItem(good,"Hefty Beast Bone",1).addKW("[Small Putrid Flesh]"),
-                };
+                }).ToArray();
 
-                LotItem[] setLots = new LotItem[]
+                setLots = setLots.Concat(new LotItem[]
                 {
                     new LotItem(good,"String",1,50).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
                     new LotItem(good,"String",2,100).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
@@ -1727,7 +1865,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Smoldering Butterfly",5,60).addKW("[Blackflame Monk]"),
                     new LotItem(good,"Smoldering Butterfly",6,45).addKW("[Blackflame Monk]"),
 
-                };
+                }).ToArray();
 
                 foreach (Line curLine in materialLines)
                 {

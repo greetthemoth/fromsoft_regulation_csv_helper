@@ -143,6 +143,10 @@ namespace EldenRingCSVHelper
             ret.keywords = new List<Keyword>().Concat(keywords).ToList();
             return ret;
         }
+        public static Line newBaseItemLotLine(ParamFile param, int id = 0)
+        {
+            return Program.ItemLotParam_enemy.lines[0].Copy(param).SetField(0,id).Operate(new SetLotItem(newEmpty(),new int[] {1,2,3,4,5,6,7,8}));
+        }
         ParamFile CategoryParamFile
         {
             get
@@ -430,7 +434,7 @@ namespace EldenRingCSVHelper
         public class SetLotItem : LineModifier
         {
             LotItem lotItem;
-            int lotIndex = 1;
+            int[] lotIndexes;
             bool useInfo = true;
             int chance;
             int amount;
@@ -441,10 +445,20 @@ namespace EldenRingCSVHelper
                 this.lotItem = lotItem;
                 this.lotIndex = lotIndex;
             }
-            public SetLotItem(LotItem lotItem, int lotIndex, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
+            public SetLotItem(LotItem lotItem, int lotIndex = 1, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
             {
                 this.lotItem = lotItem;
-                this.lotIndex = lotIndex;
+                lotIndexes = new int[] { lotIndex };
+                useInfo = false;
+                this.chance = chance;
+                this.amount = amount;
+                this.affectByLuck = affectByLuck;
+                this.lotItem_getItemFlagId = lotItem_getItemFlagId;
+            }
+            public SetLotItem(LotItem lotItem, int[] lotIndexes, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
+            {
+                this.lotItem = lotItem;
+                this.lotIndexes = lotIndexes;
                 useInfo = false;
                 this.chance = chance;
                 this.amount = amount;
@@ -1719,6 +1733,58 @@ namespace EldenRingCSVHelper
             return _usedGetItemFlagId;
         }
 
+    }
+
+    public static class ItemLot
+    {
+        public static Lines getItemLotLines(int id, int startIndex = 0)
+        {
+            return getItemLotLines(id, out int nextLineIndex, startIndex);
+        }
+        public static Lines getItemLotLines(int id, out int nextLineIndex, int startIndex = 0)
+        {
+            List<Line> ret = new List<Line>();
+            bool inclusive = true;
+            if (inclusive)
+                id--;
+
+            int last_iid = 0;
+
+            nextLineIndex = -1;
+
+            for (int i = startIndex; true; i++)
+            {
+                int iid = lines[i].id_int;
+                if (last_iid < iid - 1)
+                {
+                    if (iid >= id)
+                    {
+                        nextLineIndex = i;
+                        return ret;
+                    }
+                    else
+                        ret.Clear();
+                }
+                ret.Add(Lines[i]);
+                last_iid = iid;
+            }
+            return (Lines)ret;
+        }
+        public static Lines getItemLotLines(Line line, int startIndex)
+        {
+            return getItemLotLines(line.id_int, startIndex);
+        }
+        public static Lines getItemLotLines(Line line, out int nextLineIndex, int startIndex)
+        {
+            return getItemLotLines(line.id_int, out nextLineIndex, startIndex);
+        }
+
+        public static void CopyItemLotAt( int itemLotId, int copyAt = -1)
+        {
+            Lines itemLotLines = getItemLotLines(id);
+
+
+        }
     }
 
     static class oldTestsAndStuff
