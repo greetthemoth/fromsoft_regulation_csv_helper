@@ -648,7 +648,7 @@ namespace EldenRingCSVHelper
             this.lotItems = lotItems;
             this.startLotIndex = startLotIndex;
         }
-        public SetLotItems(LotItem[] lotItems, int startLotIndex, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
+        /*public SetLotItems(LotItem[] lotItems, int startLotIndex, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
         {
             this.lotItems = lotItems;
             this.startLotIndex = startLotIndex;
@@ -657,15 +657,17 @@ namespace EldenRingCSVHelper
             this.amount = amount;
             this.affectByLuck = affectByLuck;
             this.lotItem_getItemFlagId = lotItem_getItemFlagId;
-        }
+        }*/
         public override void Operate(Line line)
         {
-            for (int i = startLotIndex; i < lotItems.Length; i++)
+            int i = 0;
+            for (int lotItemIndex = startLotIndex; lotItemIndex < LotItem.MAX_LOT_INDEX && i < lotItems.Length; lotItemIndex++)
             {
                 if (useInfo)
-                    lotItems[i].SetLotItemToLine(line, i);
+                    lotItems[i].SetLotItemToLine(line, lotItemIndex);
                 else
-                    lotItems[i].SetLotItemToLine(line, i, chance, amount, affectByLuck, lotItem_getItemFlagId);
+                    lotItems[i].SetLotItemToLine(line, lotItemIndex, chance, amount, affectByLuck, lotItem_getItemFlagId);
+                i++;
             }
             
         }

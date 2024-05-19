@@ -145,7 +145,7 @@ namespace EldenRingCSVHelper
         }
         public static Line newBaseItemLotLine(ParamFile param, int id = 0)
         {
-            return Program.ItemLotParam_enemy.lines[0].Copy(param).SetField(0,id).Operate(new SetLotItem(newEmpty(),new int[] {1,2,3,4,5,6,7,8}));
+            return Program.ItemLotParam_enemy.vanillaParamFile.GetLineWithId(215000000).Copy(param).SetField(0,id).Operate(new SetLotItem(newEmpty(),new int[] {1,2,3,4,5,6,7,8})).SetField(1,"base item lot line");
         }
         ParamFile CategoryParamFile
         {
@@ -346,6 +346,16 @@ namespace EldenRingCSVHelper
             this.chance = chance;
             this.affectByLuck = affectByLuck;
         }
+        public LotItem(int category, string itemName, int amount, int chance, bool affectByLuck, int lotItem_getItemFlagId)
+        {
+            this.category = category;
+            this.id = CategoryParamFile.GetLineWithName(itemName).id_int;
+            this.amount = amount;
+            this.chance = chance;
+            this.affectByLuck = affectByLuck;
+            this.hasLotItem_getItemFlagIdFIs = true;
+            this.lotItem_getItemFlagId = lotItem_getItemFlagId;
+        }
         public LotItem(int category, int id)
         {
             this.category = category;
@@ -443,7 +453,12 @@ namespace EldenRingCSVHelper
             public SetLotItem(LotItem lotItem, int lotIndex)
             {
                 this.lotItem = lotItem;
-                this.lotIndex = lotIndex;
+                lotIndexes = new int[] { lotIndex };
+            }
+            public SetLotItem(LotItem lotItem, int[] lotIndexes)
+            {
+                this.lotItem = lotItem;
+                this.lotIndexes = lotIndexes;
             }
             public SetLotItem(LotItem lotItem, int lotIndex = 1, int chance = 1000, int amount = 1, bool affectByLuck = true, int lotItem_getItemFlagId = -1)
             {
@@ -467,11 +482,13 @@ namespace EldenRingCSVHelper
             }
             public override void Operate(Line line)
             {
-
-                if (useInfo)
-                    lotItem.SetLotItemToLine(line, lotIndex);
-                else
-                    lotItem.SetLotItemToLine(line, lotIndex, chance, amount, affectByLuck, lotItem_getItemFlagId);
+                foreach (int lotIndex in lotIndexes)
+                {
+                    if (useInfo)
+                        lotItem.SetLotItemToLine(line, lotIndex);
+                    else
+                        lotItem.SetLotItemToLine(line, lotIndex, chance, amount, affectByLuck, lotItem_getItemFlagId);
+                }
             }
         }
     }
@@ -482,12 +499,10 @@ namespace EldenRingCSVHelper
         static List<int> _bossOrMiniBossIds = new List<int>();
         static Dictionary<int,int> _bossOrMiniBossToItemLotMapDict = new Dictionary<int, int>();
         static Dictionary<int,int> _bossOrMiniBossToItemLotMapDict2 = new Dictionary<int, int>();
-
-        public static List<int> BossOrMiniBossIds { get { if (_bossOrMiniBossIds == null) SetBossInfo(); SetNpcDifficulty(); return _bossOrMiniBossIds; }}
-        public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict { get { if (_bossOrMiniBossToItemLotMapDict == null) SetBossInfo(); SetNpcDifficulty(); return _bossOrMiniBossToItemLotMapDict; } }
-        public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict2 { get { if (_bossOrMiniBossToItemLotMapDict2 == null) SetBossInfo(); SetNpcDifficulty(); return _bossOrMiniBossToItemLotMapDict2; } }
-
-        public static void SetBossInfo()
+        public static List<int> BossOrMiniBossIds { get { if (_bossOrMiniBossIds == null && !setInfo) SetInfo(); return _bossOrMiniBossIds; }}
+        public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict { get { if (_bossOrMiniBossToItemLotMapDict == null && !setInfo) SetInfo(); return _bossOrMiniBossToItemLotMapDict; } }
+        public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict2 { get { if (_bossOrMiniBossToItemLotMapDict2 == null && !setInfo) SetInfo(); return _bossOrMiniBossToItemLotMapDict2; } }
+        static void SetBossInfo()
         {
             _bossOrMiniBossIds = new List<int>();
             _bossOrMiniBossIds = new int[]
@@ -1065,16 +1080,16 @@ namespace EldenRingCSVHelper
             }
         }
         //Bosses^^^^^^^^^^^^^^^
-
+        //Enemies vvvvvvvvvvvv
         static Dictionary<int, float> _npcsDocDifficultyDict;
         static Dictionary<int, List<Keyword>> _npcDocToLocationDict;
         static Dictionary<int, int> _npcsIdToSpLevelsDict;
         static Dictionary<int, float> _spLevelToDifficultyDict;
-        public static Dictionary<int, float> NpcsDocDifficultyDict { get { if (_npcsDocDifficultyDict == null) SetBossInfo(); SetNpcDifficulty(); return _npcsDocDifficultyDict; } }
-        public static Dictionary<int, int> NpcsIdToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null) SetBossInfo(); SetNpcDifficulty(); return _npcsIdToSpLevelsDict; } }
-        public static Dictionary<int, float> SpLevelToDifficultyDict { get { if (_spLevelToDifficultyDict == null) SetBossInfo(); SetNpcDifficulty(); return _spLevelToDifficultyDict; } }
-
-        public static void SetNpcDifficulty()
+        static bool setInfo = false;
+        public static Dictionary<int, float> NpcsDocDifficultyDict { get { if (_npcsDocDifficultyDict == null && !setInfo) SetInfo(); return _npcsDocDifficultyDict; } }
+        public static Dictionary<int, int> NpcsIdToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null && !setInfo) SetInfo(); return _npcsIdToSpLevelsDict; } }
+        public static Dictionary<int, float> SpLevelToDifficultyDict { get { if (_spLevelToDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToDifficultyDict; } }
+        static void SetNpcDifficulty()
         {
             using (var sr = new StreamReader(@"C:\CODING\Souls Modding\ModdingTools\Docs\NPCLocations.txt"))
             {
@@ -1717,6 +1732,14 @@ namespace EldenRingCSVHelper
 
             //Util.println("agreers" + agreers + "   disagreeers:" + disagreers);
         }
+        //Enemies ^^^^^^^^^^^^^
+
+        static void SetInfo()
+        {
+            setInfo = true;
+            SetBossInfo();
+            SetNpcDifficulty();
+        }
     }
 
     public static class FlagIds
@@ -1737,16 +1760,18 @@ namespace EldenRingCSVHelper
 
     public static class ItemLot
     {
-        public static Lines getItemLotLines(int id, int startIndex = 0)
+        public static Lines getItemLotLines(ParamFile file, int id, int startIndex = 0)
         {
-            return getItemLotLines(id, out int nextLineIndex, startIndex);
+            return getItemLotLines(file, id, out int nextLineIndex, startIndex);
         }
-        public static Lines getItemLotLines(int id, out int nextLineIndex, int startIndex = 0)
+        public static Lines getItemLotLines(ParamFile file, int id, out int nextLineIndex, int startIndex = 0)
         {
             List<Line> ret = new List<Line>();
             bool inclusive = true;
             if (inclusive)
                 id--;
+
+            var lines = file.lines;
 
             int last_iid = 0;
 
@@ -1765,26 +1790,40 @@ namespace EldenRingCSVHelper
                     else
                         ret.Clear();
                 }
-                ret.Add(Lines[i]);
+                ret.Add(lines[i]);
                 last_iid = iid;
             }
             return (Lines)ret;
         }
         public static Lines getItemLotLines(Line line, int startIndex)
         {
-            return getItemLotLines(line.id_int, startIndex);
+            return getItemLotLines(line.file, line.id_int, startIndex);
         }
         public static Lines getItemLotLines(Line line, out int nextLineIndex, int startIndex)
         {
-            return getItemLotLines(line.id_int, out nextLineIndex, startIndex);
+            return getItemLotLines(line.file, line.id_int, out nextLineIndex, startIndex);
         }
 
-        public static void CopyItemLotAt( int itemLotId, int copyAt = -1)
+        
+        public static void CopyItemLotAt(Line itemLotLine, int copyAt = -1)
         {
-            Lines itemLotLines = getItemLotLines(id);
-
-
+            Lines itemLotLines = getItemLotLines(itemLotLine.file, itemLotLine.id_int);
+            CopyItemLotAt(itemLotLines, copyAt);
         }
+        public static void CopyItemLotAt(ParamFile file, int itemLotId, int copyAt = -1)
+        {
+            Lines itemLotLines = getItemLotLines(file, itemLotId);
+            CopyItemLotAt(itemLotLines, copyAt);
+        }
+        public static void CopyItemLotAt(List<Line> itemLotLines, int copyAt = -1)
+        {
+            CopyItemLotAt((Lines)itemLotLines, copyAt);
+        }
+        public static void CopyItemLotAt(Lines itemLotLines, int copyAt = -1)
+        {
+            
+        }
+        
     }
 
     static class oldTestsAndStuff

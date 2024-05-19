@@ -218,7 +218,23 @@ namespace EldenRingCSVHelper
 
             
             exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
-
+            for (int i = 0; i < DropMultsToWrite.Length; i++)
+            {
+                string multString = "x" + DropMultsToWrite[i];
+                string multDirString = @"\MaterialDrops\" + multString + @" Mats";
+                if (DropMultsToWrite[i] == 1)
+                {
+                    multDirString += "(recommended)";
+                    multString = "";
+                }
+                else if (DropMultsToWrite[i] == 1.5f)
+                    multDirString += "";
+                RunSettings.Write_directory = exportDirectory + multDirString;
+                //ShopLineupChanges(false,false,true, false);
+                enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                ParamFile.ResetAll();
+            }
             /*for (int i = 0; i < DropMultsToWrite.Length; i++)
             {
                 string multString = "x" + DropMultsToWrite[i];
@@ -1527,52 +1543,60 @@ namespace EldenRingCSVHelper
             if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy }))
                 return;
             int good = LotItem.Category.Good;
-            int itemLotId_enemy = NpcParam.GetFieldIndex("ItemLotId_enemy");
+            int itemLotId_enemy = NpcParam.GetFieldIndex("itemLotId_enemy");
 
                                                                                                            //specific num 1                    //specific num 2
             var MaterialOneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),    3     , IntFilter.Digit(3, 5),     7      , 7, -1, -1, 0);
 
-            var NonMaterialLinesToAdd = new List<Line>();
+            var NonMaterialLinesToInclude = new List<Line>();
             Condition isMaterial =
                     new Condition.NameStartsWith("[").AND(
                     new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[1], 15000, 25000))
                     .OR(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FloatFieldBetween(LotItem.idFIs[0], 15000, 25000))));
 
 
-            List<LotItem> materials_to_exclude = List<LotItem>();
-            List<LotItem> material_chancePercent_multipler = new List<LotItem>();
+            List<LotItem> materials_to_exclude = new List<LotItem>();
+            List<LotItem> materials_chance_percentMultipler = new List<LotItem>();
             List<LotItem> materials_to_set_max = new List<LotItem>();
             List<LotItem> setLots = new List<LotItem>();
 
             //More Drops
             {
+
                 Dictionary<LotItem, int[]> lotItemToLineIDsDict = new Dictionary<LotItem, int[]>();
 
                 //starlight shard, nox, glintsone sorcerer
                 {
-                    string[] names = new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden" };
+                    string[] names = new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden", "Glintstone Sorcerer" };
                     for (int i = 0; i < names.Length; i++)
                     {
                         var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
-                            new Condition.FloatFieldBetween(ItemLotId_enemy), -1, 0, true).IsFalse.AND(
-                            new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distict().ToArray())
+                            new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse.AND(
+                            new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds()
+                            .GetIDs();
                             ;
                         if (i == 0)
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 50,true), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 115,true), ids);
                         if (i == 1)
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 50,true), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 115,true), ids);
                         if (i == 2)
                         {
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 3, 100, true), ids);
-                            int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, MaterialOneTimeDrop_getItemFlagIDFilter, FlagIds.usedGetItemFlagId);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 115, true), ids);
+                            /*int currentGetItemFlagId = IntFilter.GetRandomInt(ids[0], MaterialOneTimeDrop_getItemFlagIDFilter, FlagIds.usedGetItemFlagId);
                             FlagIds.usedGetItemFlagId.Add(currentGetItemFlagId);
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 3, 1000, false, currentGetItemFlagId), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 3, 1000, false, currentGetItemFlagId), ids);*/
                         }
+                        if(i == 3)
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 70, true), ids);
                     }
-                    materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 1));
-                }
+                    materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 4).addKW("Nox"));
+                    materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 2).addKW(" Glintstone Sorcerer"));//non generic glintstone sorcerer
+                    materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 1).addKW("Glintstone Sorcerer"));
 
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Starlight Shards", 0, 130).addKW(" Glintstone Sorcerer"));//non generic glintstone sorcerer
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Starlight Shards", 0, 100));
+                }
                 //raw meat dumpling - misbegotten
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
@@ -1580,8 +1604,9 @@ namespace EldenRingCSVHelper
                         .AND(new Condition.HasInName("Misbegotten")
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Castle Morne", "Village Windmill" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
                     lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 40,true), ids);
                 }
@@ -1591,9 +1616,10 @@ namespace EldenRingCSVHelper
                     for (int i = 0; i < names.Length; i++)
                     {
                         var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
-                                new Condition.FloatFieldBetween(ItemLotId_enemy), -1, 0, true).IsFalse.AND(
-                                new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distict().ToArray())
+                                new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse.AND(
+                                new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                                 //.GetNextFreeIds()
+                                .GetIDs()
                                 ;
                         if (names[i] == "Living Jar")
                             lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 25,true), ids);
@@ -1602,16 +1628,20 @@ namespace EldenRingCSVHelper
                     }
                 }
                 //Large Glintstone Scrap - increased chance from sorcerer miner, greater amount dropped
-                /*{
-                    //check the lines 
-                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
-                            new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse.AND(
-                            new Condition.HasInName(new string[] { "Glintstone Stonedigger", "Cuckoo Knight" })))).GetIntFields(itemLotId_enemy).Distict().ToArray()))
-                            //.GetNextFreeIds();
-                            ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Large Glintstone Scrap"), ids);
-                }*/
-                NonMaterialLinesToAdd.Add(ItemLotParam_enemy.GetLineOnCondition(new Condition.HasInName("] Large Glintstone Scrap")));
+                {
+                    /*    //check the lines 
+                        var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                                new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse.AND(
+                                new Condition.HasInName(new string[] { "Glintstone Stonedigger", "Cuckoo Knight" })))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
+                                //.GetNextFreeIds();
+                                .GetIDs()
+                                ;
+                        lotItemToLineIDsDict.Add(new LotItem(good, "Large Glintstone Scrap"), ids);
+                        */
+                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Large Glintstone Scrap"))).ToList();
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Large Glintstone Scrap", 0, 220));
+                    materials_to_set_max.Add(new LotItem(good, "Large Glintstone Scrap", 4));
+                }
                 //root resin - skeletons
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
@@ -1619,8 +1649,9 @@ namespace EldenRingCSVHelper
                         .AND(new Condition.HasInName(new string[] { "Skeleton" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
                     lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 50,true), ids);
                 }
@@ -1631,22 +1662,24 @@ namespace EldenRingCSVHelper
                         .AND(new Condition.HasInName(new string[] { "Leyndell Footsoldier", "Wandering Noble" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Altus" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
                     lotItemToLineIDsDict.Add(new LotItem(good, "Golden Rowa", 1, 50,true), ids);
                 }
-                //Rimmed rowa - snowfield troll, wandring noble in snowfield or mountain tops
+                //Rimed rowa - snowfield troll, wandring noble in snowfield or mountain tops
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(new string[] { "Wandering Noble", "Troll" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Snowfield","Mountaintop" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Rimmed Rowa", 1, 50, true), ids);
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Rimed Rowa", 1, 50, true), ids);
                 }
                 //Crystal Bud - cuckoo foot soldiers?, albinauric crabs?, crayfish (in luirnuia), miranda (magic varient)?, 
                 {
@@ -1655,8 +1688,9 @@ namespace EldenRingCSVHelper
                         .AND(new Condition.HasInName(new string[] {"Crayfish"})
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Liurnia" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
                     lotItemToLineIDsDict.Add(new LotItem(good, "Crystal Bud",12,200, true), ids);
                 }
@@ -1670,27 +1704,40 @@ namespace EldenRingCSVHelper
                         .AND(new Condition.HasInName(names[i])
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Mistwood" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
                         if (names[i] == "Runebear")
                             lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 4, 150), ids);
                         else if(names[i] == "Bear")
                             lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 1, 150), ids);
                     }
-                    
                 }
-                //cavemoss - demihumans (inside caves), highwayman
+                //cave moss - demihumans (inside caves), highwayman?
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(new string[] { "Demi-human" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Cave" }))))
-                        ))).GetIntFields(NpcParam.GetFieldIndex("ItemLotId_enemy")).Distict().ToArray()))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
+                            .GetIDs()
                             ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Cavemoss", 1, 120, true), ids);
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Cave Moss", 1, 80, true), ids);
+                    //------
+                    ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Highwayman" })
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Cave" }))))
+                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
+                            //.GetNextFreeIds();
+                            .GetIDs()
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Cave Moss", 1, 80, true), ids);
+                    materials_to_set_max.Add(new LotItem(good, "Cave Moss", 4).addKW("Highwayman"));
                 }
 
                 //throwing dart - imps that throw darts?
@@ -1698,6 +1745,9 @@ namespace EldenRingCSVHelper
                 //glintstone scrap - miners?
 
                 //we will simply create a line with lot of the requested item, Increased Material Drops will st the lots to out prefrence.
+
+                Util.PrintStrings(Util.ToStrings(ItemLotParam_enemy.GetIDs()));
+
                 foreach(LotItem lotItem in lotItemToLineIDsDict.Keys)
                 {
                     int[] ids = lotItemToLineIDsDict[lotItem];
@@ -1705,27 +1755,38 @@ namespace EldenRingCSVHelper
                     {
                         
                         Line ogLine = ItemLotParam_enemy.GetLineWithId(id);
-                        string lotName = ogLine.name.Replace(new LotItem(ogLine, LotItem.GetFirstNonEmptyItemLotIndex(l)).Name, "") +lotItem.name ;
-                        Line line = LotItem.newBaseItemLotLine(ItemLotParam_enemy).SetField(0,ItemLotParam_enemy.GetNextFreeId(id)).SetField(1, lotName)
+                        string lotName = ogLine.name.Replace(new LotItem(ogLine, LotItem.GetFirstNonEmptyItemLotIndex(ogLine)).Name, "") +lotItem.Name;
+                        int newLineId = ItemLotParam_enemy.GetNextFreeId(id);
+                        Line line = LotItem.newBaseItemLotLine(ItemLotParam_enemy)
+                            .SetField(0,newLineId)
+                            .SetField(1, lotName)
                             .Operate(new SetLotItems(new LotItem[] { LotItem.newEmpty(Math.Max(0,1000 - lotItem.chance)), lotItem }, 1));
-                        NonMaterialLinesToAdd.Add(line);
+                        //line.PrintFieldsWithFieldName();
                         if(!isMaterial.Pass(line))
-                            ItemLotParam_enemy.OverrideOrAddLine(line);
+                            NonMaterialLinesToInclude.Add(line);
+                        Util.println(id + " --> " + newLineId);
+                        ItemLotParam_enemy.OverrideOrAddLine(line);
                     }
                 }
+                
             }
 
+           /* materials_to_exclude.Clear();
+            material_chancePercent_multipler.Clear();
+            materials_to_set_max.Clear();
+            setLots.Clear();
+            NonMaterialLinesToAdd.Clear();*/
 
             //Increased Materal Drops
             {
                 
                 var materialLines = ItemLotParam_enemy.GetLinesOnCondition(isMaterial);
 
-                materialLines.Concat(NonMaterialLinesToAdd).ToList();
+                materialLines = materialLines.Concat(NonMaterialLinesToInclude).ToList();
 
                 materials_to_exclude = materials_to_exclude.Concat(new LotItem[] {
 
-                }).ToArray();
+                }).ToList();
 
                 const int defaultMax = 3;
                 const int chanceAdjPercent = 125;
@@ -1734,7 +1795,7 @@ namespace EldenRingCSVHelper
 
                 LotItem.Default_Chance = -1;
 
-                material_chancePercent_multipler = material_chancePercent_multipler.Concat(new LotItem[]
+                materials_chance_percentMultipler = materials_chance_percentMultipler.Concat(new LotItem[]
                 {
 
                     new LotItem(good,"Four-Toed Fowl Foot",0, 125),
@@ -1764,7 +1825,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Old Fang",0,200),
 
                     new LotItem(good,"String",0,160).addKW("[Large Demi-Human]"),
-                }).ToArray();
+                }).ToList();
 
                 materials_to_set_max = materials_to_set_max.Concat(new LotItem[] {
                     new LotItem(good,"Four-Toed Fowl Foot",2), //
@@ -1785,7 +1846,7 @@ namespace EldenRingCSVHelper
 
                     new LotItem(good,"Hefty Beast Bone",3).addKW("[Giant Putrid Flesh]"),
                     new LotItem(good,"Hefty Beast Bone",1).addKW("[Small Putrid Flesh]"),
-                }).ToArray();
+                }).ToList();
 
                 setLots = setLots.Concat(new LotItem[]
                 {
@@ -1865,7 +1926,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Smoldering Butterfly",5,60).addKW("[Blackflame Monk]"),
                     new LotItem(good,"Smoldering Butterfly",6,45).addKW("[Blackflame Monk]"),
 
-                }).ToArray();
+                }).ToList();
 
                 foreach (Line curLine in materialLines)
                 {
@@ -1884,7 +1945,7 @@ namespace EldenRingCSVHelper
                             continue;
                     }
                     float chanceMult = (float)chanceAdjPercent / 100;
-                    foreach (LotItem li in material_chancePercent_multipler)
+                    foreach (LotItem li in materials_chance_percentMultipler)
                     {
                         if (!li.LineHasLotItem(curLine, false))
                             continue;
@@ -1945,7 +2006,7 @@ namespace EldenRingCSVHelper
                         const int lookingForLotsState = 0;
                         const int foundLotsGeneralState = 1;
                         const int foundLotsSpecificState = 2;
-                        for (int i = 0; i < setLots.Length; i++)
+                        for (int i = 0; i < setLots.Count; i++)
                         {
                             LotItem li = setLots[i];
                             if (test)
@@ -3637,10 +3698,10 @@ namespace EldenRingCSVHelper
 
                 //aqusitionIDs limitations. GOTO
                 //
-
-
+                //-------------------
+                //      FIND LEVEL
+                //--------------------
                 level = setLevelDict[keyword];
-
                 if (level == -1)
                 {
                     if (documented)
@@ -3858,7 +3919,7 @@ namespace EldenRingCSVHelper
                 }
                 else if (test || debugAssignedLevels)
                     Util.println(npcLine._idName + " KEY WORD ASSIGNED LEVEL: " + level);
-
+                //----------------------------------
 
                 //  look at its itemLotParam_enemy. 
 
@@ -4099,15 +4160,15 @@ namespace EldenRingCSVHelper
 
                     var isSmithingLineCondition = new Condition.HasInName(smithingStoneItemsToRemove);
                     var isRuneLineCondition = new Condition.HasInName(runeItemsToRemove);
-                    var curLineEmptyAndNoDropCondition =
+                    /*var curLineEmptyAndNoDropCondition =
                         new Condition.Either(
                             new Condition.HasInName("None"),
                             new Condition.AllOf(
                                 new Condition.NameIs(""),
                                 new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId01"), "0"),
                                 new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), "0"))
-                        );
-
+                        );*/
+                    
 
                     int HighestIdPossible = int.MaxValue;
                     int itemLotLineMapDrop_getItemFlagId = -1;

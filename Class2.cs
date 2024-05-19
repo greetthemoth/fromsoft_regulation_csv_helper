@@ -126,23 +126,28 @@ namespace EldenRingCSVHelper
         {
             if (inclusive)
                 id--;
-
+            bool foundId = false;
             int nextValid = id + 1;
-            nextLineIndex = -1;
             for (int i = startIndex; true; i++)
             {
                 
                 int iid = lines[i].id_int;
-                if (iid > id)
+                if (!foundId && (iid == id || iid == nextValid))
+                    foundId = true;
+
+                if(foundId)
                 {
-                    if (iid == nextValid)
+                    if (iid > id)
                     {
-                        nextValid++;
-                    }
-                    else if (iid > nextValid)
-                    {
-                        nextLineIndex = i;
-                        return nextValid;
+                        if (iid == nextValid)
+                        {
+                            nextValid++;
+                        }
+                        else if (iid > nextValid)
+                        {
+                            nextLineIndex = i;
+                            return nextValid;
+                        }
                     }
                 }
             }
@@ -225,7 +230,7 @@ namespace EldenRingCSVHelper
                 if (header[i] == fieldName)
                     return i;
             }
-            Util.println("did not find index");
+            Util.println("did not find field: \"" + fieldName +"\"");
             return -1;
         }
         /// <summary> 
@@ -1581,7 +1586,7 @@ namespace EldenRingCSVHelper
         /// </summary>
         public void PrintFieldsWithFieldName()
         {
-            for (int i = 0; i < file.header.Length; i++)
+            for (int i = 0; i < file.header.Length-1; i++)
             {
                 Util.println(Util.IndentedText(file.header[i], 12, '_') + GetField(i));
             }
