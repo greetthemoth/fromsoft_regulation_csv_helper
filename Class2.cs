@@ -97,6 +97,8 @@ namespace EldenRingCSVHelper
 
                 vanillaParamFile.lines = vanillaLinesList;
             }
+            lines = GetOrderedLines();
+            vanillaParamFile.lines = vanillaParamFile.GetOrderedLines;
             vanillaParamFiles.Add(vanillaParamFile);
             paramFiles.Add(this);
         }
@@ -109,75 +111,6 @@ namespace EldenRingCSVHelper
             this.fileExtension = fileExtension;
             this.parentFile = parentFile;
             this.header = header;
-        }
-        /// <summary> 
-        /// Gets the next id available for a new line found after the given id. Useful for adding new lines to an itemLot, or adding a new line under anouther line.
-        /// Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
-        /// </summary>
-        public int GetNextFreeId(int id, bool inclusive = false, int startIndex = 0)
-        {
-            return GetNextFreeId(id, out int index, startIndex, inclusive);
-        }
-        /// <summary> 
-        /// Gets the next id available for a new line found after the given id. Useful for adding new lines to an itemLot, or adding a new line under anouther line.
-        /// out nextLineIndex: the line index of the returned line. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
-        /// </summary>
-        public int GetNextFreeId(int id, out int nextLineIndex, int startIndex = 0, bool inclusive = false)
-        {
-            if (inclusive)
-                id--;
-            bool foundId = false;
-            int nextValid = id + 1;
-            for (int i = startIndex; true; i++)
-            {
-                
-                int iid = lines[i].id_int;
-                if (!foundId && (iid == id || iid == nextValid))
-                    foundId = true;
-
-                if(foundId)
-                {
-                    if (iid > id)
-                    {
-                        if (iid == nextValid)
-                        {
-                            nextValid++;
-                        }
-                        else if (iid > nextValid)
-                        {
-                            nextLineIndex = i;
-                            return nextValid;
-                        }
-                    }
-                }
-            }
-        }
-        /// <summary> 
-        /// Gets the next line found after the given id. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
-        /// </summary>
-        public Line GetNextLine(int id, bool inclusive = false, int startIndex = 0)
-        {
-            return GetNextLine(id, out int index, startIndex, inclusive);
-        }
-        /// <summary> 
-        /// Gets the next line found after the given id. out Index: the line index of the returned line. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
-        /// </summary>
-        public Line GetNextLine(int id, out int index, int startIndex = 0, bool inclusive = false)
-        {
-            if (inclusive)
-                id--;
-            index = -1;
-            startIndex = Math.Max(0, startIndex);
-
-            for (int i = startIndex; true; i++)
-            {
-                int iid = lines[i].id_int;
-                if (iid > id)
-                {
-                    index = i;
-                    return lines[i];
-                }
-            }
         }
         /// <summary> 
         /// Returns the field indexes of all given fields. Ordered Fields: more efficient but only works if fields are ordered approprietly. 
@@ -293,9 +226,9 @@ namespace EldenRingCSVHelper
         public void Operate(LineModifier operation, Condition condition = null, bool conditionOnVanillaLines = false)
         {
             if (conditionOnVanillaLines)
-                lines = Line.Operate(lines, operation, condition, conditionOnVanillaLines);
+                Line.Operate(lines, operation, condition, conditionOnVanillaLines);
             else
-                lines = Line.Operate(lines, operation, condition, lines);
+                Line.Operate(lines, operation, condition, lines);
         }
         /// <summary> 
         /// Run line modifiers into all lines in this Param. Includes an optional Line Condition.  ConditionOnVanillaLines:the line is only modified if the condition passes on the vanilla version of the line.
@@ -303,9 +236,9 @@ namespace EldenRingCSVHelper
         public void Operate(LineModifier[] operations, Condition condition = null, bool conditionOnVanillaLines = false)
         {
             if (conditionOnVanillaLines)
-                lines = Line.Operate(lines, operations, condition, conditionOnVanillaLines);
+                Line.Operate(lines, operations, condition, conditionOnVanillaLines);
             else
-                lines = Line.Operate(lines, operations, condition, lines);
+                Line.Operate(lines, operations, condition, lines);
         }
 
 
@@ -664,7 +597,6 @@ namespace EldenRingCSVHelper
                 file = lines[0].file;
         }
 
-
         /// <summary> 
         ///  Parentfile is the Paramfile these lines are associated with the lines in this Lines.
         /// </summary>
@@ -673,21 +605,22 @@ namespace EldenRingCSVHelper
             file = parentFile;
         }
 
-
-        public int[] GetNextFreeIds()
-        {
-            int[] ret = new int[lines.Count];
-            for (int i = 0; i < lines.Count; i++)
-            {
-                ret[i] = file.GetNextFreeId(lines[i].id_int, false, 0);
-            }
-            return ret;
-        }
-
     }
     public abstract class LineContainer
     {
-        public List<Line> lines = new List<Line>();
+        List<Line> _lines = new List<Line>();
+        public List<Line> lines
+        {
+            get
+            {
+                return _lines;
+            }
+            set
+            {
+                _lines = value;
+                //_orderedLinesQued = true;
+            }
+        }
         /// <summary> 
         /// Number of lines in this Container.
         /// </summary>
@@ -740,7 +673,7 @@ namespace EldenRingCSVHelper
         /// </summary>
         public void Operate(LineModifier operation, Condition condition = null, List<Line> conditionLines = null)
         {
-            lines = Line.Operate(lines, operation, condition, conditionLines);
+            Line.Operate(lines, operation, condition, conditionLines);
         }
         public void RevertFieldsToVanilla()
         {
@@ -754,7 +687,7 @@ namespace EldenRingCSVHelper
         /// </summary>
         public void Operate(LineModifier[] operations, Condition condition = null, List<Line> conditionLines = null)
         {
-            lines = Line.Operate(lines, operations, condition, conditionLines);
+            Line.Operate(lines, operations, condition, conditionLines);
         }
         /// <summary> 
         /// Get line with the given Id.
@@ -924,6 +857,129 @@ namespace EldenRingCSVHelper
             Condition condition = new Condition.FieldIs(1, name);
             return Util.ToInts(Line.GetFieldsOnCondition(0, lines, condition));
         }
+
+        /*List<Line> _orderedLines;
+        bool _orderedLinesQued = true;
+        List<Line> OrderedLines
+        {
+            get
+            {
+                if (_orderedLinesQued)
+                    _orderedLines = GetOrderedLines();
+                return _orderedLines;
+            }
+        }*/
+
+        protected List<Line> GetOrderedLines()
+        {
+            int largestId = -1;
+            List<Line> ret;
+
+            for (curIndex = 0; curIndex < lines.Count; curIndex++)
+            {
+                int id = lines[curIndex].id_int;
+                if (largestId < id)
+                    largestId = id;
+                else
+                {
+                    ((Lines)ret).GetNextFreeId(lines[curIndex].id_int, out int out_index, 0, true);
+                    if (out_index == curIndex)
+                        Util.p();//bruh wtf?
+                    else
+                    {
+                        ret.Insert(lines[curIndex], out_index);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary> 
+        /// Gets the next id available for a new line found after the given id. Useful for adding new lines to an itemLot, or adding a new line under anouther line.
+        /// Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
+        /// </summary>
+        public int GetNextFreeId(int id, bool inclusive = false, int startIndex = 0)
+        {
+            return GetNextFreeId(id, out int index, startIndex, inclusive);
+        }
+        /// <summary> 
+        /// Gets the next id available for a new line found after the given id. Useful for adding new lines to an itemLot, or adding a new line under anouther line.
+        /// out nextLineIndex: the line index of the returned line. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
+        /// </summary>
+        public int GetNextFreeId(int id, out int nextLineIndex, int startIndex = 0, bool inclusive = false)
+        {
+            if (inclusive)
+                id--;
+            bool foundId = false;
+            int nextValid = id + 1;
+            for (int i = startIndex; true; i++)
+            {
+
+                int iid = lines[i].id_int;
+                if (!foundId && (iid == id || iid == nextValid))
+                    foundId = true;
+
+                if (foundId)
+                {
+                    if (iid > id)
+                    {
+                        if (iid == nextValid)
+                        {
+                            nextValid++;
+                        }
+                        else if (iid > nextValid)
+                        {
+                            nextLineIndex = i;
+                            return nextValid;
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary> 
+        /// Returns the set of ids available for a new line for each of the given lines. Useful for adding new lines to an itemLots in bulk, or adding a new line under anouther line.
+        /// Inclusive: can return the line of the given id.
+        /// </summary>
+        public int[] GetNextFreeIds(bool inclusive = false)
+        {
+            int[] ret = new int[lines.Count];
+            for (int i = 0; i < lines.Count; i++)
+            {
+                ret[i] = file.GetNextFreeId(lines[i].id_int, inclusive, 0);
+            }
+            return ret;
+        }
+        /// <summary> 
+        /// Gets the next line found after the given id. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
+        /// </summary>
+        public Line GetNextLine(int id, bool inclusive = false, int startIndex = 0)
+        {
+            return GetNextLine(id, out int index, startIndex, inclusive);
+        }
+        /// <summary> 
+        /// Gets the next line found after the given id. out Index: the line index of the returned line. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
+        /// </summary>
+        public Line GetNextLine(int id, out int index, int startIndex = 0, bool inclusive = false)
+        {
+            if (inclusive)
+                id--;
+            index = -1;
+            startIndex = Math.Max(0, startIndex);
+
+            for (int i = startIndex; true; i++)
+            {
+                int iid = lines[i].id_int;
+                if (iid > id)
+                {
+                    index = i;
+                    return lines[i];
+                }
+            }
+        }
+
+
+
+
         /// <summary> 
         /// Prints all lines in this container.
         /// </summary>
@@ -1019,6 +1075,9 @@ namespace EldenRingCSVHelper
             //Util.Append(output, ";");
             Util.PrintStrings(output); ; ;
         }
+
+
+
     }
     public class Line:Themescaped
     {
