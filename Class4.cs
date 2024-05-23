@@ -495,34 +495,90 @@ namespace EldenRingCSVHelper
 
     public static class AddedLineManager
     {
-        public static Dictionary< ParamFile, List<AddedLine >> Dict = new Dictionary<ParamFile, List<AddedLine>>();
-        public class AddedLine
+        static Dictionary< ParamFile, List<AddedLineInfo >> Dict = new Dictionary<ParamFile, List<AddedLineInfo>>();
+        static Dictionary<string, int> ChangeNameToOrderDict = new Dictionary<string, int>();
+
+        public class AddedLineInfo
         {
+            public static int nextOrder = 0;
             public ParamFile file;
             public string changeName;
             public int lineId;
-            public AddedLine(ParamFile file, string changeName, int lineId)
+            public int order;
+
+            public AddedLineInfo(ParamFile file, string changeName, int lineId)
             {
+                order = nextOrder;
                 this.file = file;
                 this.changeName = changeName;
                 this.lineId = lineId;
             }
         }
 
-        public static void CatalogLineChanges(string changeName)
+        public static void Catalog (string changeName)
         {
+            if (ChangeNameToOrderDict.ContainsKey(changeName))
+                continue;
+
+            bool foundAnAddedLine = false;
+
             foreach(ParamFile p in ParamFile.paramFiles)
             {
+                if (p.numberOfModifiedOrAddedLines == 0)
+                    continue;
                 foreach(Line l in p.lines)
                 {
-                    if (l.added)
+                    if (l.added && !l.hasKeyword("!Buffer!"))
                     {
+                        foundAnAddedLine = true;
                         if (!Dict.ContainsKey(p))
-                            Dict.Add(p, new List<AddedLine>());
-                        Dict[p].Add(new AddedLine(p, changeName, l.id_int));
+                        {
+                            Dict.Add(p, new List<AddedLineInfo>());
+                        }
+                        Dict[p].Add(new AddedLineInfo(p, changeName, l.id_int));
                     }
                 }
             }
+            
+            if (foundAnAddedLine) {
+                ChangeNameToOrderDict.Add(changeName, order);
+                nextOrder++;
+            }
+        }
+
+        public static void CreateEmptyLines(ParamFile p, Line baseLineToCopy, string curFunctionOrderName = "")
+        {
+            int curOrder;
+            if (curFunctionOrderName != "" && ChangeNameToOrderDict.ContainsKey(curFunctionOrderName))
+                curOrder = ChangeNameToOrderDict[curFunctionOrderName];
+            else
+                curOrder = AddedLineInfo.nextOrder;
+            List<AddedLineInfo> addedLineInfos = Dict[p];
+            foreach (AddedLineInfo ali in addedLineInfos)
+            {
+                if (curOrder <= ali.order)
+                    continue;
+                Line l = baseLineToCopy.Copy().SetField(0, ali.id).SetField(1, "!Compatability Buffer for " + ali.changeName +"!").addKeyword("!Buffer!", curOrder);
+                p.OverrideOrAddLine(l);
+            }
+        }
+        public static bool AttemptToCreateEmptyLine( int id , ParamFile p, Line baseLineToCopy, string curFunctionOrderName = "")
+        {
+            int curOrder;
+            if (curFunctionOrderName != "" && ChangeNameToOrderDict.ContainsKey(curFunctionOrderName))
+                curOrder = ChangeNameToOrderDict[curFunctionOrderName];
+            else
+                curOrder = AddedLineInfo.nextOrder;
+            List<AddedLineInfo> addedLineInfos = Dict[p];
+            foreach (AddedLineInfo ali in addedLineInfos)
+            {
+                if (curOrder <= ali.order || id != ali.id)
+                    continue;
+                Line l = baseLineToCopy.Copy().SetField(0, ali.id).SetField(1, "!Compatability Buffer for " + ali.changeName + "!").addKeyword("!Buffer!", curOrder);
+                p.OverrideOrAddLine(l);
+                return true;
+            }
+            return false;
         }
     }
     public static class NpcData

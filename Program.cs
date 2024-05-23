@@ -200,18 +200,20 @@ namespace EldenRingCSVHelper
                 5f,*/
             };
 
+            
             exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
 
-            /*RunSettings.Write_directory = exportDirectory;
+            RunSettings.Write_directory = exportDirectory;
             worldChangesPlus(true, true);
-            enemyDrops_MoreSmithingStoneDrops(true, true);
             enemyDrops_OneTimeEquipmentDrops();
+            enemyDrops_IncreasedMaterialDrops();
             replaceOpenWorldSmithingStones();
             noupgradedweaponsFromNpcs();
             ShopLineupChanges(true, true, true, true);
+            enemyDrops_MoreSmithingStoneDrops(true, true);
             ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
             ParamFile.ResetAll();
-            */
+            
 
             
 
@@ -233,29 +235,15 @@ namespace EldenRingCSVHelper
                 //ShopLineupChanges(false,false,true, false);
                 enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
                 ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                AddedLineManager.Catalog("MatDrops");
                 ParamFile.ResetAll();
             }
-            /*for (int i = 0; i < DropMultsToWrite.Length; i++)
-            {
-                string multString = "x" + DropMultsToWrite[i];
-                string multDirString = @"\StoneDrops\" + multString + @" Stones";
-                if (DropMultsToWrite[i] == 1)
-                {
-                    multDirString += "(recommended)";
-                    multString = "";
-                }
-                else if (DropMultsToWrite[i] == 1.5f)
-                    multDirString += "";
-                RunSettings.Write_directory = exportDirectory + multDirString;
-                giveEnemieSmithingStoneDrops(false, true, DropMultsToWrite[i]);
-                ParamFile.WriteModifiedFiles("", "__" + multString +"StoneDrops");
-                ParamFile.ResetAll();
-            }*/
 
             string dropTypeDirString = @"\RuneDrops";
             RunSettings.Write_directory = exportDirectory + dropTypeDirString;
             enemyDrops_MoreSmithingStoneDrops(true, false);
             ParamFile.WriteModifiedFiles("", "__" + "RuneDrops");
+            AddedLineManager.Catalog("RuneDrops");
             ParamFile.ResetAll();
             
 
@@ -264,6 +252,7 @@ namespace EldenRingCSVHelper
             enemyDrops_OneTimeEquipmentDrops();
             enemyDrops_MoreSmithingStoneDrops(false, false,1);
             ParamFile.WriteModifiedFiles("", "__" + "OTED");
+            AddedLineManager.Catalog("OTED");
             ParamFile.ResetAll();
 
             string worldChanges_DirString = @"\World Changes";
@@ -271,6 +260,7 @@ namespace EldenRingCSVHelper
             //ShopLineupChanges(true, false, false, false);
             replaceOpenWorldSmithingStones();
             ParamFile.WriteModifiedFiles("", "__WorldChanges");
+            AddedLineManager.Catalog("WorldChanges");
             ParamFile.ResetAll();
 
             string WCP_DirString = @"\World Changes Plus\Soft Item Randomizer";
@@ -278,6 +268,7 @@ namespace EldenRingCSVHelper
             worldChangesPlus(true, false);
             enemyDrops_MoreSmithingStoneDrops(false, false, 1);
             ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR");
+            AddedLineManager.Catalog("WCP_SIR");
             ParamFile.ResetAll();
 
             WCP_DirString = @"\World Changes Plus\Add Roundtable Items";
@@ -285,6 +276,7 @@ namespace EldenRingCSVHelper
             worldChangesPlus(false, true);
             //giveEnemieSmithingStoneDrops(false, false, 1);
             ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI");
+            AddedLineManager.Catalog("WCP_ARI");
             ParamFile.ResetAll();
 
 
@@ -292,30 +284,35 @@ namespace EldenRingCSVHelper
             RunSettings.Write_directory = exportDirectory + WCP_DirString;
             noupgradedweaponsFromNpcs();
             ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW");
+            AddedLineManager.Catalog("WCP_UNW");
             ParamFile.ResetAll();
 
             string ShopChanges_DirString = @"\Shop Changes\Vendor Stone Nerf";
             RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
             ShopLineupChanges(true, true, false, false);
             ParamFile.WriteModifiedFiles("", "__" + "SC_VSN");
+            AddedLineManager.Catalog("SC_VSN");
             ParamFile.ResetAll();
 
             /*ShopChanges_DirString = @"\Shop Changes\TwinMaiden Stone Nerf";
             RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
             ShopLineupChanges(false, true, false, false);
             ParamFile.WriteModifiedFiles("", "__" + "SC_TMSN");
+            AddedLineManager.Catalog("SC_TMSN");
             ParamFile.ResetAll();*/
 
             ShopChanges_DirString = @"\Shop Changes\Vendor Material Buff";
             RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
             ShopLineupChanges(false, false, true, false);
             ParamFile.WriteModifiedFiles("", "__" + "SC_VMB");
+            AddedLineManager.Catalog("SC_VSB");
             ParamFile.ResetAll();
 
             ShopChanges_DirString = @"\Shop Changes\Misc Balancing";
             RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
             ShopLineupChanges(false, false, false, true);
             ParamFile.WriteModifiedFiles("", "__" + "SC_MB");
+            AddedLineManager.Catalog("SC_MB");
             ParamFile.ResetAll();
 
             for (int i = 0; i < DropMultsToWrite.Length; i++)
@@ -333,6 +330,25 @@ namespace EldenRingCSVHelper
                 //ShopLineupChanges(false,false,true, false);
                 enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
                 ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                AddedLineManager.Catalog("MatDrops");
+                ParamFile.ResetAll();
+            }
+
+            for (int i = 0; i < DropMultsToWrite.Length; i++)
+            {
+                string multString = "x" + DropMultsToWrite[i];
+                string multDirString = @"\StoneDrops\" + multString + @" Stones";
+                if (DropMultsToWrite[i] == 1)
+                {
+                    multDirString += "(recommended)";
+                    multString = "";
+                }
+                else if (DropMultsToWrite[i] == 1.5f)
+                    multDirString += "";
+                RunSettings.Write_directory = exportDirectory + multDirString;
+                giveEnemieSmithingStoneDrops(false, true, DropMultsToWrite[i]);
+                ParamFile.WriteModifiedFiles("", "__" + multString +"StoneDrops");
+                AddedLineManager.Catalog("StoneDrops");
                 ParamFile.ResetAll();
             }
 

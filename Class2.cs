@@ -2058,6 +2058,68 @@ namespace EldenRingCSVHelper
             return newLines;
         }
 
+        public static List<Line> Insertline(List<Line> lines, Line lineToInsert, ParamFile fileInto = null, int startIndex = 0)
+        {
+            bool changingFile = fileInto != null;
+            List<Line> newLines = new List<Line>();
+            bool found = false;
+            for (int l = startIndex; l < lines.Count; l++)
+            {
+                if (!found)
+                {
+                    if (lines[l].id == lineToInsert.id) //override line
+                    {
+                        //lines[l] = overrideLine;
+                        newLines.Add(lineToInsert);
+                        if (changingFile && lines[l].inFile)
+                        {
+                            lineToInsert.inFile = true;
+                            lineToInsert.added = lines[l].added;
+                            lineToInsert.vanillaLine = lines[l].vanillaLine;
+                            if (lineToInsert.modified)
+                            {
+                                fileInto.numberOfModifiedOrAddedLines++;
+                                fileInto.numberOfModifiedFields += lineToInsert.modifiedFieldIndexes.Count;
+                            }
+                        }
+                        lines[l].SetField(0, lineToInsert.id_int + 1);
+                        return Insertline(newLines, lines[l], fileInto, l + 1);
+                        //found = true;
+                    }
+                    else if (lines[l].id_int > lineToInsert.id_int) //add line
+                    {
+                        //lines.Insert(l, overrideLine);
+                        newLines.Add(lineToInsert);
+                        if (changingFile)
+                        {
+                            lineToInsert.inFile = true;
+                            lineToInsert.added = true;
+                            lineToInsert.vanillaLine = null;
+                            if (lineToInsert.modified)
+                            {
+                                fileInto.numberOfModifiedOrAddedLines++;
+                                fileInto.numberOfModifiedFields += lineToInsert.modifiedFieldIndexes.Count;
+                            }
+                        }
+                        l--;
+                        found = true;
+                        //return;
+                    }
+                    else
+                    {
+                        newLines.Add(lines[l]);
+                    }
+                }
+                else
+                {
+                    newLines.Add(lines[l]);
+                }
+            }
+            if (!found)
+                Util.println("failed to add line " + lineToInsert.id + " : " + lineToInsert.name);
+            return newLines;
+        }
+
         public static int GetNextFreeId(List<Line> lines, int id, out int nextLineIndex, int startIndex = 0, bool inclusive = false)
         {
             if (inclusive)
