@@ -506,14 +506,14 @@ namespace EldenRingCSVHelper
                     bool passed = true;
                     foreach (KeywordCondition kc in conditions)
                     {
-                        kc.keywordIndex = i;
+                        kc.SetKeywordIndex(i);
                         if (!kc.Pass(line))
                         {
-                            kc.keywordIndex = -1;
+                            kc.SetKeywordIndex(-1);
                             passed = false;
                             break;
                         }
-                        kc.keywordIndex = -1;
+                        kc.SetKeywordIndex(-1);
                     }
                     if (passed)
                     {
@@ -529,7 +529,11 @@ namespace EldenRingCSVHelper
 
     public abstract class KeywordCondition : Condition
     {
-        public IntReturn keywordIndex = -1;
+        private IntReturn keywordIndex = -1;
+        public virtual void SetKeywordIndex(IntReturn keywordIndex)
+        {
+            this.keywordIndex = keywordIndex;
+        }
 
         public class StartsWith : KeywordCondition
         {
@@ -539,7 +543,12 @@ namespace EldenRingCSVHelper
 
             public override bool Pass(Line line)
             {
-                return line.keywords[keywordIndex.GetInt(line)].keyword.IndexOf(startsWith) == 0;
+                string keystr = line.keywords[keywordIndex.GetInt(line)].keyword;
+                bool ret = keystr.IndexOf(startsWith) == 0;
+                if (ret)
+                    Util.p();
+                return ret;
+
             }
         }
         public class Contains : KeywordCondition
@@ -554,7 +563,8 @@ namespace EldenRingCSVHelper
             {
                 foreach (string name in hasInName)
                 {
-                    if (line.keywords[keywordIndex.GetInt(line)].keyword.Contains(name))
+                    int kwi = keywordIndex.GetInt(line);
+                    if (line.keywords[kwi].keyword.Contains(name))
                         return true;
                 }
                 return false;
@@ -586,17 +596,13 @@ namespace EldenRingCSVHelper
 
         public KeywordCondition AND(KeywordCondition condition, bool shareKeywordIndex = false)
         {
-            if(shareKeywordIndex)
-                ShareKeywordIndex(condition);
-            return new KeywordConditions(this, condition, true, false);
+            return new KeywordConditions(this, condition, true, false, shareKeywordIndex);
         }
         public KeywordCondition OR(KeywordCondition condition, bool shareKeywordIndex = false)
         {
-            if (shareKeywordIndex)
-                ShareKeywordIndex(condition);
-            return new KeywordConditions(this, condition, false, true);
+            return new KeywordConditions(this, condition, false, true, shareKeywordIndex);
         }
-        KeywordCondition ShareKeywordIndex(KeywordCondition kc)
+        KeywordCondition ShareKeywordIndexWith(KeywordCondition kc)
         {
             kc.keywordIndex = keywordIndex;
             return this;
@@ -608,15 +614,23 @@ namespace EldenRingCSVHelper
             KeywordCondition kc2;
             bool _AND = false;
             bool _OR = false;
-            public KeywordConditions(KeywordCondition kc1, KeywordCondition kc2, bool _AND, bool _OR)
+            bool shareConditionAutomatically = false;
+            public KeywordConditions(KeywordCondition kc1, KeywordCondition kc2, bool _AND, bool _OR, bool shareConditionAutomatically = false)
             {
-                keywordIndex = kc1.keywordIndex;
                 this.kc1 = kc1;
                 this.kc2 = kc2;
+                keywordIndex = kc1.keywordIndex;
+                kc1.ShareKeywordIndexWith(kc2);
                 this._AND = _AND;
                 this._OR = _OR;
+                this.shareConditionAutomatically = shareConditionAutomatically;
             }
-
+            public override void SetKeywordIndex(IntReturn keywordIndex)
+            {
+                kc1.SetKeywordIndex(keywordIndex);
+                if (shareConditionAutomatically)
+                    kc1.ShareKeywordIndexWith(kc2);
+            }
             public override bool Pass(Line line)
             {
                 if (_AND)

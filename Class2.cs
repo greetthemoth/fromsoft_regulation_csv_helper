@@ -98,7 +98,7 @@ namespace EldenRingCSVHelper
                 vanillaParamFile.lines = vanillaLinesList;
             }
             lines = GetOrderedLines();
-            vanillaParamFile.lines = vanillaParamFile.GetOrderedLines;
+            vanillaParamFile.lines = vanillaParamFile.GetOrderedLines();
             vanillaParamFiles.Add(vanillaParamFile);
             paramFiles.Add(this);
         }
@@ -870,24 +870,31 @@ namespace EldenRingCSVHelper
             }
         }*/
 
-        protected List<Line> GetOrderedLines()
+        public List<Line> GetOrderedLines()
         {
             int largestId = -1;
-            List<Line> ret;
+            List<Line> ret = new List<Line>();
 
-            for (curIndex = 0; curIndex < lines.Count; curIndex++)
+            for (int curIndex = 0; curIndex < lines.Count; curIndex++)
             {
                 int id = lines[curIndex].id_int;
+
                 if (largestId < id)
+                {
                     largestId = id;
+                    ret.Add(lines[curIndex]);
+                }else if(largestId == id)
+                {
+                    Util.println("duplicated id in " + lines[curIndex].file.paramName + ":" +lines[curIndex].id) ;
+                }
                 else
                 {
-                    ((Lines)ret).GetNextFreeId(lines[curIndex].id_int, out int out_index, 0, true);
+                    int foundId = Line.GetNextFreeId(ret, id ,out int out_index, 0, true);
                     if (out_index == curIndex)
                         Util.p();//bruh wtf?
                     else
                     {
-                        ret.Insert(lines[curIndex], out_index);
+                        ret.Insert(out_index, lines[curIndex]);
                     }
                 }
             }
@@ -916,10 +923,10 @@ namespace EldenRingCSVHelper
             {
 
                 int iid = lines[i].id_int;
-                if (!foundId && (iid == id || iid == nextValid))
-                    foundId = true;
+                //if (!foundId && (iid == id || iid == nextValid))
+                //    foundId = true;
 
-                if (foundId)
+                //if (foundId)
                 {
                     if (iid > id)
                     {
@@ -936,6 +943,7 @@ namespace EldenRingCSVHelper
                 }
             }
         }
+        
         /// <summary> 
         /// Returns the set of ids available for a new line for each of the given lines. Useful for adding new lines to an itemLots in bulk, or adding a new line under anouther line.
         /// Inclusive: can return the line of the given id.
@@ -945,7 +953,7 @@ namespace EldenRingCSVHelper
             int[] ret = new int[lines.Count];
             for (int i = 0; i < lines.Count; i++)
             {
-                ret[i] = file.GetNextFreeId(lines[i].id_int, inclusive, 0);
+                ret[i] = GetNextFreeId(lines[i].id_int, inclusive, 0);
             }
             return ret;
         }
@@ -1127,7 +1135,15 @@ namespace EldenRingCSVHelper
         }
 
         public Line vanillaLine { get; private set; }
-        public bool inFile { get; private set; } = false;
+        public bool inFile { 
+            get;
+            private set;
+            } = false;
+        public bool added
+        {
+            get;
+            private set;
+        } = false;
         public bool modified { get; private set; } = false;
 
         public bool IsVannilaLine
@@ -1222,6 +1238,7 @@ namespace EldenRingCSVHelper
             copy.modified = modified;
             copy.modifiedFieldIndexes = new List<int>(modifiedFieldIndexes);
             copy.inFile = false;
+            copy.added = false;
             return copy;
         }
         /// <summary> 
@@ -1237,6 +1254,7 @@ namespace EldenRingCSVHelper
             copy.modified = modified;
             copy.modifiedFieldIndexes = new List<int>(modifiedFieldIndexes);
             copy.inFile = inFile;
+            copy.added = added;
             return copy;
         }
 
@@ -1885,6 +1903,7 @@ namespace EldenRingCSVHelper
                             overrideLines[lookingFor].inFile = true;
                             overrideLines[lookingFor].vanillaLine = lines[l].vanillaLine;
                             lines[l].inFile = false;
+                            lines[l].added = false;
                             if (lines[l].modified)
                                 fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
                             if (overrideLines[lookingFor].modified)
@@ -1901,6 +1920,7 @@ namespace EldenRingCSVHelper
                         if (changingFile)
                         {
                             overrideLines[lookingFor].inFile = true;
+                            overrideLines[lookingFor].added = true;
                             overrideLines[lookingFor].vanillaLine = null;
                             if (overrideLines[lookingFor].modified)
                             {
@@ -1927,8 +1947,10 @@ namespace EldenRingCSVHelper
                             if (changingFile && lines[l].inFile)
                             {
                                 overrideLines[i].inFile = true;
+                                overrideLines[i].added = lines[l].added;
                                 overrideLines[i].vanillaLine = lines[l].vanillaLine;
                                 lines[l].inFile = false;
+                                lines[l].added = false;
                                 if (lines[l].modified)
                                     fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
                                 if (overrideLines[i].modified)
@@ -1946,6 +1968,7 @@ namespace EldenRingCSVHelper
                             if (changingFile)
                             {
                                 overrideLines[i].inFile = true;
+                                overrideLines[i].added = true;
                                 overrideLines[i].vanillaLine = null;
                                 if (overrideLines[i].modified)
                                 {
@@ -1986,8 +2009,10 @@ namespace EldenRingCSVHelper
                         if (changingFile && lines[l].inFile)
                         {
                             overrideLine.inFile = true;
+                            overrideLine.added = lines[l].added;
                             overrideLine.vanillaLine = lines[l].vanillaLine;
                             lines[l].inFile = false;
+                            lines[l].added = false;
                             if (lines[l].modified)
                                 fileInto.numberOfModifiedFields -= lines[l].modifiedFieldIndexes.Count;
                             if (overrideLine.modified)
@@ -2006,6 +2031,7 @@ namespace EldenRingCSVHelper
                         if (changingFile)
                         {
                             overrideLine.inFile = true;
+                            overrideLine.added = true;
                             overrideLine.vanillaLine = null;
                             if (overrideLine.modified)
                             {
@@ -2032,11 +2058,45 @@ namespace EldenRingCSVHelper
             return newLines;
         }
 
+        public static int GetNextFreeId(List<Line> lines, int id, out int nextLineIndex, int startIndex = 0, bool inclusive = false)
+        {
+            if (inclusive)
+                id--;
+            //bool foundId = false;
+            int nextValid = id + 1;
+            int iid = -1;
+            for (int i = startIndex; i < lines.Count; i++)
+            {
 
-        /// <summary> 
-        /// Modifies the given lines with the given line modifier. Includes an optional Line Condition. Condition Lines are the lines you wish to run the conditions on in place of the accual lines (Useful in niche senarios)
-        /// </summary>
-        public static List<Line> Operate(List<Line> lines, LineModifier operation, Condition condition = null, List<Line> conditionLines = null)
+                iid = lines[i].id_int;
+                //if (!foundId && (iid == id || iid == nextValid))
+               //     foundId = true;
+
+               // if (foundId)
+                {
+                    if (iid > id)
+                    {
+                        if (iid == nextValid)
+                        {
+                            nextValid++;
+                        }
+                        else if (iid > nextValid)
+                        {
+                            nextLineIndex = i;
+                            return nextValid;
+                        }
+                    }
+                }
+            }
+            nextLineIndex = lines.Count;
+            return iid+1;
+        }
+
+
+    /// <summary> 
+    /// Modifies the given lines with the given line modifier. Includes an optional Line Condition. Condition Lines are the lines you wish to run the conditions on in place of the accual lines (Useful in niche senarios)
+    /// </summary>
+    public static List<Line> Operate(List<Line> lines, LineModifier operation, Condition condition = null, List<Line> conditionLines = null)
         {
             for (int i = 0; i < lines.Count; i++)
             {

@@ -200,18 +200,18 @@ namespace EldenRingCSVHelper
                 5f,*/
             };
 
-            /*exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
+            exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
 
-            RunSettings.Write_directory = exportDirectory;
+            /*RunSettings.Write_directory = exportDirectory;
             worldChangesPlus(true, true);
-            giveEnemieSmithingStoneDrops(true, true);
+            enemyDrops_MoreSmithingStoneDrops(true, true);
             enemyDrops_OneTimeEquipmentDrops();
             replaceOpenWorldSmithingStones();
             noupgradedweaponsFromNpcs();
             ShopLineupChanges(true, true, true, true);
             ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
-            ParamFile.ResetAll();*/
-
+            ParamFile.ResetAll();
+            */
 
             
 
@@ -1562,7 +1562,7 @@ namespace EldenRingCSVHelper
 
             //More Drops
             {
-
+                NpcData.CheckDataSet();
                 Dictionary<LotItem, int[]> lotItemToLineIDsDict = new Dictionary<LotItem, int[]>();
 
                 //starlight shard, nox, glintsone sorcerer
@@ -1601,14 +1601,16 @@ namespace EldenRingCSVHelper
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName("Misbegotten")
+                        .AND(new Condition.NameIs( new string[] { "Misbegotten" , "Winged Misbegotten", "Scaly Misbegotten", "Leonine Misbegoten" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Castle Morne", "Village Windmill" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Castle Morne", "Village Windmill" }),true)
+                        ))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
                             ;
                     lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 40,true), ids);
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Raw Meat Dumpling", 0, 160).addKW("Scaly Misbegotten"));
                 }
                 //raw meat dumpling - Living Jar
                 {
@@ -1646,9 +1648,9 @@ namespace EldenRingCSVHelper
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName(new string[] { "Skeleton" })
+                        .AND(new Condition.HasInName(new string[] { "Skeleton" }).AND(new Condition.HasInName("Giant Skeleton Torso"))
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1661,7 +1663,7 @@ namespace EldenRingCSVHelper
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(new string[] { "Leyndell Footsoldier", "Wandering Noble" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Altus" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Altus" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1674,7 +1676,7 @@ namespace EldenRingCSVHelper
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(new string[] { "Wandering Noble", "Troll" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Snowfield","Mountaintop" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Snowfield","Mountaintop" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1687,7 +1689,7 @@ namespace EldenRingCSVHelper
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(new string[] {"Crayfish"})
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Liurnia" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Liurnia" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1703,7 +1705,7 @@ namespace EldenRingCSVHelper
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(names[i])
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Mistwood" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Mistwood" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1718,9 +1720,9 @@ namespace EldenRingCSVHelper
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName(new string[] { "Demi-human" })
+                        .AND(new Condition.HasInName(new string[] { "Demi-Human" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Cave" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Cave" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1731,7 +1733,7 @@ namespace EldenRingCSVHelper
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
                         .AND(new Condition.HasInName(new string[] { "Highwayman" })
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Cave" }))))
+                            .AND(new KeywordCondition.Contains(new string[] { "Cave" }),true)))
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
@@ -1746,17 +1748,32 @@ namespace EldenRingCSVHelper
 
                 //we will simply create a line with lot of the requested item, Increased Material Drops will st the lots to out prefrence.
 
-                Util.PrintStrings(Util.ToStrings(ItemLotParam_enemy.GetIDs()));
+                //Util.PrintStrings(Util.ToStrings(ItemLotParam_enemy.GetIDs()));
+
+                int c = ItemLotParam_enemy.lines.Count();
+                //ItemLotParam_enemy.lines = ItemLotParam_enemy.GetOrderedLines();
 
                 foreach(LotItem lotItem in lotItemToLineIDsDict.Keys)
                 {
                     int[] ids = lotItemToLineIDsDict[lotItem];
                     foreach (int id in ids)
                     {
-                        
                         Line ogLine = ItemLotParam_enemy.GetLineWithId(id);
-                        string lotName = ogLine.name.Replace(new LotItem(ogLine, LotItem.GetFirstNonEmptyItemLotIndex(ogLine)).Name, "") +lotItem.Name;
                         int newLineId = ItemLotParam_enemy.GetNextFreeId(id);
+                        string lotItemName = lotItem.Name;
+                        int firstEmptyLotIndex = LotItem.GetFirstNonEmptyItemLotIndex(ogLine);
+                        string oldName;
+                        if (firstEmptyLotIndex == -1)
+                        {
+                            oldName = "None";
+                            firstEmptyLotIndex = 1;
+                            Util.p();
+                        }
+                        else
+                        {
+                            oldName = new LotItem(ogLine, firstEmptyLotIndex).Name;
+                        }
+                        string lotName = ogLine.name.Replace(oldName, "") +lotItemName;
                         Line line = LotItem.newBaseItemLotLine(ItemLotParam_enemy)
                             .SetField(0,newLineId)
                             .SetField(1, lotName)
@@ -1764,7 +1781,7 @@ namespace EldenRingCSVHelper
                         //line.PrintFieldsWithFieldName();
                         if(!isMaterial.Pass(line))
                             NonMaterialLinesToInclude.Add(line);
-                        Util.println(id + " --> " + newLineId);
+                        //Util.println(id + " --> " + newLineId);
                         ItemLotParam_enemy.OverrideOrAddLine(line);
                     }
                 }
@@ -1822,6 +1839,7 @@ namespace EldenRingCSVHelper
 
                     new LotItem(good,"Budding Horn",0,250),
 
+                    new LotItem(good,"Old Fang",0,450).addKW("[Winged Misbegotten]"), //Leonine Misbegotten for some reason misnamed itemlot 
                     new LotItem(good,"Old Fang",0,200),
 
                     new LotItem(good,"String",0,160).addKW("[Large Demi-Human]"),
@@ -1832,6 +1850,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Trina's Lily",1), //maintain rarity
                     new LotItem(good,"Beast Liver",1),
                     new LotItem(good,"Turtle Neck Meat",1),
+                     new LotItem(good,"Yellow Ember",2),
 
                     new LotItem(good,"Stormhawk Feather",5),
                     new LotItem(good,"Flight Pinion",5).addKW("[Warhawk]"),
@@ -1841,6 +1860,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Budding Horn",4).addKW("Ancestral Follower"),
                     new LotItem(good,"Budding Horn",2),
 
+                    new LotItem(good,"Old Fang",4).addKW("[Winged Misbegotten]"), //Leonine Misbegotten for some reason misnamed itemlot 
                     new LotItem(good,"Old Fang",3).addKW("Misbegotten]"),
                     new LotItem(good,"Old Fang",2),
 
@@ -3656,14 +3676,14 @@ namespace EldenRingCSVHelper
                 // if(somberLevelAdjDict[keyword] != 0)\
                 //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
                 //SET TEST
-                if (npcID == 44701021)
+                //if (npcID == 44701021)
                 //if( 
                 //    npcLine.name.Contains("Draconic Tree"))
                 //&& (keywordOverrideIDsDict.ContainsKey(npcID))
                 //  npcLine.name.Contains("Godrick Soldier") )
                 //if     (npcLine.name.Contains("igger"))
 
-                testId = npcID;
+                //testId = npcID;
 
                 bool test = testId == npcID;
 

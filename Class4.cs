@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EldenRingCSVHelper
 {
@@ -132,6 +130,8 @@ namespace EldenRingCSVHelper
         {
             get
             {
+                if (category == 0)
+                    return "";
                 return CategoryParamFile.GetLineWithId(id).name;
             }
         }
@@ -145,7 +145,7 @@ namespace EldenRingCSVHelper
         }
         public static Line newBaseItemLotLine(ParamFile param, int id = 0)
         {
-            return Program.ItemLotParam_enemy.vanillaParamFile.GetLineWithId(215000000).Copy(param).SetField(0,id).Operate(new SetLotItem(newEmpty(),new int[] {1,2,3,4,5,6,7,8})).SetField(1,"base item lot line");
+            return Program.ItemLotParam_enemy.vanillaParamFile.GetLineWithId(215000000).Copy(param).SetField(0, id).Operate(new SetLotItem(newEmpty(), new int[] { 1, 2, 3, 4, 5, 6, 7, 8 })).SetField(1, "base item lot line");
         }
         ParamFile CategoryParamFile
         {
@@ -220,7 +220,7 @@ namespace EldenRingCSVHelper
                     continue;
                 return i + 1;
             }
-            return 1;
+            return -1;
         }
         public static int GetEmptyChanceTotal(Line line)
         {
@@ -493,6 +493,38 @@ namespace EldenRingCSVHelper
         }
     }
 
+    public static class AddedLineManager
+    {
+        public static Dictionary< ParamFile, List<AddedLine >> Dict = new Dictionary<ParamFile, List<AddedLine>>();
+        public class AddedLine
+        {
+            public ParamFile file;
+            public string changeName;
+            public int lineId;
+            public AddedLine(ParamFile file, string changeName, int lineId)
+            {
+                this.file = file;
+                this.changeName = changeName;
+                this.lineId = lineId;
+            }
+        }
+
+        public static void CatalogLineChanges(string changeName)
+        {
+            foreach(ParamFile p in ParamFile.paramFiles)
+            {
+                foreach(Line l in p.lines)
+                {
+                    if (l.added)
+                    {
+                        if (!Dict.ContainsKey(p))
+                            Dict.Add(p, new List<AddedLine>());
+                        Dict[p].Add(new AddedLine(p, changeName, l.id_int));
+                    }
+                }
+            }
+        }
+    }
     public static class NpcData
     {
         //Bosses vvvvvvvvvvvvvvvvvvvvvv
@@ -502,6 +534,7 @@ namespace EldenRingCSVHelper
         public static List<int> BossOrMiniBossIds { get { if (_bossOrMiniBossIds == null && !setInfo) SetInfo(); return _bossOrMiniBossIds; }}
         public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict { get { if (_bossOrMiniBossToItemLotMapDict == null && !setInfo) SetInfo(); return _bossOrMiniBossToItemLotMapDict; } }
         public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict2 { get { if (_bossOrMiniBossToItemLotMapDict2 == null && !setInfo) SetInfo(); return _bossOrMiniBossToItemLotMapDict2; } }
+        public static void CheckDataSet() { if (!setInfo) SetInfo(); }
         static void SetBossInfo()
         {
             _bossOrMiniBossIds = new List<int>();
@@ -1082,7 +1115,7 @@ namespace EldenRingCSVHelper
         //Bosses^^^^^^^^^^^^^^^
         //Enemies vvvvvvvvvvvv
         static Dictionary<int, float> _npcsDocDifficultyDict;
-        static Dictionary<int, List<Keyword>> _npcDocToLocationDict;
+        static Dictionary<int, List<Keyword>> _npcDocToLocationsDict;
         static Dictionary<int, int> _npcsIdToSpLevelsDict;
         static Dictionary<int, float> _spLevelToDifficultyDict;
         static bool setInfo = false;
@@ -1094,7 +1127,7 @@ namespace EldenRingCSVHelper
             using (var sr = new StreamReader(@"C:\CODING\Souls Modding\ModdingTools\Docs\NPCLocations.txt"))
             {
                 _npcsDocDifficultyDict = new Dictionary<int, float>();
-                _npcDocToLocationDict = new Dictionary<int, List<Keyword>>();
+                _npcDocToLocationsDict = new Dictionary<int, List<Keyword>>();
 
                 var ALLordered = new Dictionary<int, Dictionary<int, List<Line>>>();
                 var ItemLotMapToBossOrMiniBoss = new Dictionary<int, int>();
@@ -1366,7 +1399,10 @@ namespace EldenRingCSVHelper
                     //continue;
                     //Util.println("no difficulty group found for: "+ locationName + "  enemy name: "+ NpcParam.GetFieldWithLineID(1,npcID.ToString()));
 
-                    
+                    if (!_npcDocToLocationsDict.ContainsKey(npcID))
+                        _npcDocToLocationsDict.Add(npcID, new List<Keyword>());
+                    _npcDocToLocationsDict[npcID].Add(new Keyword("location: " + locationName, difficulty));
+
 
                     if (!_npcsDocDifficultyDict.ContainsKey(npcID))
                     {
@@ -1518,11 +1554,9 @@ namespace EldenRingCSVHelper
                         //prioritises the lower difficulty to avoid  enemies in the same region dropping the same shard.
                         _npcsDocDifficultyDict[npcID] = Math.Min(difficulty, oldDifficulty);
                     }
-
-                    if (!_npcDocToLocationDict.ContainsKey(npcID))
-                        _npcDocToLocationDict.Add(npcID, new List<Keyword>());
-                    _npcDocToLocationDict[npcID].Add(new Keyword("location: " +locationName, difficulty));
                 }
+
+                
 
                 /*foreach(int npcID in npcsDocDifficultyDict.Keys)
                 {
@@ -1534,6 +1568,14 @@ namespace EldenRingCSVHelper
                     if (difficulty == 4.7f && npcLine.name.Contains(searchName) && !npcLine.name.Contains("Horse"))
                         Util.println("keywordOverrideIDsDict.Add("+ npcID + ", \""+keywordCode+" "+searchName+" "+overrideExtension+"\");");
                 }*/
+                foreach(int npcId in _npcDocToLocationsDict.Keys)
+                {
+                    var npcLine = Program.NpcParam.GetLineWithId(npcId);
+                    foreach (Keyword k in _npcDocToLocationsDict[npcId])
+                    {
+                        npcLine.addKeyword(k);
+                    }
+                }
                 const bool debugAssignMapLots = false;
                 //added new assigned itemlotmaps to main dict
                 foreach (var lineKey in ItemLotMapToBossOrMiniBoss.Keys)
