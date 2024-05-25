@@ -542,6 +542,16 @@ namespace EldenRingCSVHelper
         {
             lines = Line.OverrideOrAddLine(lines, overrideLine, this);
         }
+        public override void InsertLine(Line overrideLine, int startIndex = 0)
+        {
+            //lines = 
+            Line.InsertLine(lines, overrideLine, out int lineIndex, this, startIndex);
+        }
+        public override void InsertLine(Line overrideLine, out int lineIndex, int startIndex = 0)
+        {
+            //lines = 
+            Line.InsertLine(lines, overrideLine, out lineIndex, this,startIndex );
+        }
     }
     public class Lines : LineContainer
     {
@@ -667,6 +677,16 @@ namespace EldenRingCSVHelper
         public virtual void OverrideOrAddLine(Line overrideLine)
         {
             lines = Line.OverrideOrAddLine(lines, overrideLine);
+        }
+        public virtual void InsertLine(Line overrideLine, int startIndex = 0)
+        {
+            //lines = 
+            Line.InsertLine(lines, overrideLine, out int lineIndex, null, startIndex);
+        }
+        public virtual void InsertLine(Line overrideLine, out int lineIndex, int startIndex = 0)
+        {
+            //lines = 
+            Line.InsertLine(lines, overrideLine, out lineIndex, null, startIndex);
         }
         /// <summary> 
         /// Run a line modifier into all lines in this Container. Includes an optional Condition.
@@ -1128,7 +1148,11 @@ namespace EldenRingCSVHelper
                 if (_extraLineCheckQued)
                 {
                     //finds first id in vannilla file lines that is greater or equal to id, if not equal we know its an extra line.
-                    _wasExtraLineLastCheck = file.vanillaParamFile.GetLineOnCondition(new Condition.FloatCompare(new FloatFieldRef(0), Condition.GREATER_THAN_OR_EQUAL_TO, id_int)).id != id;
+                    Line vanillaIdLine = file.vanillaParamFile.GetLineOnCondition(new Condition.FloatCompare(new FloatFieldRef(0), Condition.GREATER_THAN_OR_EQUAL_TO, id_int));
+                    if (vanillaIdLine == null)
+                        _wasExtraLineLastCheck = false;
+                    else
+                        _wasExtraLineLastCheck = vanillaIdLine.id != id;
                 }
                 return _wasExtraLineLastCheck;
             }
@@ -2053,16 +2077,18 @@ namespace EldenRingCSVHelper
                     newLines.Add(lines[l]);
                 }
             }
-            if (!found)
-                Util.println("failed to add line " + overrideLine.id + " : " + overrideLine.name);
+            //if (!found)
+            //    Util.println("failed to add line " + overrideLine.id + " : " + overrideLine.name);
+            newLines.Add(overrideLine);
             return newLines;
         }
 
-        public static List<Line> Insertline(List<Line> lines, Line lineToInsert, ParamFile fileInto = null, int startIndex = 0)
+        public static void InsertLine(List<Line> lines, Line lineToInsert, out int lineIndex, ParamFile fileInto = null, int startIndex = 0)
         {
             bool changingFile = fileInto != null;
-            List<Line> newLines = new List<Line>();
+            //List<Line> newLines = new List<Line>();
             bool found = false;
+            lineIndex = lines.Count;
             for (int l = startIndex; l < lines.Count; l++)
             {
                 if (!found)
@@ -2070,7 +2096,7 @@ namespace EldenRingCSVHelper
                     if (lines[l].id == lineToInsert.id) //override line
                     {
                         //lines[l] = overrideLine;
-                        newLines.Add(lineToInsert);
+                        //newLines.Add(lineToInsert);
                         if (changingFile && lines[l].inFile)
                         {
                             lineToInsert.inFile = true;
@@ -2082,14 +2108,22 @@ namespace EldenRingCSVHelper
                                 fileInto.numberOfModifiedFields += lineToInsert.modifiedFieldIndexes.Count;
                             }
                         }
+                        lines.Insert(l, lineToInsert);
                         lines[l].SetField(0, lineToInsert.id_int + 1);
-                        return Insertline(newLines, lines[l], fileInto, l + 1);
-                        //found = true;
+                        lineIndex = l;
+                        //foreach(Line line in 
+                        InsertLine(lines, lines[l], out int newInt, fileInto, l + 1);
+                        /*    )
+                        {
+                            newLines.Add(line);
+                        }*/
+                        found = true;
+                        //return;
                     }
                     else if (lines[l].id_int > lineToInsert.id_int) //add line
                     {
-                        //lines.Insert(l, overrideLine);
-                        newLines.Add(lineToInsert);
+                        lines.Insert(l, lineToInsert);
+                        //newLines.Add(lineToInsert);
                         if (changingFile)
                         {
                             lineToInsert.inFile = true;
@@ -2103,21 +2137,29 @@ namespace EldenRingCSVHelper
                         }
                         l--;
                         found = true;
+                        lineIndex = l;
                         //return;
                     }
-                    else
+                    /*else
                     {
                         newLines.Add(lines[l]);
-                    }
+                    }*/
                 }
-                else
+                /*else
                 {
                     newLines.Add(lines[l]);
-                }
+                }*/
             }
-            if (!found)
-                Util.println("failed to add line " + lineToInsert.id + " : " + lineToInsert.name);
-            return newLines;
+            //if (!found)
+            //    Util.println("failed to add line " + lineToInsert.id + " : " + lineToInsert.name);
+            /*if (!found)
+            {
+                newLines.Add(lineToInsert);
+            }
+
+            Util.println(newLines.Count);*/
+            
+            //return newLines;
         }
 
         public static int GetNextFreeId(List<Line> lines, int id, out int nextLineIndex, int startIndex = 0, bool inclusive = false)

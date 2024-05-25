@@ -518,7 +518,7 @@ namespace EldenRingCSVHelper
         public static void Catalog (string changeName)
         {
             if (ChangeNameToOrderDict.ContainsKey(changeName))
-                continue;
+                return;
 
             bool foundAnAddedLine = false;
 
@@ -541,11 +541,18 @@ namespace EldenRingCSVHelper
             }
             
             if (foundAnAddedLine) {
-                ChangeNameToOrderDict.Add(changeName, order);
-                nextOrder++;
+                ChangeNameToOrderDict.Add(changeName, AddedLineInfo.nextOrder);
+                AddedLineInfo.nextOrder++;
             }
         }
-
+        public static void CreateEmptyLines(Line baseLineToCopy, string curFunctionOrderName = "")
+        {
+            foreach(ParamFile p in ParamFile.paramFiles)
+            {
+                if (p.numberOfModifiedOrAddedLines != 0 && Dict.ContainsKey(p))
+                    CreateEmptyLines(p,baseLineToCopy, curFunctionOrderName);
+            }
+        }
         public static void CreateEmptyLines(ParamFile p, Line baseLineToCopy, string curFunctionOrderName = "")
         {
             int curOrder;
@@ -553,13 +560,18 @@ namespace EldenRingCSVHelper
                 curOrder = ChangeNameToOrderDict[curFunctionOrderName];
             else
                 curOrder = AddedLineInfo.nextOrder;
-            List<AddedLineInfo> addedLineInfos = Dict[p];
+            //List<AddedLineInfo> addedLineInfos = Dict[p];
+            List<AddedLineInfo> addedLineInfos = Dict[p].Concat(new List<AddedLineInfo>()).ToList();
+            addedLineInfos.Reverse();
+            int startIndex = 0;
             foreach (AddedLineInfo ali in addedLineInfos)
             {
                 if (curOrder <= ali.order)
                     continue;
-                Line l = baseLineToCopy.Copy().SetField(0, ali.id).SetField(1, "!Compatability Buffer for " + ali.changeName +"!").addKeyword("!Buffer!", curOrder);
-                p.OverrideOrAddLine(l);
+                //if (curFunctionOrderName == "StoneDrops")
+                //    Util.p();
+                Line l = baseLineToCopy.Copy().SetField(0, ali.lineId).SetField(1, "!Compatability Buffer for " + ali.changeName +"!").addKW("!Buffer!", curOrder);
+                p.InsertLine(l, out startIndex, startIndex);
             }
         }
         public static bool AttemptToCreateEmptyLine( int id , ParamFile p, Line baseLineToCopy, string curFunctionOrderName = "")
@@ -569,13 +581,15 @@ namespace EldenRingCSVHelper
                 curOrder = ChangeNameToOrderDict[curFunctionOrderName];
             else
                 curOrder = AddedLineInfo.nextOrder;
-            List<AddedLineInfo> addedLineInfos = Dict[p];
+            //List < AddedLineInfo > addedLineInfos = Dict[p];
+            List<AddedLineInfo> addedLineInfos = Dict[p].Concat(new List<AddedLineInfo>()).ToList();
+            addedLineInfos.Reverse();
             foreach (AddedLineInfo ali in addedLineInfos)
-            {
-                if (curOrder <= ali.order || id != ali.id)
+            {   
+                if (curOrder <= ali.order || id != ali.lineId)
                     continue;
-                Line l = baseLineToCopy.Copy().SetField(0, ali.id).SetField(1, "!Compatability Buffer for " + ali.changeName + "!").addKeyword("!Buffer!", curOrder);
-                p.OverrideOrAddLine(l);
+                Line l = baseLineToCopy.Copy().SetField(0, ali.lineId).SetField(1, "!Compatability Buffer for " + ali.changeName + "!").addKW("!Buffer!", curOrder);
+                p.InsertLine(l);
                 return true;
             }
             return false;
