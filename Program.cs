@@ -94,13 +94,24 @@ namespace EldenRingCSVHelper
                 //enemyDrops_IncreasedMaterialDrops();
                 //enemyDrops_OneTimeEquipmentDrops();
                 //worldChangesPlus();
-                replaceOpenWorldSmithingStones();
+                //replaceOpenWorldSmithingStones();
                 /*string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                 string dropTypeDirString = @"\WorldChangesPlus";
                 RunSettings.Write_directory = exportDirectory + dropTypeDirString;
                 ParamFile.WriteModifiedFiles("", "__" + "WCP");
                 ParamFile.ResetAll();*/
-                
+                int[] resists = null;
+                int resist_sleep =  NpcParam.GetFieldIndex("resist_sleep");
+                {
+                    resists = NpcParam.GetFieldIndexesContains("resist_");
+                    var r2 = resists.ToList();
+                    r2.Remove(resist_sleep);
+                    resists = r2.ToArray();
+                }
+                var c = new Condition.MultiFieldCondition(new Condition.FloatFieldCompare(Condition.LESS_THAN_OR_EQUAL_TO, new FloatFieldRef(resist_sleep)), resists, true);
+                var ls = ((Lines)NpcParam.GetLinesOnCondition(c));
+                    ls.PrintIDAndNames();
+                Util.println("found "+ ls.Length);
             }
             else
             if (RunSettings.CreateSmithingStoneMods)
@@ -130,7 +141,7 @@ namespace EldenRingCSVHelper
 
                 //                                //makeRuneArchsGive2500()
                 //MaloModShopChanges();
-                ShopLineupChanges(true,false,false,false);
+                ShopLineupChanges(true, false, false, false);
                 Console.WriteLine("7");
 
                 enemyDrops_MoreSmithingStoneDrops(true);
@@ -189,6 +200,21 @@ namespace EldenRingCSVHelper
             RunSettings.Testing = false;
             RunSettings.Write_OnlyModifiedLines = true;
             RunSettings.RunIfNull = true;
+
+
+
+
+
+
+            //RunSettings.RunIfNull = false;  //re create files
+
+
+
+
+
+
+
+
             string exportDirectory;
 
             Line emptyItemLot = ItemLotParam_enemy.vanillaParamFile.GetLineWithId(460000500).Copy(ItemLotParam_enemy).SetField(1, "");
@@ -196,455 +222,740 @@ namespace EldenRingCSVHelper
             var DropMultsToWrite = new float[]
             {
                 1,
-                /*1.5f,
-                2f,
-                3f,
-                5f,*/
+                1.5f,2f,3f,5f,
             };
 
             
-           /* exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
 
-            RunSettings.Write_directory = exportDirectory;
-            worldChangesPlus(true, true);
-            enemyDrops_OneTimeEquipmentDrops();
-            enemyDrops_IncreasedMaterialDrops();
-            replaceOpenWorldSmithingStones();
-            noupgradedweaponsFromNpcs();
-            ShopLineupChanges(true, true, true, true);
-            enemyDrops_MoreSmithingStoneDrops(true, true);
-            ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
-            ParamFile.ResetAll();*/
-
-
-
-
-            enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "EnemyDrop");
-            AddedLineManager.Catalog("EnemyDrop");
-            ParamFile.ResetAll();
-
-            exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
-            for (int i = 0; i < DropMultsToWrite.Length; i++)
             {
-                string multString = "x" + DropMultsToWrite[i];
-                string multDirString = @"\MaterialDrops\" + multString + @" Mats";
-                if (DropMultsToWrite[i] == 1)
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+                Keyword.IfModifiedSet_ON = true;
+                string ChangeKeyword;
+                //Condition WriteCond;
+
+                const bool MATERIAL_DROP_MULT_OPTIONS = true;
+                var individual_MaterialDropsDirectory = "";
+                for (int i = 0; i < DropMultsToWrite.Length && (MATERIAL_DROP_MULT_OPTIONS || i == 0); i++)
                 {
-                    multDirString += "(recommended)";
-                    multString = "";
+                    RunSettings.Write_directory = exportDirectory + @"\MaterialDrops";
+                    string multString = "";
+                    if (MATERIAL_DROP_MULT_OPTIONS)
+                    {
+                        multString = "x" + DropMultsToWrite[i];
+                        string multDirString = @"\MaterialDrops\" + multString + @" Mats";
+                        if (DropMultsToWrite[i] == 1)
+                        {
+                            //multDirString += "(recommended)";
+                            //multDirString += "";//"(recommended)";
+                            multDirString = @"\MaterialDrops\Default";
+                            multString = "";
+                            individual_MaterialDropsDirectory = exportDirectory + multDirString;
+                        }
+                        else if (DropMultsToWrite[i] == 1.5f)
+                            multDirString += "";
+                        RunSettings.Write_directory = exportDirectory + multDirString;
+                    }
+                    ChangeKeyword = "!Material Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondMatDrops = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                    enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                    Keyword.IfModifiedSet_ON = false;
+                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                    Keyword.IfModifiedSet_ON = true;
+                    ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops", WriteCondMatDrops);
+                    ParamFile.RevertAll(true);
                 }
-                else if (DropMultsToWrite[i] == 1.5f)
-                    multDirString += "";
-                RunSettings.Write_directory = exportDirectory + multDirString;
-                //ShopLineupChanges(false,false,true, false);
-                enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
-                enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-                AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
-                ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
-                AddedLineManager.Catalog("MatDrops");
-                ParamFile.ResetAll();
-            }
 
-            string dropTypeDirString = @"\RuneDrops";
-            RunSettings.Write_directory = exportDirectory + dropTypeDirString;
-            enemyDrops_MoreSmithingStoneDrops(true, false);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "RuneDrops");
-            ParamFile.WriteModifiedFiles("", "__" + "RuneDrops");
-            AddedLineManager.Catalog("RuneDrops");
-            ParamFile.ResetAll();
-            
-
-            string OTED_DirString = @"\OneTime Equipment Drops (import last)";
-            RunSettings.Write_directory = exportDirectory + OTED_DirString;
-            enemyDrops_OneTimeEquipmentDrops();
-            enemyDrops_MoreSmithingStoneDrops(false, false,1);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "OTED");
-            ParamFile.WriteModifiedFiles("", "__" + "OTED");
-            AddedLineManager.Catalog("OTED");
-            ParamFile.ResetAll();
-
-            string worldChanges_DirString = @"\World Changes";
-            RunSettings.Write_directory = exportDirectory + worldChanges_DirString;
-            //ShopLineupChanges(true, false, false, false);
-            replaceOpenWorldSmithingStones();
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "WorldChanges");
-            ParamFile.WriteModifiedFiles("", "__WorldChanges");
-            AddedLineManager.Catalog("WorldChanges");
-            ParamFile.ResetAll();
-
-            string WCP_DirString = @"\World Changes Plus\Soft Item Randomizer";
-            RunSettings.Write_directory = exportDirectory + WCP_DirString;
-            worldChangesPlus(true, false);
-            enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_SIR");
-            ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR");
-            AddedLineManager.Catalog("WCP_SIR");
-            ParamFile.ResetAll();
-
-            WCP_DirString = @"\World Changes Plus\Add Roundtable Items";
-            RunSettings.Write_directory = exportDirectory + WCP_DirString;
-            worldChangesPlus(false, true);
-            //giveEnemieSmithingStoneDrops(false, false, 1);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_ARI");
-            ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI");
-            AddedLineManager.Catalog("WCP_ARI");
-            ParamFile.ResetAll();
-
-
-            WCP_DirString = @"\World Changes Plus\Unupgrade NPC Weap";
-            RunSettings.Write_directory = exportDirectory + WCP_DirString;
-            noupgradedweaponsFromNpcs();
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_UNW");
-            ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW");
-            AddedLineManager.Catalog("WCP_UNW");
-            ParamFile.ResetAll();
-
-            string ShopChanges_DirString = @"\Shop Changes\Vendor Stone Nerf";
-            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
-            ShopLineupChanges(true, true, false, false);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "SC_VSN");
-            ParamFile.WriteModifiedFiles("", "__" + "SC_VSN");
-            AddedLineManager.Catalog("SC_VSN");
-            ParamFile.ResetAll();
-
-            /*ShopChanges_DirString = @"\Shop Changes\TwinMaiden Stone Nerf";
-            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
-            ShopLineupChanges(false, true, false, false);
-            AddedLineManager.CreateEmptyLines(emptyItemLot ,"SC_TMSN");
-            ParamFile.WriteModifiedFiles("", "__" + "SC_TMSN");
-            AddedLineManager.Catalog("SC_TMSN");
-            ParamFile.ResetAll();*/
-
-            ShopChanges_DirString = @"\Shop Changes\Vendor Material Buff";
-            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
-            ShopLineupChanges(false, false, true, false);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "SC_VMB");
-            ParamFile.WriteModifiedFiles("", "__" + "SC_VMB");
-            AddedLineManager.Catalog("SC_VMB");
-            ParamFile.ResetAll();
-
-            ShopChanges_DirString = @"\Shop Changes\Misc Balancing";
-            RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
-            ShopLineupChanges(false, false, false, true);
-            AddedLineManager.CreateEmptyLines(emptyItemLot, "SC_MB");
-            ParamFile.WriteModifiedFiles("", "__" + "SC_MB");
-            AddedLineManager.Catalog("SC_MB");
-            ParamFile.ResetAll();
-
-            for (int i = 0; i < DropMultsToWrite.Length; i++)
-            {
-                string multString = "x" + DropMultsToWrite[i];
-                string multDirString = @"\MaterialDrops\" + multString + @" Mats";
-                if (DropMultsToWrite[i] == 1)
+                //FirstTImeEquipDrop
+                var individual_FTEDDirectory = "";
                 {
-                    multDirString += "(recommended)";
-                    multString = "";
+                    ChangeKeyword = "!FirstTime Equipment Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondFTED = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                    enemyDrops_OneTimeEquipmentDrops(true);
+                    Keyword.IfModifiedSet_ON = false;
+                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                    Keyword.IfModifiedSet_ON = true;
+                    RunSettings.Write_directory = exportDirectory + @"\Equipment Drops\First Time Drops";
+                    individual_FTEDDirectory = RunSettings.Write_directory;
+                    ParamFile.WriteModifiedFiles("", "__" + "FTED", WriteCondFTED);
+                    ParamFile.RevertAll(true);
                 }
-                else if (DropMultsToWrite[i] == 1.5f)
-                    multDirString += "";
-                RunSettings.Write_directory = exportDirectory + multDirString;
-                //ShopLineupChanges(false,false,true, false);
-                enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
-                AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
-                ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
-                AddedLineManager.Catalog("MatDrops");
-                ParamFile.ResetAll();
-            }
-
-            for (int i = 0; i < DropMultsToWrite.Length; i++)
-            {
-                string multString = "x" + DropMultsToWrite[i];
-                string multDirString = @"\StoneDrops\" + multString + @" Stones";
-                if (DropMultsToWrite[i] == 1)
-                {
-                    multDirString += "(recommended)";
-                    multString = "";
-                }
-                else if (DropMultsToWrite[i] == 1.5f)
-                    multDirString += "";
-                RunSettings.Write_directory = exportDirectory + multDirString;
-                enemyDrops_MoreSmithingStoneDrops(false, true, DropMultsToWrite[i]);
-                AddedLineManager.CreateEmptyLines(emptyItemLot ,"StoneDrops");
-                ParamFile.WriteModifiedFiles("", "__" + multString + "StoneDrops");
-                AddedLineManager.Catalog("StoneDrops");
-                ParamFile.ResetAll();
-            }
-
-            return;
-
-            exportDirectory = @"C:\CODING OUTPUT\CSV\Choose Options";
-            {
+                ChangeKeyword = "!Material Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); //var WriteCondMatDrops = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                enemyDrops_IncreasedMaterialDrops();
+                /*ChangeKeyword = "!Soft Item Randomizer!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondSIR = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                worldChangesPlus(true, false);
+                ChangeKeyword = "!Add Roundtable Items!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondARI = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                worldChangesPlus(false, true);*/
+                //ChangeKeyword = "!Unupgrade NPC Weap!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondUNW = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                //noupgradedweaponsFromNpcs();
+                ChangeKeyword = "!OneTime Equipment Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondOTED = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                enemyDrops_OneTimeEquipmentDrops();
                 
-                for (int i = 0;i < DropMultsToWrite.Length; i++)
+                Keyword.IfModifiedSet_ON = false;
+                enemyDrops_MoreSmithingStoneDrops(true, true, 1);
+                Keyword.IfModifiedSet_ON = true;
+
+                //RunSettings.Write_directory = exportDirectory + @"\MaterialDrops";
+                //ParamFile.WriteModifiedFiles("", "__" + "MatDrops", WriteCondMatDrops);
+
+                /*RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Soft Item Randomizer";
+                var individual_WCP_SoftItemRandomizerDirectory = RunSettings.Write_directory;
+                ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR", WriteCondSIR);
+                RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Add Roundtable Items";
+                var individual_WCP_AddRoundtableItemsDirectory = RunSettings.Write_directory;
+                ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI", WriteCondARI);*/
+
+                //RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Unupgrade NPC Weap";
+                //var individual_WCP_UnupgradeNPCWeapDirectory = RunSettings.Write_directory;
+                //ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW", WriteCondUNW);
+
+                RunSettings.Write_directory = exportDirectory +  @"\Equipment Drops\One Time Drops";
+                var individual_OTEDDirectory = RunSettings.Write_directory;
+                ParamFile.WriteModifiedFiles("", "__" + "OTED", WriteCondOTED);
+
+                ParamFile.RevertAll(true);
+
+                const bool STONE_DROP_MULT_OPTIONS = true;
+                //var individual_StoneDropsDirectory = "";
+                var individual_StoneDropMultsDirectory = new string[DropMultsToWrite.Length];
+                for (int i = 0; i < DropMultsToWrite.Length && (STONE_DROP_MULT_OPTIONS || i == 0); i++)
+                {
+                    RunSettings.Write_directory = exportDirectory + @"\StoneDrops (import first)";
+                    string multString = "";
+                    if (STONE_DROP_MULT_OPTIONS)
+                    {
+                        multString = "x" + DropMultsToWrite[i];
+                        string multDirString = @"\StoneDrops\" + multString + @" Stones";
+                        if (DropMultsToWrite[i] == 1)
+                        {
+                            //multDirString += "(recommended)";
+                            //multDirString += "";//"(recommended)";
+                            multDirString = @"\StoneDrops\Default";
+                            multString = "";
+                            //individual_StoneDropsDirectory = exportDirectory + multDirString;
+                        }
+                        else if (DropMultsToWrite[i] == 1.5f)
+                            multDirString += "";
+                        RunSettings.Write_directory = exportDirectory + multDirString;
+                    }
+                    individual_StoneDropMultsDirectory[i] = RunSettings.Write_directory;
+
+                    Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
+                    enemyDrops_IncreasedMaterialDrops();
+                    worldChangesPlus(true, false);
+                    worldChangesPlus(false, true);
+                    noupgradedweaponsFromNpcs();
+                    enemyDrops_OneTimeEquipmentDrops();
+
+                    foreach (ParamFile p in ParamFile.paramFiles)
+                    {
+                        foreach (Line line in p.lines)
+                        {
+                            if (!line.added && line.modified)
+                            {
+                                line.RevertFieldsToVanilla(true);
+                            }
+                        }
+                    }
+
+                    ChangeKeyword = "!Stone Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondStoneDrops = new KeywordCondition.Is(ChangeKeyword);
+                    enemyDrops_MoreSmithingStoneDrops(false, true, DropMultsToWrite[i]);
+                    //var individual_StoneDropsDirectory = RunSettings.Write_directory;
+                    ParamFile.WriteModifiedFiles("", "__" + multString + "StoneDrops", WriteCondStoneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
+
+                    ParamFile.RevertAll(true);
+                }
+                
+                /*
+                for (int i = 0; i < DropMultsToWrite.Length; i++)
                 {
                     string multString = "x" + DropMultsToWrite[i];
-                    string multDirString = @"\"+multString+@" Stones";
+                    string multDirString = @"\MaterialDrops\" + multString + @" Mats";
                     if (DropMultsToWrite[i] == 1)
                     {
                         multDirString += "(recommended)";
                         multString = "";
-                    }else if (DropMultsToWrite[i] == 1.5f)
+                    }
+                    else if (DropMultsToWrite[i] == 1.5f)
                         multDirString += "";
-                    for (bool WorldChanges = false; ; WorldChanges = true)
+                    RunSettings.Write_directory = exportDirectory + multDirString;
+                    //ShopLineupChanges(false,false,true, false);
+                    enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
+                    ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                    AddedLineManager.Catalog("MatDrops");
+                    ParamFile.RevertAll();
+                }
+
+                for (int i = 0; i < DropMultsToWrite.Length; i++)
+                {
+                    string multString = "x" + DropMultsToWrite[i];
+                    string multDirString = @"\StoneDrops\" + multString + @" Stones";
+                    if (DropMultsToWrite[i] == 1)
                     {
-                        string worldChanges_string = "";
-                        if (WorldChanges)
-                            worldChanges_string = "+WC";//" and OneTimeEquipmentDrops";
+                        multDirString += "(recommended)";
+                        multString = "";
+                    }
+                    else if (DropMultsToWrite[i] == 1.5f)
+                        multDirString += "";
+                    RunSettings.Write_directory = exportDirectory + multDirString;
+                    enemyDrops_MoreSmithingStoneDrops(false, true, DropMultsToWrite[i]);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "StoneDrops");
+                    ParamFile.WriteModifiedFiles("", "__" + multString + "StoneDrops");
+                    AddedLineManager.Catalog("StoneDrops");
+                    ParamFile.RevertAll();
+                }
+                return;
+                */
 
-                        worldChanges_DirString = @"\";
-                        if (WorldChanges)
-                            worldChanges_DirString += @"World Changes";
-                        else
-                            worldChanges_DirString += @"No World Changes";
 
-                        for (bool OneTimeEquipmentDrop = false; ; OneTimeEquipmentDrop = true)
+                Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
+                enemyDrops_IncreasedMaterialDrops();
+                worldChangesPlus(true, false);
+                worldChangesPlus(false, true);
+                noupgradedweaponsFromNpcs();
+                enemyDrops_OneTimeEquipmentDrops();
+
+                foreach (ParamFile p in ParamFile.paramFiles)
+                {
+                    foreach (Line line in p.lines)
+                    {
+                        if (!line.added && line.modified)
                         {
-                            string OTED_string = "";
-                            if (OneTimeEquipmentDrop)
-                                OTED_string = "+OTED";//" and OneTimeEquipmentDrops";
-
-                            OTED_DirString = @"\";
-                            if (OneTimeEquipmentDrop)
-                                OTED_DirString += @"OneTime Equipment Drops";
-                            else
-                                OTED_DirString += @"Regular Equipment Drops";
-
-                            for (bool DropRunes = false; ; DropRunes = true)
-                            {
-                                string dropTypeString = "StDrops";//" StoneDrops";
-                                if (DropRunes)
-                                    dropTypeString += "+RuDrops";//" and RuneDrops";
-                                                                 //else
-                                                                 //dropTypeString += "Only";
-
-                                dropTypeDirString = @"\";
-                                if (DropRunes)
-                                    dropTypeDirString += @"StoneDrops and RuneDrops";
-                                else
-                                    dropTypeDirString += @"StoneDrops ONLY";
-
-                                RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + worldChanges_DirString;
-                                if (OneTimeEquipmentDrop)
-                                    enemyDrops_OneTimeEquipmentDrops();
-                                //enemyDrops_IncreasedMaterialDrops();
-                                enemyDrops_MoreSmithingStoneDrops(DropRunes, true, DropMultsToWrite[i]);
-                                if (WorldChanges)
-                                {
-                                    //ShopLineupChanges(true, false,false,false);
-                                    replaceOpenWorldSmithingStones();
-                                }
-                                AddedLineManager.CreateEmptyLines(emptyItemLot, "");
-                                ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + OTED_string + worldChanges_string);
-                                ParamFile.ResetAll();
-
-                                if (DropRunes == true)
-                                    break;
-                            }
-                            if (OneTimeEquipmentDrop == true)
-                                break;
+                            line.RevertFieldsToVanilla();
                         }
-                        if (WorldChanges == true)
-                            break;
+                    }
+                }
+
+                ChangeKeyword = "!Rune Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondRuneDrops = new KeywordCondition.Is(ChangeKeyword);
+                enemyDrops_MoreSmithingStoneDrops(true, false, 1);
+                RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
+                var individual_RuneDropsDirectory = RunSettings.Write_directory;
+                ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
+
+                //already done
+                {
+                    /* exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
+
+                    RunSettings.Write_directory = exportDirectory;
+                    worldChangesPlus(true, true);
+                    enemyDrops_OneTimeEquipmentDrops();
+                    enemyDrops_IncreasedMaterialDrops();
+                    replaceOpenWorldSmithingStones();
+                    noupgradedweaponsFromNpcs();
+                    ShopLineupChanges(true, true, true, true);
+                    enemyDrops_MoreSmithingStoneDrops(true, true);
+                    ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
+                    ParamFile.ResetAll();*/
+
+                    /*
+
+
+                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "EnemyDrop");
+                    AddedLineManager.Catalog("EnemyDrop");
+                    ItemLotParam_enemy.SetToFakeVanilla();
+                    ParamFile.RevertAll();
+
+                    exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+                    for (int i = 0; i < DropMultsToWrite.Length; i++)
+                    {
+                        string multString = "x" + DropMultsToWrite[i];
+                        string multDirString = @"\MaterialDrops\" + multString + @" Mats";
+                        if (DropMultsToWrite[i] == 1)
+                        {
+                            multDirString += "(recommended)";
+                            multString = "";
+                        }
+                        else if (DropMultsToWrite[i] == 1.5f)
+                            multDirString += "";
+                        RunSettings.Write_directory = exportDirectory + multDirString;
+                        //ShopLineupChanges(false,false,true, false);
+                        enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                        enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                        AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
+                        ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                        AddedLineManager.Catalog("EnemyDrops");
+                        ParamFile.RevertAll();
                     }
 
+                    string dropTypeDirString = @"\RuneDrops";
+                    RunSettings.Write_directory = exportDirectory + dropTypeDirString;
+                    enemyDrops_MoreSmithingStoneDrops(true, false);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "RuneDrops");
+                    ParamFile.WriteModifiedFiles("", "__" + "RuneDrops");
+                    AddedLineManager.Catalog("RuneDrops");
+                    ParamFile.RevertAll();
+
+
+                    string OTED_DirString = @"\OneTime Equipment Drops (import last)";
+                    RunSettings.Write_directory = exportDirectory + OTED_DirString;
+                    enemyDrops_OneTimeEquipmentDrops();
+                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "OTED");
+                    ParamFile.WriteModifiedFiles("", "__" + "OTED");
+                    AddedLineManager.Catalog("OTED");
+                    ParamFile.RevertAll();
+
+                    string WCP_DirString = @"\World Changes Plus\Soft Item Randomizer";
+                    RunSettings.Write_directory = exportDirectory + WCP_DirString;
+                    worldChangesPlus(true, false);
+                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_SIR");
+                    ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR");
+                    AddedLineManager.Catalog("WCP_SIR");
+                    ParamFile.RevertAll();
+
+                    WCP_DirString = @"\World Changes Plus\Add Roundtable Items";
+                    RunSettings.Write_directory = exportDirectory + WCP_DirString;
+                    worldChangesPlus(false, true);
+                    //giveEnemieSmithingStoneDrops(false, false, 1);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_ARI");
+                    ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI");
+                    AddedLineManager.Catalog("WCP_ARI");
+                    ParamFile.RevertAll();
+
+
+                    WCP_DirString = @"\World Changes Plus\Unupgrade NPC Weap";
+                    RunSettings.Write_directory = exportDirectory + WCP_DirString;
+                    noupgradedweaponsFromNpcs();
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_UNW");
+                    ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW");
+                    AddedLineManager.Catalog("WCP_UNW");
+                    ParamFile.RevertAll();
+                    */
                 }
-                
-            }//old version
 
+                string worldChanges_DirString = @"\World Changes";
+                RunSettings.Write_directory = exportDirectory + worldChanges_DirString;
+                var individual_WorldChangesDirectory = RunSettings.Write_directory;
+                //ShopLineupChanges(true, false, false, false);
+                replaceOpenWorldSmithingStones();
+                AddedLineManager.CreateEmptyLines(emptyItemLot, "WorldChanges");
+                ParamFile.WriteModifiedFiles("", "__WorldChanges");
+                AddedLineManager.Catalog("WorldChanges");
+                ParamFile.RevertAll();
 
-        }
+                string ShopChanges_DirString = @"\Shop Changes\Vendor Stone Nerf";
+                RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+                var individual_ShopChanges_StoneNerfDirectory = RunSettings.Write_directory;
+                ShopLineupChanges(true, true, false, false);
+                AddedLineManager.CreateEmptyLines(emptyItemLot, "SC_VSN");
+                ParamFile.WriteModifiedFiles("", "__" + "SC_VSN");
+                AddedLineManager.Catalog("SC_VSN");
+                ParamFile.RevertAll(true);
 
-        static void noupgradedweaponsFromNpcs()
-        {
-            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map, EquipParamCustomWeapon }))
-                return;
+                /*ShopChanges_DirString = @"\Shop Changes\TwinMaiden Stone Nerf";
+                RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+                ShopLineupChanges(false, true, false, false);
+                AddedLineManager.CreateEmptyLines(emptyItemLot ,"SC_TMSN");
+                ParamFile.WriteModifiedFiles("", "__" + "SC_TMSN");
+                AddedLineManager.Catalog("SC_TMSN");
+                ParamFile.ResetAll();*/
 
-            int lotItemCategory01 = ItemLotParam_map.GetFieldIndex("lotItemCategory01");
-            int lotItemId01 = ItemLotParam_enemy.GetFieldIndex("lotItemId01");
+                ShopChanges_DirString = @"\Shop Changes\Vendor Material Buff";
+                RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+                var individual_ShopChanges_MaterialBuffDirectory = RunSettings.Write_directory;
+                ShopLineupChanges(false, false, true, false);
+                AddedLineManager.CreateEmptyLines(emptyItemLot, "SC_VMB");
+                ParamFile.WriteModifiedFiles("", "__" + "SC_VMB");
+                AddedLineManager.Catalog("SC_VMB");
+                ParamFile.RevertAll(true);
 
-            var isWeaponCond = new Condition.FieldIs(lotItemCategory01, "2");
-            var isUpgradedCond = new Condition.FieldEndsWith(lotItemId01, "0").IsFalse;
-            var upgradedWeaponLines = ItemLotParam_map.GetLinesOnCondition(isWeaponCond.AND(isUpgradedCond));
+                ShopChanges_DirString = @"\Shop Changes\Misc Balancing";
+                RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
+                var individual_ShopChanges_MiscBalancingDirectory = RunSettings.Write_directory;
+                ShopLineupChanges(false, false, false, true);
+                AddedLineManager.CreateEmptyLines(emptyItemLot, "SC_MB");
+                ParamFile.WriteModifiedFiles("", "__" + "SC_MB");
+                AddedLineManager.Catalog("SC_MB");
+                ParamFile.RevertAll(true);
 
-            foreach (Line line in upgradedWeaponLines)
-            {
-                var debugline = line._idName;
-                string name = line.name;
-                string new_name;
+                /*
+                for (int i = 0; i < DropMultsToWrite.Length; i++)
                 {
-                    int toplus = name.IndexOf("+");
-                    int tospace = name.Substring(toplus).IndexOf(" ");
-                    if (tospace != -1)
-                        new_name = name.Remove(toplus, tospace + 1);
-                    else
-                        new_name = name.Remove(toplus);
+                    string multString = "x" + DropMultsToWrite[i];
+                    string multDirString = @"\MaterialDrops\" + multString + @" Mats";
+                    if (DropMultsToWrite[i] == 1)
+                    {
+                        multDirString += "(recommended)";
+                        multString = "";
+                    }
+                    else if (DropMultsToWrite[i] == 1.5f)
+                        multDirString += "";
+                    RunSettings.Write_directory = exportDirectory + multDirString;
+                    //ShopLineupChanges(false,false,true, false);
+                    enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
+                    ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
+                    AddedLineManager.Catalog("MatDrops");
+                    ParamFile.RevertAll();
                 }
-                var upgradedWeapId = line.GetField(lotItemId01);
-                var newId = upgradedWeapId.Remove(upgradedWeapId.Length - 1);//removes last digit
-                newId += "0"; //adds a 0;
-                line.SetField("lotItemId01", newId).SetField(1, new_name);
-            }
 
-            int[] customWeaponIdsToNotDrop = new int[]{
-                5000,
-                5010
-            };
-
-            var customWeaponsNotToDrop = EquipParamCustomWeapon.GetLinesWithId(customWeaponIdsToNotDrop);
-
-            foreach (Line line in customWeaponsNotToDrop)
-            {
-                string name = line.name;
-                string new_name;
+                for (int i = 0; i < DropMultsToWrite.Length; i++)
                 {
-                    
-                    int toplus = name.IndexOf("+");
-                    int tospace = name.Substring(toplus).IndexOf(" ");
-                    if (tospace != -1)
-                        new_name = name.Remove(toplus, tospace+1);
-                    else
-                        new_name = name.Remove(toplus);
+                    string multString = "x" + DropMultsToWrite[i];
+                    string multDirString = @"\StoneDrops\" + multString + @" Stones";
+                    if (DropMultsToWrite[i] == 1)
+                    {
+                        multDirString += "(recommended)";
+                        multString = "";
+                    }
+                    else if (DropMultsToWrite[i] == 1.5f)
+                        multDirString += "";
+                    RunSettings.Write_directory = exportDirectory + multDirString;
+                    enemyDrops_MoreSmithingStoneDrops(false, true, DropMultsToWrite[i]);
+                    AddedLineManager.CreateEmptyLines(emptyItemLot, "StoneDrops");
+                    ParamFile.WriteModifiedFiles("", "__" + multString + "StoneDrops");
+                    AddedLineManager.Catalog("StoneDrops");
+                    ParamFile.RevertAll();
                 }
-                Line newLine = line.Copy().SetField(0, line.GetNextFreeId()).SetField(1, new_name).SetField("reinforceLv", 0);
-
-
-                var m1 = newLine.modified;
-                var f1 = newLine.inFile;
-
-                EquipParamCustomWeapon.OverrideOrAddLine(newLine);
-
-                var m = newLine.modified;
-                var f = newLine.inFile;
-
-                var isCustomWeaponCond = new Condition.FieldIs(lotItemCategory01, "6");
-                var dropsThisWeaponIdCond = new Condition.FieldIs(lotItemId01, line.id);
-                ItemLotParam_map.Operate(new SetFieldTo(lotItemId01, newLine.id), isCustomWeaponCond.AND(dropsThisWeaponIdCond));
-            }
-
-
-        }
-
-        static void poisonSpellsUseIntelligence()
-        {
-            if (!IsRunningParamFile(new ParamFile[] { Magic }))
                 return;
-
-            int[] poisonSpells = new int[]
-            {
-                6440, //[Inc] Cure Poison
-                7220, //[Inc] Poison Mist
-                7230, //[Inc] Poison Armament
-            };
-
-            var poisonLines = Magic.GetLinesWithId(poisonSpells);
-            foreach(Line line in poisonLines)
-            {
-                int req = line.GetFieldAsInt("requirementFaith");
-                line.SetField("requirementIntellect", req);
-                line.SetField("requirementFaith", 0);
-            }
-
-        }
-
-        static void worldChangesPlus(bool RANDOMIZE_CERTAIN_ITEMS, bool ADD_ROUNDTABLE_ITEMS)
-        {
-            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map , ItemLotParam_enemy}))
-                return;
-                                                                                                    //specific number                       //specific range 2
-            var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       9      , 7, -1, -1, 0);
-            var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       8      , 7, -1, -1, 0);
-
-            List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
-            int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
-
-            Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
-            Lines EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.vanillaParamFile.GetLinesOnCondition(
-                     new Condition.FieldIs(LotItem.getItemFlagIdFI, 0).IsFalse
-                .AND(new Condition.FloatFieldBetween(LotItem.categoryFIs[0], 2, 3, true))
-                //.AND(new Condition.FieldIs(LotItem.chanceFIs[0], 1000))
-                );
-            EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.GetLinesWithId(EnemyDropLinesWorthCheckingForFlagIds.GetIDs());//gets the none vanilla versions of the lines.
+                */
 
 
-            const bool createNewRoundtableItemLots = false;
-            const bool stealItemLotsForRoundtable = true;
-            if (createNewRoundtableItemLots)
-            {
+                exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.ImportCSVs(individual_RuneDropsDirectory);
+                ParamFile.ImportCSVs(individual_OTEDDirectory);
+                ParamFile.ImportCSVs(individual_WorldChangesDirectory);
+                ParamFile.ImportCSVs(individual_MaterialDropsDirectory);
+                ParamFile.ImportCSVs(individual_ShopChanges_MaterialBuffDirectory);
+                ParamFile.ImportCSVs(individual_ShopChanges_MiscBalancingDirectory);
+                ParamFile.ImportCSVs(individual_ShopChanges_StoneNerfDirectory);
+                //ParamFile.ImportCSVs(individual_WCP_AddRoundtableItemsDirectory);
+                //ParamFile.ImportCSVs(individual_WCP_SoftItemRandomizerDirectory);
+                //ParamFile.ImportCSVs(individual_WCP_UnupgradeNPCWeapDirectory);
+                ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
+                ParamFile.RevertAll(true);
 
-                LotItem[] roundtableItems = new LotItem[]
+               
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Choose Options";
+                {
+
+                   for (int i = 0;i < DropMultsToWrite.Length && (STONE_DROP_MULT_OPTIONS || i == 0); i++)
+                   {
+                        string multString = "";
+                        string multDirString = "";
+                        if (STONE_DROP_MULT_OPTIONS)
+                        {
+                            multString = "x" + DropMultsToWrite[i];
+                            multDirString = @"\" + multString + @" Stones";
+                            if (DropMultsToWrite[i] == 1)
+                            {
+                                //multDirString += "(recommended)";
+                                //multDirString += "";//"(recommended)";
+                                multDirString = @"\Default";
+                                multString = "";
+                            }
+                            else if (DropMultsToWrite[i] == 1.5f)
+                                multDirString += "";
+                        }
+                        for (bool MatDrops = false; ; MatDrops = true)
+                        {
+                            string matDrops_string = "";
+                            if (MatDrops)
+                                matDrops_string = "+MD";//" and OneTimeEquipmentDrops";
+
+                            string matDrops_DirString = @"\";
+                            if (MatDrops)
+                                matDrops_DirString += @"MatDrops";
+                            else
+                                matDrops_DirString += @"No MatDrops";
+
+                            for (bool WorldChanges = false; ; WorldChanges = true)
+                            {
+                                string worldChanges_string = "";
+                                if (WorldChanges)
+                                    worldChanges_string = "+WC";//" and OneTimeEquipmentDrops";
+
+                                worldChanges_DirString = @"\";
+                                if (WorldChanges)
+                                    worldChanges_DirString += @"World Changes";
+                                else
+                                    worldChanges_DirString += @"No World Changes";
+
+                                for (int equipType = 0; equipType < 3; equipType++)
+                                {
+                                    bool OneTimeEquipmentDrop = false;
+                                    bool FirstTimeEquipmentDrop = false;
+
+                                    if (equipType == 1)
+                                        OneTimeEquipmentDrop = true;
+                                    else if (equipType == 2)
+                                        FirstTimeEquipmentDrop = true;
+
+                                    string OTED_string = "";
+                                    if (OneTimeEquipmentDrop)
+                                        OTED_string = "+OTED";//" and OneTimeEquipmentDrops";
+                                    if (FirstTimeEquipmentDrop)
+                                        OTED_string = "+FTED";
+
+                                    var OTED_DirString = @"\";
+                                    if (OneTimeEquipmentDrop)
+                                        OTED_DirString += @"OneTime EquipDrops";
+                                    else if (FirstTimeEquipmentDrop)
+                                        OTED_DirString += @"FirstTime EquipDrops";
+                                    else
+                                        OTED_DirString += @"Regular EquipDrops";
+
+                                    for (bool DropRunes = false; ; DropRunes = true)
+                                    {
+                                        string dropTypeString = "StDrops";//" StoneDrops";
+                                        if (DropRunes)
+                                            dropTypeString += "+RuDrops";//" and RuneDrops";
+                                                                         //else
+                                                                         //dropTypeString += "Only";
+
+                                        var dropTypeDirString = @"\";
+                                        if (DropRunes)
+                                            dropTypeDirString += @"StoneDrops and RuneDrops";
+                                        else
+                                            dropTypeDirString += @"StoneDrops ONLY";
+
+                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + matDrops_DirString+ worldChanges_DirString;
+
+                                        var individual_exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+                                        ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[i]);//add the multiplier
+                                        if (DropRunes)
+                                            ParamFile.ImportCSVs(individual_RuneDropsDirectory);
+
+                                        if (MatDrops)
+                                            ParamFile.ImportCSVs(individual_MaterialDropsDirectory);
+
+                                        if (OneTimeEquipmentDrop)
+                                        {
+                                            ParamFile.ImportCSVs(individual_OTEDDirectory);
+                                            //enemyDrops_OneTimeEquipmentDrops();
+                                        }
+                                        else if (FirstTimeEquipmentDrop)
+                                        {
+                                            ParamFile.ImportCSVs(individual_FTEDDirectory);
+                                            //enemyDrops_OneTimeEquipmentDrops(true);
+                                        }
+
+                                        ////enemyDrops_IncreasedMaterialDrops();
+                                        //enemyDrops_MoreSmithingStoneDrops(DropRunes, true, DropMultsToWrite[i]);
+
+                                        if (WorldChanges)
+                                        {
+                                            ////ShopLineupChanges(true, false,false,false);
+                                            //replaceOpenWorldSmithingStones();
+                                            ParamFile.ImportCSVs(individual_WorldChangesDirectory);
+                                        }
+                                        //AddedLineManager.CreateEmptyLines(emptyItemLot, "");
+                                        ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + OTED_string + matDrops_string+ worldChanges_string);
+                                        ParamFile.RevertAll(true);
+
+                                        if (DropRunes == true)
+                                            break;
+                                    }
+                                    //if (OneTimeEquipmentDrop == true)
+                                    if (FirstTimeEquipmentDrop == true)
+                                        break;
+                                }
+                                if (WorldChanges == true)
+                                    break;
+                            }
+                            if (MatDrops == true)
+                                break;
+                        }
+                   }
+
+               }//old version
+
+           }
+
+       }
+
+       static void noupgradedweaponsFromNpcs()
+       {
+           if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map, EquipParamCustomWeapon }))
+               return;
+
+           int lotItemCategory01 = ItemLotParam_map.GetFieldIndex("lotItemCategory01");
+           int lotItemId01 = ItemLotParam_enemy.GetFieldIndex("lotItemId01");
+
+           var isWeaponCond = new Condition.FieldIs(lotItemCategory01, "2");
+           var isUpgradedCond = new Condition.FieldEndsWith(lotItemId01, "0").IsFalse;
+           var upgradedWeaponLines = ItemLotParam_map.GetLinesOnCondition(isWeaponCond.AND(isUpgradedCond));
+
+           foreach (Line line in upgradedWeaponLines)
+           {
+               var debugline = line._idName;
+               string name = line.name;
+               string new_name;
+               {
+                   int toplus = name.IndexOf("+");
+                   int tospace = name.Substring(toplus).IndexOf(" ");
+                   if (tospace != -1)
+                       new_name = name.Remove(toplus, tospace + 1);
+                   else
+                       new_name = name.Remove(toplus);
+               }
+               var upgradedWeapId = line.GetField(lotItemId01);
+               var newId = upgradedWeapId.Remove(upgradedWeapId.Length - 1);//removes last digit
+               newId += "0"; //adds a 0;
+               line.SetField("lotItemId01", newId).SetField(1, new_name);
+           }
+
+           int[] customWeaponIdsToNotDrop = new int[]{
+               5000,
+               5010
+           };
+
+           var customWeaponsNotToDrop = EquipParamCustomWeapon.GetLinesWithId(customWeaponIdsToNotDrop);
+
+           foreach (Line line in customWeaponsNotToDrop)
+           {
+               string name = line.name;
+               string new_name;
                {
 
-                //twin fingermaiden
-                new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
-                new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
-                new LotItem(LotItem.Category.Weapon, 11000000), //Mace
-                new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
-                new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
-                new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
-
-                
-                new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
-                new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
-
-                //brother corhyn
-                new LotItem(LotItem.Category.Good, 6420), //Urgent Heal
-                new LotItem(LotItem.Category.Good, 6421), //Heal
-                new LotItem(LotItem.Category.Good, 6440), //Cure Poison
-                new LotItem(LotItem.Category.Good, 6460), //Magic Fortification
-                new LotItem(LotItem.Category.Good, 6450), //Flame Fortification
-                new LotItem(LotItem.Category.Good, 6400), //Rejection
-                new LotItem(LotItem.Category.Good, 6000), //Catch Flame
-                new LotItem(LotItem.Category.Good, 6010), //Flame Sling
-                //altus
-                new LotItem(LotItem.Category.Good, 6422), //Great Heal
-                new LotItem(LotItem.Category.Good, 6470), //Lightning Fortification
-                //goldmask
-                new LotItem(LotItem.Category.Good, 6700), //Discus of Light
-                new LotItem(LotItem.Category.Good, 6010), //Immutable Shield
-
-                //D Hunter of the Dead
-                new LotItem(LotItem.Category.Good, 6750), //Litany of Proper Death
-                new LotItem(LotItem.Category.Good, 6770), //Order's Blade
-
-                //Gideon Ofnir
-                new LotItem(LotItem.Category.Good, 6260), //Black Flame's Protection
-                new LotItem(LotItem.Category.Good, 6760), //Law of Causality
-                new LotItem(LotItem.Category.Good, 6490), //Lord's Divine Fortification
-
-                new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
-               };
-                int roundtableItemsStartId = 0;
-                Line baseline = ItemLotParam_map.GetLineWithId(10000);
-                int lastId = roundtableItemsStartId - 5;
-
-                foreach (LotItem lotItem in roundtableItems)
-                {
-                    Line line = baseline.Copy();
-                    lastId = ItemLotParam_map.GetNextFreeId(lastId + 5, true);
-
-                    line.SetField(0, lastId);
-                    if (lotItem.category == 1)
-                        line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
-                    else if (lotItem.category == 2)
-                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
-
-                    lotItem.SetLotItemToLine(line, 1);
-                    int currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
-                    usedGetItemFlagId.Add(currentGetItemFlagId);
-                    line.SetField(getItemFlagIdFI, currentGetItemFlagId);
-                    ItemLotParam_map.OverrideOrAddLine(line);
-                }
+                   int toplus = name.IndexOf("+");
+                   int tospace = name.Substring(toplus).IndexOf(" ");
+                   if (tospace != -1)
+                       new_name = name.Remove(toplus, tospace+1);
+                   else
+                       new_name = name.Remove(toplus);
+               }
+               Line newLine = line.Copy().SetField(0, line.GetNextFreeId()).SetField(1, new_name).SetField("reinforceLv", 0);
 
 
-            }
-            else if (stealItemLotsForRoundtable)
-            {
-                /*int[] itemlotidsTobeReplaced = new int[]
-                {
-                    30027000, //[Limgrave - Stormfoot Catacombs] Root Resin
-                    1041380030, // Limgrave Smithing Stone x3
-                };*/
+               var m1 = newLine.modified;
+               var f1 = newLine.inFile;
+
+               EquipParamCustomWeapon.OverrideOrAddLine(newLine);
+
+               var m = newLine.modified;
+               var f = newLine.inFile;
+
+               var isCustomWeaponCond = new Condition.FieldIs(lotItemCategory01, "6");
+               var dropsThisWeaponIdCond = new Condition.FieldIs(lotItemId01, line.id);
+               ItemLotParam_map.Operate(new SetFieldTo(lotItemId01, newLine.id), isCustomWeaponCond.AND(dropsThisWeaponIdCond));
+           }
+
+
+       }
+
+       static void poisonSpellsUseIntelligence()
+       {
+           if (!IsRunningParamFile(new ParamFile[] { Magic }))
+               return;
+
+           int[] poisonSpells = new int[]
+           {
+               6440, //[Inc] Cure Poison
+               7220, //[Inc] Poison Mist
+               7230, //[Inc] Poison Armament
+           };
+
+           var poisonLines = Magic.GetLinesWithId(poisonSpells);
+           foreach(Line line in poisonLines)
+           {
+               int req = line.GetFieldAsInt("requirementFaith");
+               line.SetField("requirementIntellect", req);
+               line.SetField("requirementFaith", 0);
+           }
+
+       }
+
+       static void worldChangesPlus(bool RANDOMIZE_CERTAIN_ITEMS, bool ADD_ROUNDTABLE_ITEMS)
+       {
+           if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map , ItemLotParam_enemy}))
+               return;
+                                                                                                   //specific number                       //specific range 2
+           var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       9      , 7, -1, -1, 0);
+           var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       8      , 7, -1, -1, 0);
+
+           List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
+           int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
+
+           Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
+           Lines EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.vanillaParamFile.GetLinesOnCondition(
+                    new Condition.FieldIs(LotItem.getItemFlagIdFI, 0).IsFalse
+               .AND(new Condition.FloatFieldBetween(LotItem.categoryFIs[0], 2, 3, true))
+               //.AND(new Condition.FieldIs(LotItem.chanceFIs[0], 1000))
+               );
+           EnemyDropLinesWorthCheckingForFlagIds = ItemLotParam_enemy.GetLinesWithId(EnemyDropLinesWorthCheckingForFlagIds.GetIDs());//gets the none vanilla versions of the lines.
+
+
+           const bool createNewRoundtableItemLots = false;
+           const bool stealItemLotsForRoundtable = true;
+           if (createNewRoundtableItemLots)
+           {
+
+               LotItem[] roundtableItems = new LotItem[]
+              {
+
+               //twin fingermaiden
+               new LotItem(LotItem.Category.Weapon, 1000000), //Dagger
+               new LotItem(LotItem.Category.Weapon, 14000000), //Battle Axe
+               new LotItem(LotItem.Category.Weapon, 11000000), //Mace
+               new LotItem(LotItem.Category.Weapon, 5020000), //Rapier
+               new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
+               new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
+
+
+               new LotItem(LotItem.Category.Weapon, 41000000), //Longbow
+               new LotItem(LotItem.Category.Weapon, 34000000), //Finger Seal
+
+               //brother corhyn
+               new LotItem(LotItem.Category.Good, 6420), //Urgent Heal
+               new LotItem(LotItem.Category.Good, 6421), //Heal
+               new LotItem(LotItem.Category.Good, 6440), //Cure Poison
+               new LotItem(LotItem.Category.Good, 6460), //Magic Fortification
+               new LotItem(LotItem.Category.Good, 6450), //Flame Fortification
+               new LotItem(LotItem.Category.Good, 6400), //Rejection
+               new LotItem(LotItem.Category.Good, 6000), //Catch Flame
+               new LotItem(LotItem.Category.Good, 6010), //Flame Sling
+               //altus
+               new LotItem(LotItem.Category.Good, 6422), //Great Heal
+               new LotItem(LotItem.Category.Good, 6470), //Lightning Fortification
+               //goldmask
+               new LotItem(LotItem.Category.Good, 6700), //Discus of Light
+               new LotItem(LotItem.Category.Good, 6010), //Immutable Shield
+
+               //D Hunter of the Dead
+               new LotItem(LotItem.Category.Good, 6750), //Litany of Proper Death
+               new LotItem(LotItem.Category.Good, 6770), //Order's Blade
+
+               //Gideon Ofnir
+               new LotItem(LotItem.Category.Good, 6260), //Black Flame's Protection
+               new LotItem(LotItem.Category.Good, 6760), //Law of Causality
+               new LotItem(LotItem.Category.Good, 6490), //Lord's Divine Fortification
+
+               new LotItem(LotItem.Category.Good, 8859), //Assassin's Prayerbook
+              };
+               int roundtableItemsStartId = 0;
+               Line baseline = ItemLotParam_map.GetLineWithId(10000);
+               int lastId = roundtableItemsStartId - 5;
+
+               foreach (LotItem lotItem in roundtableItems)
+               {
+                   Line line = baseline.Copy();
+                   lastId = ItemLotParam_map.GetNextFreeId(lastId + 5, true);
+
+                   line.SetField(0, lastId);
+                   if (lotItem.category == 1)
+                       line.SetField(1, "Roundtable Item - " + EquipParamGoods.GetLineWithId(lotItem.id).name);
+                   else if (lotItem.category == 2)
+                       line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
+
+                   lotItem.SetLotItemToLine(line, 1);
+                   int currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                   usedGetItemFlagId.Add(currentGetItemFlagId);
+                   line.SetField(getItemFlagIdFI, currentGetItemFlagId);
+                   ItemLotParam_map.OverrideOrAddLine(line);
+               }
+
+
+           }
+           else if (stealItemLotsForRoundtable)
+           {
+               /*int[] itemlotidsTobeReplaced = new int[]
+               {
+                   30027000, //[Limgrave - Stormfoot Catacombs] Root Resin
+                   1041380030, // Limgrave Smithing Stone x3
+               };*/
 
                 var isOneSmithingStoneCond =
                         new Condition.FieldIs(LotItem.categoryFIs[0], "1")
@@ -1143,10 +1454,10 @@ namespace EldenRingCSVHelper
                 deathbirdItems,
                 //bloodhoundItems,
 
-                earlyBasicWeapons,
-                midgameWeapons,
-                edgyWeapons,
-                lateGameWeapons,
+                //earlyBasicWeapons,            //doesnt work the way i thought it would. reseting game respawns weapons. 
+                //midgameWeapons,
+                //edgyWeapons,
+                //lateGameWeapons,
 
 
                             //new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
@@ -2242,7 +2553,7 @@ namespace EldenRingCSVHelper
             Util.println(ItemLotParam_enemy.VerifyFieldCounts());*/
 
         }
-        static void enemyDrops_OneTimeEquipmentDrops()
+        static void enemyDrops_OneTimeEquipmentDrops(bool guarenteedFirstDrop = false)
         {
 
             if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy }))
@@ -2250,10 +2561,23 @@ namespace EldenRingCSVHelper
 
             var usedGetItemFlagId = FlagIds.usedGetItemFlagId;
 
-            const float OneTimeWeaponAndArmorDrops_WeaponDropChanceMult = 1.6f;
-            const float OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult = 0.4f;
-            const float OneTimeWeaponAndArmorDrops_ArmorDropChanceMult = 2f;
-            const float OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult = 0.2f;
+            float OneTimeWeaponAndArmorDrops_WeaponDropChanceMult = 2f;
+            float OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult = 0.4f;
+            if (guarenteedFirstDrop)
+            {
+                OneTimeWeaponAndArmorDrops_WeaponDropChanceMult = 10000;
+                OneTimeWeaponAndArmorDrops_SecondWeaponDropChanceMult = 0.4f;
+            }
+
+            float OneTimeWeaponAndArmorDrops_ArmorDropChanceMult = 2.5f;
+            float OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult = 0.25f;
+            if (guarenteedFirstDrop)
+            {
+                OneTimeWeaponAndArmorDrops_ArmorDropChanceMult = 10000;
+                OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult = 1;
+            }
+
+
 
             var OneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 9, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
 
@@ -2326,10 +2650,12 @@ namespace EldenRingCSVHelper
                     {
                         isArmor = true;
                         const bool ALLOW_REVERSE_ALTERED_DROP = false;
-                        OtherToAddId = _curLot2Id + 1000;
-                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithId(OtherToAddId);
+                        //OtherToAddId = _curLot2Id + 1000;
+                        //var OtherToAddEquipLine = EquipParamProtector.GetLineWithId(OtherToAddId);
+                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithName(EquipParamProtector.GetLineWithId(_curLot2Id).name + " (Altered)");
                         if (OtherToAddEquipLine != null)
                         {
+                            OtherToAddId = OtherToAddEquipLine.id_int;
                             if (isArmorAdjustExceptionCond.Pass(OtherToAddEquipLine))
                             {
                                 OtherToAddId = -1;
@@ -2385,7 +2711,7 @@ namespace EldenRingCSVHelper
                         int OtherPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * OtherToAddPercentMult));
                         curLine.SetField("lotItemBasePoint03", Math.Min(34463, OtherPercent));
                         int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
-                        curLine.SetField("lotItemBasePoint01", Math.Max(1, Math.Min(34463, _curLot1Percent - OtherPercent)));
+                        curLine.SetField("lotItemBasePoint01", Math.Max(0, Math.Min(34463, _curLot1Percent - OtherPercent)));
                     }
                     curLine.SetField(1, curLine.name + addToName);
                     if (PercentMult != -1)
@@ -2393,8 +2719,11 @@ namespace EldenRingCSVHelper
                         int NewPercent = Math.Max(1, (int)Math.Round(_curLot2Percent * PercentMult));
                         int addedAmount = NewPercent - _curLot2Percent;
                         curLine.SetField("lotItemBasePoint02", Math.Min(34463, NewPercent));
-                        int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
-                        curLine.SetField("lotItemBasePoint01", Math.Min(34463, Math.Max(1, _curLot1Percent - addedAmount)));
+                        if (!guarenteedFirstDrop)
+                        {
+                            int _curLot1Percent = int.Parse(curLine.GetField("lotItemBasePoint01"));
+                            curLine.SetField("lotItemBasePoint01", Math.Min(34463, Math.Max(0, _curLot1Percent - addedAmount)));
+                        }
                     }
 
 
@@ -4541,8 +4870,17 @@ namespace EldenRingCSVHelper
                             }
                             else
                             {
-                                Line copy = ItemLotParam_enemy.GetLineWithId(currentLineToCopyID).Copy().SetField(0, currentNewLineCopyID);
+                                var lineToCopy = ItemLotParam_enemy.GetLineWithId(currentLineToCopyID);
+                                Line copy = lineToCopy.Copy().SetField(0, currentNewLineCopyID);
                                 newLines.Add(copy);
+
+                                //if (currentNewLineCopyID == 375001301)
+                                //    Util.p();
+
+                                if (!lineToCopy.added)
+                                {
+                                    copy.addKW("!VanillaItemLotCopy!", 0);
+                                }
                                 //ItemLotParam_enemy.OverrideOrAddLine(copy);
                             }
                             currentLineToCopyID++;

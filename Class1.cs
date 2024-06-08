@@ -10,7 +10,9 @@ namespace EldenRingCSVHelper
         public static bool GREATER_THAN(float i, float x) { return i > x; }
         public static bool LESS_THAN(float i, float x) { return i < x; }
         public static bool GREATER_THAN_OR_EQUAL_TO(float i, float x) { return i >= x; }
-        public static bool LESS_THAN_OR_EQUAL_TO(float i, float x) { return i <= x; }
+        public static bool LESS_THAN_OR_EQUAL_TO(float i, float x) {
+            return i <= x; 
+        }
         public static bool EQUAL_TO(float i, float x) { return i == x; }
         public static bool NOT_EQUAL_TO(float i, float x) { return i != x; }
         public abstract bool Pass(Line line);
@@ -91,6 +93,18 @@ namespace EldenRingCSVHelper
                 return true;
             }
         }
+
+
+        public class Func: Condition
+        {
+            Func<Line, bool> comparerFunc;
+            public Func( Func<Line, bool> func) { comparerFunc = func; }
+            public override bool Pass(Line line)
+            {
+                return comparerFunc(line);
+            }
+        }
+
         public class FloatCompare : Condition
         {
             FloatReturn num;
@@ -534,7 +548,32 @@ namespace EldenRingCSVHelper
         {
             this.keywordIndex = keywordIndex;
         }
+        public class Is : KeywordCondition
+        {
+            public string NameIs;
+            public Is(string _is) { NameIs = _is; }
+            public Is(IntReturn keywordIndex, string _startsWith) { this.keywordIndex = keywordIndex; NameIs = _startsWith; }
 
+            public override bool Pass(Line line)
+            {
+                int kwi = keywordIndex.GetInt(line);
+                if (kwi != -1)
+                {
+                    return line.keywords[kwi].keyword == NameIs;
+                }
+                else
+                {
+                    if (line.id == "325200304")
+                        Util.p();
+                    for (kwi = 0; kwi < line.keywords.Count; kwi++)
+                    {
+                        if (line.keywords[kwi].keyword == NameIs)
+                            return true;
+                    }
+                    return false;
+                }
+            }
+        }
         public class StartsWith : KeywordCondition
         {
             public string startsWith;
@@ -543,11 +582,24 @@ namespace EldenRingCSVHelper
 
             public override bool Pass(Line line)
             {
-                string keystr = line.keywords[keywordIndex.GetInt(line)].keyword;
-                bool ret = keystr.IndexOf(startsWith) == 0;
-                if (ret)
-                    Util.p();
-                return ret;
+                int kwi = keywordIndex.GetInt(line);
+                if (kwi != -1)
+                {
+                    string keystr = line.keywords[kwi].keyword;
+                    bool ret = keystr.IndexOf(startsWith) == 0;
+                    return ret;
+                }
+                else
+                {
+                    for (kwi = 0; kwi < line.keywords.Count; kwi++)
+                    {
+                        string keystr = line.keywords[kwi].keyword;
+                        bool ret = keystr.IndexOf(startsWith) == 0;
+                        if (ret)
+                            return true;
+                    }
+                    return false;
+                }
 
             }
         }
@@ -563,10 +615,22 @@ namespace EldenRingCSVHelper
             {
                 foreach (string name in hasInName)
                 {
+                    
                     int kwi = keywordIndex.GetInt(line);
-                    if (line.keywords[kwi].keyword.Contains(name))
-                        return true;
-                }
+                    if(kwi != -1) {
+                        if (line.keywords[kwi].keyword.Contains(name))
+                            return true;
+                    }
+                    else
+                    {
+                        for (kwi = 0; kwi < line.keywords.Count; kwi++)
+                        {
+                            if (line.keywords[kwi].keyword.Contains(name))
+                                return true;
+                        }
+                        return false;
+                    }
+            }
                 return false;
             }
         }
@@ -590,7 +654,20 @@ namespace EldenRingCSVHelper
             }
             public override bool Pass(Line line)
             {
-                return new FloatBetween(line.keywords[keywordIndex.GetInt(line)].value, min, max, include).Pass(line);
+                int kwi = keywordIndex.GetInt(line);
+                if (kwi != -1)
+                {
+                    return new FloatBetween(line.keywords[kwi].value, min, max, include).Pass(line);
+                }
+                else
+                {
+                    for (kwi = 0; kwi < line.keywords.Count; kwi++)
+                    {
+                        if (new FloatBetween(line.keywords[kwi].value, min, max, include).Pass(line))
+                            return true;
+                    }
+                    return false;
+                }
             }
         }
 

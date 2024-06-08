@@ -11,12 +11,22 @@ namespace EldenRingCSVHelper
     {
         public string keyword;
         public float value;
+        public bool copyable;
 
         public Keyword(string keyword, float scale = 100)
         {
             this.keyword = keyword;
             this.value = scale;
+            this.copyable = false;
         }
+        public Keyword(string keyword, float scale, bool copyKWforCopys)
+        {
+            this.keyword = keyword;
+            this.value = scale;
+            this.copyable = copyKWforCopys;
+        }
+        public static bool IfModifiedSet_ON = false;
+        public static Keyword IfModifiedSet;
     }
 
     public interface IThemescaped
@@ -31,6 +41,11 @@ namespace EldenRingCSVHelper
     public class Themescaped : IThemescaped
     {
         public List<Keyword> keywords = new List<Keyword>();
+
+        public void ClearKeywords()
+        {
+            keywords.Clear();
+        }
         public Themescaped addKeyword(string keyword, float scale = 100)
         {
             return addKeyword(new Keyword(keyword, scale));
@@ -545,15 +560,15 @@ namespace EldenRingCSVHelper
                 AddedLineInfo.nextOrder++;
             }
         }
-        public static void CreateEmptyLines(Line baseLineToCopy, string curFunctionOrderName = "")
+        public static void CreateEmptyLines(Line baseLineToCopy, string curFunctionOrderName = "", int dontCreateOrder = -1)
         {
             foreach(ParamFile p in ParamFile.paramFiles)
             {
                 if (p.numberOfModifiedOrAddedLines != 0 && Dict.ContainsKey(p))
-                    CreateEmptyLines(p,baseLineToCopy, curFunctionOrderName);
+                    CreateEmptyLines(p,baseLineToCopy, curFunctionOrderName, dontCreateOrder);
             }
         }
-        public static void CreateEmptyLines(ParamFile p, Line baseLineToCopy, string curFunctionOrderName = "")
+        public static void CreateEmptyLines(ParamFile p, Line baseLineToCopy, string curFunctionOrderName = "", int dontCreateOrder = -1)
         {
             int curOrder;
             if (curFunctionOrderName != "" && ChangeNameToOrderDict.ContainsKey(curFunctionOrderName))
@@ -566,11 +581,11 @@ namespace EldenRingCSVHelper
             int startIndex = 0;
             foreach (AddedLineInfo ali in addedLineInfos)
             {
-                if (curOrder <= ali.order)
+                if (curOrder <= ali.order || dontCreateOrder == ali.order)
                     continue;
                 //if (curFunctionOrderName == "StoneDrops")
                 //    Util.p();
-                Line l = baseLineToCopy.Copy().SetField(0, ali.lineId).SetField(1, "!Compatability Buffer for " + ali.changeName +"!").addKW("!Buffer!", curOrder);
+                Line l = baseLineToCopy.Copy().SetField(0, ali.lineId).SetField(1, "_Compatability Buffer for " + ali.changeName +"_Order: " + ali.order).addKW("!Buffer!", ali.order);
                 p.InsertLine(l, out startIndex, startIndex);
             }
         }
@@ -588,7 +603,7 @@ namespace EldenRingCSVHelper
             {   
                 if (curOrder <= ali.order || id != ali.lineId)
                     continue;
-                Line l = baseLineToCopy.Copy().SetField(0, ali.lineId).SetField(1, "!Compatability Buffer for " + ali.changeName + "!").addKW("!Buffer!", curOrder);
+                Line l = baseLineToCopy.Copy().SetField(0, ali.lineId).SetField(1, "_Compatability Buffer for " + ali.changeName + "_").addKW("!Buffer!", curOrder);
                 p.InsertLine(l);
                 return true;
             }
