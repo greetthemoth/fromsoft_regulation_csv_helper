@@ -190,6 +190,12 @@ namespace EldenRingCSVHelper
         public bool hasLotItem_getItemFlagIdFIs;
         public int lotItem_getItemFlagId;
 
+        public bool cumulateSet = false;
+        public int cumulateNumFlagId = 0;
+        public int cumulateNumMax = 0;
+        public int cumulateLotPoint = 0;
+        public bool cumulateLotReset = false;
+
         public static int getItemFlagIdFI = Program.ItemLotParam_enemy.GetFieldIndex("getItemFlagId");
         public static int[] idFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemId");
         public static int[] categoryFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemCategory");
@@ -197,6 +203,10 @@ namespace EldenRingCSVHelper
         public static int[] chanceFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("lotItemBasePoint");
         public static int[] affectByLuckFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("enableLuck");
         public static int[] lotItem_getItemFlagIdFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("getItemFlagId0");
+        public static int cumulateNumFlagIdFI = Program.ItemLotParam_enemy.GetFieldIndex("cumulateNumFlagId");
+        public static int cumulateNumMaxFI = Program.ItemLotParam_enemy.GetFieldIndex("cumulateNumMax");
+        public static int cumulateLotPointFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("cumulateLotPoint0");
+        public static int cumulateResetFIs = Program.ItemLotParam_enemy.GetFieldIndexesContains("cumulateReset0");
 
         public LotItem addKW(string keyword, int scale = 100)
         {
@@ -262,6 +272,13 @@ namespace EldenRingCSVHelper
             if (hasLotItem_getItemFlagIdFIs)
                 line.SetField(lotItem_getItemFlagIdFIs[lotIndex - 1], lotItem_getItemFlagId);
 
+            if (cumulateSet)
+            {
+                line.SetField(cumulateNumFlagIdFI, cumulateNumFlagId);
+                line.SetField(cumulateNumMaxFI, cumulateNumMaxFI);
+                line.SetField(cumulateLotPointFIs[lotIndex - 1], cumulateLotPoint);
+                line.SetField(cumulateResetFIs[lotIndex - 1], cumulateLotReset);
+            }
         }
         public void SetLotItemToLine(Line line, int lotIndex, int chance, int amount = 1, bool affectByLuck = true)
         {
@@ -274,6 +291,14 @@ namespace EldenRingCSVHelper
             line.SetField(affectByLuckFIs[lotIndex - 1], affectByLuck);
             if (lotItem_getItemFlagId != -1)
                 line.SetField(lotItem_getItemFlagIdFIs[lotIndex - 1], lotItem_getItemFlagId);
+
+            if (cumulateSet)
+            {
+                line.SetField(cumulateNumFlagIdFI, cumulateNumFlagId);
+                line.SetField(cumulateNumMaxFI, cumulateNumMaxFI);
+                line.SetField(cumulateLotPointFIs[lotIndex - 1], cumulateLotPoint);
+                line.SetField(cumulateResetFIs[lotIndex - 1], cumulateLotReset);
+            }
         }
         public void SetLotItemToLine(Line line, int lotIndex, int chance, int amount, bool affectByLuck, int lotItem_getItemFlagId)
         {
@@ -285,6 +310,23 @@ namespace EldenRingCSVHelper
                 Util.p();
             line.SetField(affectByLuckFIs[lotIndex - 1], affectByLuck);
             line.SetField(lotItem_getItemFlagIdFIs[lotIndex - 1], lotItem_getItemFlagId);
+
+            if (cumulateSet)
+            {
+                line.SetField(cumulateNumFlagIdFI, cumulateNumFlagId);
+                line.SetField(cumulateNumMaxFI, cumulateNumMax);
+                line.SetField(cumulateLotPointFIs[lotIndex - 1], cumulateLotPoint);
+                line.SetField(cumulateResetFIs[lotIndex - 1], cumulateLotReset);
+            }
+        }
+
+        public void setCumulateInfo(int cumulateNumFlagId, int cumulateNumMax, int cumulateLotPoint, bool cumulateLotReset)
+        {
+            cumulateSet = true;
+            this.cumulateNumFlagId = cumulateNumFlagId;
+            this.cumulateNumMax = cumulateNumMax;
+            this.cumulateLotPoint = cumulateLotPoint;
+            this.cumulateLotReset = cumulateLotReset;
         }
 
         public bool LineHasLotItem(Line line, bool sharesLotInfo)
@@ -316,6 +358,10 @@ namespace EldenRingCSVHelper
         public static LotItem newEmpty(int chance, bool affectByLuck, int itemLot_getItemFlagId)
         {
             return new LotItem(0, 0, 0, chance, affectByLuck, itemLot_getItemFlagId);
+        }
+        public static LotItem newEmpty(int chance, bool affectByLuck, int itemLot_getItemFlagId, int cumulateNumFlagId, int cumulateNumMax, int cumulateLotPoint = MAX_CHANCE,bool cumulateNumReset = false)
+        {
+            return new LotItem(0, 0, 0, chance, affectByLuck, itemLot_getItemFlagId, cumulateNumFlagId, cumulateNumFlagId, cumulateNumMax, cumulateLotPoint, cumulateNumReset);
         }
         public bool IsEmpty()
         {
@@ -361,7 +407,7 @@ namespace EldenRingCSVHelper
             this.chance = chance;
             this.affectByLuck = affectByLuck;
         }
-        public LotItem(int category, string itemName, int amount, int chance, bool affectByLuck, int lotItem_getItemFlagId)
+        public LotItem(int category, string itemName, int amount, int chance, bool affectByLuck, int lotItem_getItemFlagId, int cumulateNumFlagId = 0, int cumulateNumMax = 0, int cumulateLotPoint = 0, int cumulateReset = 0)
         {
             this.category = category;
             this.id = CategoryParamFile.GetLineWithName(itemName).id_int;
@@ -370,6 +416,13 @@ namespace EldenRingCSVHelper
             this.affectByLuck = affectByLuck;
             this.hasLotItem_getItemFlagIdFIs = true;
             this.lotItem_getItemFlagId = lotItem_getItemFlagId;
+
+            if (cumulateNumFlagId != 0) {
+                this.cumulateSet = true;
+                this.cumulateNumFlagId = cumulateNumFlagId;
+                this.cumulateNumMax = cumulateNumMax;
+                this.cumu
+            }
         }
         public LotItem(int category, int id)
         {
@@ -1871,8 +1924,20 @@ namespace EldenRingCSVHelper
 
     public static class FlagIds
     {
-        public static List<int> usedGetItemFlagId = SetUsedGetItemFlagId();
-        static List<int> SetUsedGetItemFlagId()
+        //public static IntFilter.Single cumulateIds = new IntFilter.Multiple(IntFilter.Single(-1, -1), new IntFilter.Single(1,new IntFilter.DigitRange(0,1),-1), new IntFilter.Single(1, 2, IntFilter.DigitRange(0,8)));
+        static List<int> usedCumulateNumFlagIds = SetUsedCumulateNumFlagIds();
+        static int lastCumulateNumFlagId = 0;
+        public static int GetNextCulmulateNumFlagId()
+        {
+            lastCumulateNumFlagId++;
+            while (usedCumulateNumFlagIds.Contains(lastCumulateNumFlagId))
+            {
+                lastCumulateNumFlagId++; 
+            }
+            return lastCumulateNumFlagId;
+        }
+        public static List<int> usedGetItemFlagId = SetUsedGetItemFlagIds();
+        static List<int> SetUsedGetItemFlagIds()
         {
             int _getItemFlagId = Program.ItemLotParam_map.GetFieldIndex("getItemFlagId");
             var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
@@ -1882,6 +1947,17 @@ namespace EldenRingCSVHelper
                     Util.ToInts(((Lines)Program.ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
             return _usedGetItemFlagId;
         }
+        static List<int> SetUsedCumulateNumFlagIds()
+        {
+            int cumulateNumFlagIdFI = Program.ItemLotParam_map.GetFieldIndex("cumulateNumFlagId");
+            var inIdRange = new Condition.FloatFieldBetween(cumulateNumFlagIdFI, 1000000000, 2000000000);
+            List<int> _usedGetItemFlagId =
+                Util.ToInts(((Lines)Program.ItemLotParam_enemy.GetLinesOnCondition(inIdRange)).GetFields(cumulateNumFlagIdFI))
+                .Concat(
+                    Util.ToInts(((Lines)Program.ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(cumulateNumFlagIdFI))).ToList();
+            return _usedGetItemFlagId;
+        }
+
 
     }
 

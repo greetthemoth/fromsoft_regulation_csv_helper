@@ -937,6 +937,11 @@ namespace EldenRingCSVHelper
                     return false;
                 return true;
             }
+            public override int getFilterLength()
+            {
+               return (max - min) + 1;
+            }
+            
         }
         public static Single CreateFromAcceptableInts(int[] ints, int setDigitAmount = -1)
         {
@@ -1321,6 +1326,15 @@ namespace EldenRingCSVHelper
                 }
                 Util.println(s);
             }
+            public override int getFilterLength()
+            {
+                int ret = 0;
+                foreach(DigitRange dr in digitRanges)
+                {
+                    ret += dr.getFilterLength();
+                }
+                return ret;
+            }
         }
 
         public class Multiple: IntFilter
@@ -1397,6 +1411,16 @@ namespace EldenRingCSVHelper
                 }
                 return true;
             }
+            public override int getFilterLength()
+            {
+                int ret = 0;
+                foreach(IntFilter _if in filters)
+                {
+                    ret += _if.getFilterLength();
+                }
+                return ret;
+            }
+            
         }
 
         public class Exceptions : IntFilter
@@ -1418,6 +1442,10 @@ namespace EldenRingCSVHelper
             {
                 return !exceptions.Contains(num);
             }
+            public override int getFilterLength()
+            {
+                return -exceptions.Count;
+            }
         }
 
         public static int GetNextInt(Single filter, Exceptions exceptions)
@@ -1429,6 +1457,7 @@ namespace EldenRingCSVHelper
             }
             return num;
         }
+        //public static int GetRandomInt(int seed, Mutiple filter, )
         public static int GetRandomInt(int seed, Single filter, Exceptions exceptions)
         {
             int curStepsPos = 0;
@@ -1463,6 +1492,7 @@ namespace EldenRingCSVHelper
         }
 
         public abstract bool Pass(int num);
+        public abstract int getFilterLength();
         
     }
     class UnUsed

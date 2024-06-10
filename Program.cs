@@ -1202,9 +1202,10 @@ namespace EldenRingCSVHelper
 
 
 
-
+                    int RCI_last_index = -1;
                     //RANDOMIZE Items
-                    if(RANDOMIZE_CERTAIN_ITEMS)
+                    LotItem.Default_Chance = 1;
+                    if (RANDOMIZE_CERTAIN_ITEMS)
                     {
                         LotItem[] talimans1 = new LotItem[]
                         {
@@ -1448,6 +1449,49 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde //body
                         };
 
+                        //for weapons randomization v1,
+                        //Get all lines with weapons to randomize.
+                        //add all weapons to the line. give each lot item a uniqe flog.
+                        //This failed to work as reseting the game made a new weapon respawn. 
+
+                        //for weapon v2.
+                        //Shuffle existing item lots with anouther weapon.
+                        //No ingame randomization (preset)
+
+                        //for weapons randomization v3.
+                        //give each lot item a unique flag and a chance of 1.
+                        //Give a unique culilateflagId to lot 0, which moves it from 0 to maxValue.
+                        //this ingame allows randomization
+
+
+                        //for rountable weapons randomization v1,
+                        //Get all lines you want to become replacable with item.
+                        //add all lotitems to that lo give each lot item a uniqe flag. except for original drop.
+                        //This failed to work as reseting the game made a new weapon respawn. 
+
+                        //for weapon v2.
+                        //Get all lines you want to become replacable with item.
+                        //lines will be divided by number of lines present.
+                        //One lot item given to each group of lines.
+                        //No accual randomization
+
+                        //for weapons randomization v3.
+                        //Get all lines you want to become replacable with item.
+                        //give each lot item a unique flag and a chance of 1.
+                        //Give a unique culilateflagId to lot[0],
+                        //  chance which moves it from 0 to maxValue.
+                        //this ingame allows randomization.
+                        //however this will expire the culminateFlag 8 bit limit.
+
+                        //for weapons randomization v3.
+                        //Get all lines you want to become replacable with item.
+                        //give each lot item a unique flag and a chance of 1.
+                        //Create (number or weapons to radomize) unique culilateflagId for lot[0] and distribute them rouhgly equally to all lines.
+                        //  chance culminates from 0 to max Value.
+                        //this ingame allows randomization withiught expireing the 8 bit limit
+
+                        //TODO: test what happens when all lotItems have flag Ids and all flagids are expired.
+
                         LotItem[][] lotItemGroupsToRandomize = new LotItem[][]
                         {
                 deathRiteBird,
@@ -1539,6 +1583,7 @@ namespace EldenRingCSVHelper
                             lines_enemy.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
                             lines_map.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
 
+
                             int[] lineIds_map = lines_map.GetIDs();
                             int[] lineIds_enemy = lines_enemy.GetIDs();
                             for (int i = 0; i < lineIds_enemy.Length; i++)
@@ -1547,13 +1592,31 @@ namespace EldenRingCSVHelper
                             }
                             int[] lineIds = lineIds_map.Concat(lineIds_enemy).ToArray();
 
+                            ItemsToReplacementItemLotId.Add(lotItem, lineIds);
+
+                            //new culminateFIx
+
+                            List<int>[] lineIdsDistibution = new List<int>[lotItemGroup.length];
+                            for (int i = 0; i < lotItemGroup.Length(); i++)
+                            {
+                                int indexToAdd = i;
+                                while (i < lineIds.Length) {
+                                    lineIdsDistibution[i].Add(lineIds[indexToAdd]);
+                                    indexToAdd += lotItemGroup.Length();
+                                 }
+                            }
+                            for (int i = 0; i < lotItemGroup.length; i++)
+                            {
+                                ItemsToReplacementItemLotId.Add(LotItem.newEmpty(0, false, 0, FlagIds.GetNextCulmulateNumFlagId(),1,LotItem.MAX_CHANCE,false), lineIdsDistibution[i].ToArray());
+                            }
+
                             foreach (LotItem lotItem in lotItemGroup)
                             {
                                 lotItem.SetItemLot_getItemFlagId(-1); //this will mark it as forced to create a new id, not search for one. 
                                 ItemsToReplacementItemLotId.Add(lotItem, lineIds);
                             }
                         }
-
+                        RCI_last_index = ItemsToReplacementItemLotId.Count-1;
                     }
 
                     LotItem.Default_Chance = LotItem.MAX_CHANCE;
@@ -1726,8 +1789,10 @@ namespace EldenRingCSVHelper
                     LotItem.Default_Chance = 1000;
 
                     Dictionary<int, List<LotItem>> lineIdToLotItemsDict = new Dictionary<int, List<LotItem>>();
+                    int index = 0;
                     foreach (LotItem lotItem in ItemsToReplacementItemLotId.Keys)
                     {
+                        index++;
                         {
                             int currentGetItemFlagId = -1;
                             if (lotItem.hasLotItem_getItemFlagIdFIs && lotItem.lotItem_getItemFlagId != -1)
@@ -1742,6 +1807,11 @@ namespace EldenRingCSVHelper
                             }
                             else if (!AdditionalItemLots.ContainsKey(lotItem))
                                 continue; //no point in continueing
+
+                            IntFilter.Single filter = RandomizedItem_getItemFlagIDFilter;
+                            if (index > RCI_last_index)
+                                fiter = RoundtableItem_getItemFlagIDFilter;
+
                             if (l != null)
                             {
                                 if(currentGetItemFlagId == -1)
@@ -1751,7 +1821,7 @@ namespace EldenRingCSVHelper
                                     var backUpLI = BackupExistingItemLot[lotItem];
                                     backUpLI.SetLotItemToLine(l, 2, 1, backUpLI.amount, false);
                                     l.SetField(LotItem.lotItem_getItemFlagIdFIs[lotItem.GetLotItemIndex(l,false)-1], currentGetItemFlagId);
-                                    int newGetItemFlagIdForOldLine = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                    int newGetItemFlagIdForOldLine = IntFilter.GetRandomInt(lotItem.id, filter, usedGetItemFlagId);
                                     usedGetItemFlagId.Add(newGetItemFlagIdForOldLine);
 
                                     //replaces all line with currentGetItemFlagId to the newGetItemFlagId
@@ -1760,15 +1830,14 @@ namespace EldenRingCSVHelper
                                 }
                             }
                             else if(currentGetItemFlagId == -1)
-                                currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
-                            usedGetItemFlagId.Add(currentGetItemFlagId);
+                                currentGetItemFlagId = IntFilter.GetRandomInt(lotItem.id, filter, usedGetItemFlagId);
+                            if(currentGetItemFlagId > 0)
+                                usedGetItemFlagId.Add(currentGetItemFlagId);
                             lotItemToFlagIdDict.Add(lotItem, currentGetItemFlagId);
                         }
 
                         foreach (int id in ItemsToReplacementItemLotId[lotItem])
                         {
-
-
                             if (!lineIdToLotItemsDict.ContainsKey(id))
                             {
                                 lineIdToLotItemsDict.Add(id, new List<LotItem>());
@@ -1809,7 +1878,7 @@ namespace EldenRingCSVHelper
                                 line = prevLine.Copy();
                             }
 
-
+                             
                             line.SetField(0, id);
                             string name;
                             if (lineIdToLotItemsDict[dict_id].Count == 1)
