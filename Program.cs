@@ -865,8 +865,12 @@ namespace EldenRingCSVHelper
                                                                                                    //specific number                       //specific range 2
            var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       9      , 7, -1, -1, 0);
            var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       8      , 7, -1, -1, 0);
+                                                                                                                //specific number                       //specific range 2
+            //var RoundtableItem_emptyLotCumulateFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         7       , 7, -1, -1, 0);
+            //var RandomizedItem_emptyLotCumulateFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         6       , 7, -1, -1, 0);
 
-           List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
+
+            List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
            int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
 
            Dictionary<LotItem, int> lotItemToFlagIdDict = new Dictionary<LotItem, int>();
@@ -1496,12 +1500,12 @@ namespace EldenRingCSVHelper
                         {
                 deathRiteBird,
                 deathbirdItems,
-                //bloodhoundItems,
+                bloodhoundItems,
 
-                //earlyBasicWeapons,            //doesnt work the way i thought it would. reseting game respawns weapons. 
-                //midgameWeapons,
-                //edgyWeapons,
-                //lateGameWeapons,
+                earlyBasicWeapons,            //edit: fixing. -- doesnt work the way i thought it would. reseting game respawns weapons. 
+                midgameWeapons,
+                edgyWeapons,
+                lateGameWeapons,
 
 
                             //new LotItem(LotItem.Category.Weapon, 2180000), //Carian Knight's Sword, found in luirnia thematic value
@@ -1594,20 +1598,26 @@ namespace EldenRingCSVHelper
 
                             ItemsToReplacementItemLotId.Add(lotItem, lineIds);
 
-                            //new culminateFIx
-
-                            List<int>[] lineIdsDistibution = new List<int>[lotItemGroup.length];
-                            for (int i = 0; i < lotItemGroup.Length(); i++)
-                            {
-                                int indexToAdd = i;
-                                while (i < lineIds.Length) {
-                                    lineIdsDistibution[i].Add(lineIds[indexToAdd]);
-                                    indexToAdd += lotItemGroup.Length();
-                                 }
-                            }
-                            for (int i = 0; i < lotItemGroup.length; i++)
-                            {
-                                ItemsToReplacementItemLotId.Add(LotItem.newEmpty(0, false, 0, FlagIds.GetNextCulmulateNumFlagId(),1,LotItem.MAX_CHANCE,false), lineIdsDistibution[i].ToArray());
+                            {//new culminateFIx. Adds a empty lot that becomes guarenteed after the first drop. One unique id per unique item, equally distributed throughout lines.
+                            
+                                /*
+                                List<int>[] lineIdsDistibution = new List<int>[lotItemGroup.length];
+                                for (int i = 0; i < lotItemGroup.Length(); i++)
+                                {
+                                    int indexToAdd = i;
+                                    while (i < lineIds.Length)
+                                    {
+                                        lineIdsDistibution[i].Add(lineIds[indexToAdd]);
+                                        indexToAdd += lotItemGroup.Length();
+                                    }
+                                }
+                                for (int i = 0; i < lotItemGroup.length; i++)
+                                {
+                                    int cumu = IntFilter.GetRandomInt(lotItemGroup[i].id, RandomizedItem_emptyLotCumulateFlagIDFilter, FlagIds.usedCumulateNumFlagIds);
+                                    FlagIds.usedCumulateNumFlagIds.Add(cumu);
+                                    ItemsToReplacementItemLotId.Add(LotItem.newEmpty(0, false, 0, cumu, 1, LotItem.MAX_CHANCE, false), lineIdsDistibution[i].ToArray());
+                                }
+                                */
                             }
 
                             foreach (LotItem lotItem in lotItemGroup)
@@ -1643,6 +1653,8 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
                             };
                             int[] linesToReplaceWithBasicWeaponPickups = ItemLotParam_map.GetIDsWithCondition(isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon));
+
+
                             foreach (LotItem lotItem in roundtableBasicWeapons)
                             {
                                 ItemsToReplacementItemLotId.Add(lotItem, linesToReplaceWithBasicWeaponPickups);
@@ -1846,6 +1858,7 @@ namespace EldenRingCSVHelper
                         }
                     }
 
+
                     foreach (int dict_id in lineIdToLotItemsDict.Keys)
                     {
                         Line line;
@@ -1857,6 +1870,16 @@ namespace EldenRingCSVHelper
                             ItemLotFile = ItemLotParam_enemy;
                         }
                         line = ItemLotFile.GetLineWithId(id);
+
+                        if (lineIdToLotItemsDict[id].Count > 6)
+                        {
+                            Util.p();
+                        }
+
+                        if (lineIdToLotItemsDict[id].Count > 1)//cumu fix
+                        {
+                            lineIdToLotItemsDict.Add(LotItem.newEmpty(0, false, 0, line.GetFieldAsInt(LotItem.getItemFlagIdFI), 1, 1, false)); //uses getitemflagid as the cumuflagid, works for forcing drop to be 1time drop, even when using multiple lotitem-specific getItemLotIds
+                        }
 
                         bool isNewLine = false;
                         int lotIndex = 2;

@@ -1925,8 +1925,8 @@ namespace EldenRingCSVHelper
     public static class FlagIds
     {
         //public static IntFilter.Single cumulateIds = new IntFilter.Multiple(IntFilter.Single(-1, -1), new IntFilter.Single(1,new IntFilter.DigitRange(0,1),-1), new IntFilter.Single(1, 2, IntFilter.DigitRange(0,8)));
-        static List<int> usedCumulateNumFlagIds = SetUsedCumulateNumFlagIds();
-        static int lastCumulateNumFlagId = 0;
+        public static List<int> usedCumulateNumFlagIds = SetUsedCumulateNumFlagIds();
+        /*public static int lastCumulateNumFlagId = 0;
         public static int GetNextCulmulateNumFlagId()
         {
             lastCumulateNumFlagId++;
@@ -1935,7 +1935,7 @@ namespace EldenRingCSVHelper
                 lastCumulateNumFlagId++; 
             }
             return lastCumulateNumFlagId;
-        }
+        }*/
         public static List<int> usedGetItemFlagId = SetUsedGetItemFlagIds();
         static List<int> SetUsedGetItemFlagIds()
         {
