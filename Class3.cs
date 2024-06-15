@@ -939,7 +939,7 @@ namespace EldenRingCSVHelper
             }
             public override int getFilterLength()
             {
-               return (max - min) + 1;
+               return (maxNum - minNum) + 1;
             }
             
         }

@@ -206,14 +206,14 @@ namespace EldenRingCSVHelper
 
 
 
-            //RunSettings.RunIfNull = false;  //re create files
+            //RunSettings.RunIfNull = false;  //dont re create files
 
 
 
+            //worldChangesPlus(false,true); //testing
 
 
-
-
+            const bool CREATE_SOFT_RANDOMIZER = false;
 
             string exportDirectory;
 
@@ -222,7 +222,7 @@ namespace EldenRingCSVHelper
             var DropMultsToWrite = new float[]
             {
                 1,
-                1.5f,2f,3f,5f,
+                //1.5f,2f,3f,5f,
             };
 
             
@@ -279,12 +279,12 @@ namespace EldenRingCSVHelper
                 }
                 ChangeKeyword = "!Material Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); //var WriteCondMatDrops = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 enemyDrops_IncreasedMaterialDrops();
-                /*ChangeKeyword = "!Soft Item Randomizer!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondSIR = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
-                worldChangesPlus(true, false);
+                ChangeKeyword = "!Soft Item Randomizer!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondSIR = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                if (CREATE_SOFT_RANDOMIZER) worldChangesPlus(true, false);
                 ChangeKeyword = "!Add Roundtable Items!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondARI = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
-                worldChangesPlus(false, true);*/
-                //ChangeKeyword = "!Unupgrade NPC Weap!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondUNW = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
-                //noupgradedweaponsFromNpcs();
+                if (CREATE_SOFT_RANDOMIZER) worldChangesPlus(false, true);
+                ChangeKeyword = "!Unupgrade NPC Weap!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondUNW = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                noupgradedweaponsFromNpcs();
                 ChangeKeyword = "!OneTime Equipment Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondOTED = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 enemyDrops_OneTimeEquipmentDrops();
                 
@@ -294,17 +294,16 @@ namespace EldenRingCSVHelper
 
                 //RunSettings.Write_directory = exportDirectory + @"\MaterialDrops";
                 //ParamFile.WriteModifiedFiles("", "__" + "MatDrops", WriteCondMatDrops);
-
-                /*RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Soft Item Randomizer";
+                RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Soft Item Randomizer";
                 var individual_WCP_SoftItemRandomizerDirectory = RunSettings.Write_directory;
-                ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR", WriteCondSIR);
+                if(CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR", WriteCondSIR);
                 RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Add Roundtable Items";
                 var individual_WCP_AddRoundtableItemsDirectory = RunSettings.Write_directory;
-                ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI", WriteCondARI);*/
+                if (CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI", WriteCondARI);
 
-                //RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Unupgrade NPC Weap";
-                //var individual_WCP_UnupgradeNPCWeapDirectory = RunSettings.Write_directory;
-                //ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW", WriteCondUNW);
+                RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Unupgrade NPC Weap";
+                var individual_WCP_UnupgradeNPCWeapDirectory = RunSettings.Write_directory;
+                ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW", WriteCondUNW);
 
                 RunSettings.Write_directory = exportDirectory +  @"\Equipment Drops\One Time Drops";
                 var individual_OTEDDirectory = RunSettings.Write_directory;
@@ -339,8 +338,11 @@ namespace EldenRingCSVHelper
 
                     Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
                     enemyDrops_IncreasedMaterialDrops();
-                    worldChangesPlus(true, false);
-                    worldChangesPlus(false, true);
+                    if (CREATE_SOFT_RANDOMIZER)
+                    {
+                        worldChangesPlus(true, false);
+                        worldChangesPlus(false, true);
+                    }
                     noupgradedweaponsFromNpcs();
                     enemyDrops_OneTimeEquipmentDrops();
 
@@ -408,8 +410,11 @@ namespace EldenRingCSVHelper
 
                 Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
                 enemyDrops_IncreasedMaterialDrops();
-                worldChangesPlus(true, false);
-                worldChangesPlus(false, true);
+                if (CREATE_SOFT_RANDOMIZER)
+                {
+                    worldChangesPlus(true, false);
+                    worldChangesPlus(false, true);
+                }
                 noupgradedweaponsFromNpcs();
                 enemyDrops_OneTimeEquipmentDrops();
 
@@ -621,9 +626,12 @@ namespace EldenRingCSVHelper
                 ParamFile.ImportCSVs(individual_ShopChanges_MaterialBuffDirectory);
                 ParamFile.ImportCSVs(individual_ShopChanges_MiscBalancingDirectory);
                 ParamFile.ImportCSVs(individual_ShopChanges_StoneNerfDirectory);
-                //ParamFile.ImportCSVs(individual_WCP_AddRoundtableItemsDirectory);
-                //ParamFile.ImportCSVs(individual_WCP_SoftItemRandomizerDirectory);
-                //ParamFile.ImportCSVs(individual_WCP_UnupgradeNPCWeapDirectory);
+                if (CREATE_SOFT_RANDOMIZER)
+                {
+                    ParamFile.ImportCSVs(individual_WCP_AddRoundtableItemsDirectory);
+                    ParamFile.ImportCSVs(individual_WCP_SoftItemRandomizerDirectory);
+                }
+                ParamFile.ImportCSVs(individual_WCP_UnupgradeNPCWeapDirectory);
                 ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
                 ParamFile.RevertAll(true);
 
@@ -1174,6 +1182,7 @@ namespace EldenRingCSVHelper
                     Dictionary<LotItem, int[]> ItemsToReplacementItemLotId = new Dictionary<LotItem, int[]>();
                     Dictionary<LotItem, LotItem> BackupExistingItemLot = new Dictionary<LotItem, LotItem>();
                     Dictionary<LotItem, LotItem[]> AdditionalItemLots = new Dictionary<LotItem, LotItem[]>();
+                    Dictionary<LotItem, LotItem[]> AdditionalItemLotsOneLine = new Dictionary<LotItem, LotItem[]>();
                     Dictionary<LotItem, Condition> ConditionForAdditionalItemLots = new Dictionary<LotItem, Condition>();
                     Dictionary<LotItem, LotItem> ReplaceFirstLotItem = new Dictionary<LotItem, LotItem>();
                     Dictionary<LotItem, Condition> ConditionForReplaceFirstLotItem = new Dictionary<LotItem, Condition>();
@@ -1207,6 +1216,8 @@ namespace EldenRingCSVHelper
 
 
                     int RCI_last_index = -1;
+
+                    const bool V6 = false;
                     //RANDOMIZE Items
                     LotItem.Default_Chance = 1;
                     if (RANDOMIZE_CERTAIN_ITEMS)
@@ -1413,23 +1424,31 @@ namespace EldenRingCSVHelper
 
                         LotItem[] earlyBasicWeapons = new LotItem[]{
                             new LotItem(LotItem.Category.Weapon, 13010000), //Flail //carriage
-                            new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage
+                            //new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage                  moved
                             new LotItem(LotItem.Category.Weapon, 11050000), //Morning Star //carriage
-                            new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe //carriage
-                            new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword //carriage
-                            new LotItem(LotItem.Category.Weapon, 3180000), //Claymore //chest
                             new LotItem(LotItem.Category.Weapon, 6020000), //Great epee  //chest
                             new LotItem(LotItem.Category.Weapon, 10000000), //Twinblade  //chest
+                            new LotItem(LotItem.Category.Weapon, 15000000), //Greataxe //carriage
+                            //new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword //carriage                  moved
+                           // new LotItem(LotItem.Category.Weapon, 3180000), //Claymore //chest                  moved
+                            //new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage                  moved
+                        };
+
+                        LotItem[] earlyBasicWeaponsHeavy = new LotItem[]{
+                            new LotItem(LotItem.Category.Weapon, 4000000), //Greatsword //carriage
+                            new LotItem(LotItem.Category.Weapon, 3180000), //Claymore //chest
+                            new LotItem(LotItem.Category.Weapon, 3030000), //Lordsworn's Greatsword //carriage
+                            new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne //body
                         };
 
                         LotItem[] midgameWeapons = new LotItem[]{
                             new LotItem(LotItem.Category.Weapon, 21100000), //Katar  //chest
-                            new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne //body
+                            //new LotItem(LotItem.Category.Weapon, 18020000), //Lucerne //body                  moved
                             new LotItem(LotItem.Category.Weapon, 24020000), //Steel-Wire Torch  //body
                             new LotItem(LotItem.Category.Weapon, 10030000), //Twinned Knight Swords  //body
                             new LotItem(LotItem.Category.Weapon, 2210000), //Cane Sword  //body
                             new LotItem(LotItem.Category.Weapon, 17060000), //Lance  //body
-                            new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest //body
+                            //new LotItem(LotItem.Category.Weapon, 43080000), //Arbalest //body
                             new LotItem(LotItem.Category.Weapon, 16070000), //Pike //body
                         };
 
@@ -1447,7 +1466,7 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Weapon, 7030000), //Shamshir //body 
                             new LotItem(LotItem.Category.Weapon, 9000000), //Uchigatana //body
                             new LotItem(LotItem.Category.Weapon, 7080000), //Scavenger's Curved Sword //body near grafted scion /
-                            new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow // body in a rooftop, slight thematic value
+                            //new LotItem(LotItem.Category.Weapon, 41070000), //Black Bow // body in a rooftop, slight thematic value
               
                             new LotItem(LotItem.Category.Weapon, 22000000), //Hookclaws //body
                             new LotItem(LotItem.Category.Weapon, 1030000), //Miséricorde //body
@@ -1500,7 +1519,9 @@ namespace EldenRingCSVHelper
                         {
                 deathRiteBird,
                 deathbirdItems,
-                bloodhoundItems,
+                //bloodhoundItems,
+
+                earlyBasicWeaponsHeavy,
 
                 earlyBasicWeapons,            //edit: fixing. -- doesnt work the way i thought it would. reseting game respawns weapons. 
                 midgameWeapons,
@@ -1584,9 +1605,11 @@ namespace EldenRingCSVHelper
                             Lines lines_enemy = EnemyDropLinesWorthCheckingForFlagIds.GetLinesOnCondition(new LotItem.HasLotItem(lotItemGroup, 1, 1, false));
                             Lines lines_map = ItemLotParam_map.GetLinesOnCondition(new LotItem.HasLotItem(lotItemGroup, 1, 1, false));
 
-                            lines_enemy.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
-                            lines_map.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
-
+                            if (!V6)
+                            {
+                                lines_enemy.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
+                                lines_map.Operate(new LotItem.SetLotItem(LotItem.newEmpty(), 1));    //removes the orignal lot
+                            }
 
                             int[] lineIds_map = lines_map.GetIDs();
                             int[] lineIds_enemy = lines_enemy.GetIDs();
@@ -1595,8 +1618,6 @@ namespace EldenRingCSVHelper
                                 lineIds_enemy[i] *= -1; //enemy lines are marked negative.
                             }
                             int[] lineIds = lineIds_map.Concat(lineIds_enemy).ToArray();
-
-                            ItemsToReplacementItemLotId.Add(lotItem, lineIds);
 
                             {//new culminateFIx. Adds a empty lot that becomes guarenteed after the first drop. One unique id per unique item, equally distributed throughout lines.
                             
@@ -1619,11 +1640,21 @@ namespace EldenRingCSVHelper
                                 }
                                 */
                             }
-
-                            foreach (LotItem lotItem in lotItemGroup)
+                            if (V6)
                             {
-                                lotItem.SetItemLot_getItemFlagId(-1); //this will mark it as forced to create a new id, not search for one. 
-                                ItemsToReplacementItemLotId.Add(lotItem, lineIds);
+                                var emptyLot = LotItem.newEmpty();
+                                ItemsToReplacementItemLotId.Add(emptyLot, lineIds);
+                                AdditionalItemLotsOneLine.Add(emptyLot, lotItemGroup);
+                                if(lotItemGroup == earlyBasicWeapons)
+                                    ConditionForAdditionalItemLots.Add(emptyLot, new Condition.FieldIs(LotItem.getItemFlagIdFI, 400370));
+                            }
+                            else
+                            {
+                                foreach (LotItem lotItem in lotItemGroup)
+                                {
+                                    lotItem.SetItemLot_getItemFlagId(-1); //this will mark it as forced to create a new id, not search for one. 
+                                    ItemsToReplacementItemLotId.Add(lotItem, lineIds);
+                                }
                             }
                         }
                         RCI_last_index = ItemsToReplacementItemLotId.Count-1;
@@ -1639,8 +1670,32 @@ namespace EldenRingCSVHelper
                             BackupExistingItemLot.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem(1, 2990, 1)); //1 lands between runes.
                         }
 
+                        int[] linesToReplaceWithBasicWeaponPickups;
+                        {
+                            linesToReplaceWithBasicWeaponPickups = ItemLotParam_map.GetIDsWithCondition(isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon));
+                        }
+
+                        //KNIGHT ARMOR
+                        {
+                            //rando fix - removes id:1045370010 from viable weapon lines.
+                            var linesToReplaceWithBasicWeaponPickupsL = linesToReplaceWithBasicWeaponPickups.ToList();
+                            linesToReplaceWithBasicWeaponPickupsL.Remove(1045370010);
+                            linesToReplaceWithBasicWeaponPickups = linesToReplaceWithBasicWeaponPickupsL.ToArray();
+                        }
+                        ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false), new int[] { 1045370010, 31010100 }); //Empty,  mistwood ruins chest, earthbore cave chest,
+                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
+                        new LotItem(LotItem.Category.Armor, 1500000), //Knight Helm
+                        new LotItem(LotItem.Category.Armor, 1500100), //Knight Armor
+                        new LotItem(LotItem.Category.Armor, 1500200), //Knight Gauntlets
+                        new LotItem(LotItem.Category.Armor, 1500300), //Knight Greaves
+
+                    });
+                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 31330000), new int[] { 1045350000, 1042340020, 1046400040 }); //Heater Shield
+
+
 
                         //ROUNDTABLE BASIC WEAPONS
+
                         {
                             LotItem[] roundtableBasicWeapons = new LotItem[]
                             {
@@ -1652,12 +1707,19 @@ namespace EldenRingCSVHelper
                             new LotItem(LotItem.Category.Weapon, 16000000), //Short Spear
                             new LotItem(LotItem.Category.Weapon, 7140000), //Scimitar
                             };
-                            int[] linesToReplaceWithBasicWeaponPickups = ItemLotParam_map.GetIDsWithCondition(isOneSmithingStoneCond.AND(isValidSmithingStoneForWeapon));
 
-
-                            foreach (LotItem lotItem in roundtableBasicWeapons)
+                            if (V6)
                             {
-                                ItemsToReplacementItemLotId.Add(lotItem, linesToReplaceWithBasicWeaponPickups);
+                                var emptyLot = LotItem.newEmpty();
+                                ItemsToReplacementItemLotId.Add(emptyLot, linesToReplaceWithBasicWeaponPickups);
+                                AdditionalItemLotsOneLine.Add(emptyLot, roundtableBasicWeapons);
+                            }
+                            else
+                            {
+                                foreach (LotItem lotItem in roundtableBasicWeapons)
+                                {
+                                    ItemsToReplacementItemLotId.Add(lotItem, linesToReplaceWithBasicWeaponPickups);
+                                }
                             }
                         }
 
@@ -1739,16 +1801,7 @@ namespace EldenRingCSVHelper
                         }
 
 
-                        //KNIGHT ARMOR
-                        ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false), new int[] { 1045370010, 31010100 }); //Empty,  mistwood ruins chest, earthbore cave chest,
-                        AdditionalItemLots.Add(ItemsToReplacementItemLotId.Keys.Last(), new LotItem[] {
-                        new LotItem(LotItem.Category.Armor, 1500000), //Knight Helm
-                        new LotItem(LotItem.Category.Armor, 1500100), //Knight Armor
-                        new LotItem(LotItem.Category.Armor, 1500200), //Knight Gauntlets
-                        new LotItem(LotItem.Category.Armor, 1500300), //Knight Greaves
-                    });
-                        ItemsToReplacementItemLotId.Add(new LotItem(LotItem.Category.Weapon, 31330000), new int[] { 1045350000, 1042340020, 1046400040 }); //Heater Shield
-
+                        
                         //ROYAL REMAINS SET
                         {
                             ItemsToReplacementItemLotId.Add(LotItem.newEmpty(LotItem.MAX_CHANCE, false, 400490), sss8Ids2); //Empty
@@ -1802,6 +1855,8 @@ namespace EldenRingCSVHelper
 
                     Dictionary<int, List<LotItem>> lineIdToLotItemsDict = new Dictionary<int, List<LotItem>>();
                     int index = 0;
+
+
                     foreach (LotItem lotItem in ItemsToReplacementItemLotId.Keys)
                     {
                         index++;
@@ -1811,18 +1866,66 @@ namespace EldenRingCSVHelper
                                 currentGetItemFlagId = lotItem.lotItem_getItemFlagId;
                             Line l = null;
                             var hasLotCond = new LotItem.HasLotItem(lotItem, 1);
+
+                            IntFilter.Single filter = RandomizedItem_getItemFlagIDFilter;
+                            if (index > RCI_last_index)
+                                filter = RoundtableItem_getItemFlagIDFilter;
+
                             if (!lotItem.IsEmpty())
                             {
                                 l = ((Lines)ItemLotParam_map.GetLinesWithId(((Lines)ItemLotParam_map.vanillaParamFile.GetLinesOnCondition(hasLotCond)).GetIDs())).GetLineOnCondition(hasLotCond); //both vanilla and current lines have the lot
                                 if (l == null)
                                     l = EnemyDropLinesWorthCheckingForFlagIds.GetLineOnCondition(new LotItem.HasLotItem(lotItem, 1));
                             }
-                            else if (!AdditionalItemLots.ContainsKey(lotItem))
+                            else if (!AdditionalItemLots.ContainsKey(lotItem) && !AdditionalItemLotsOneLine.ContainsKey(lotItem))
+                            {
                                 continue; //no point in continueing
+                            }
+                            if (AdditionalItemLotsOneLine.ContainsKey(lotItem)) 
+                            {
+                                foreach (LotItem add_lotItem in AdditionalItemLotsOneLine[lotItem])
+                                {
+                                    {
+                                        int add_currentGetItemFlagId = -1;
+                                        if (add_lotItem.hasLotItem_getItemFlagIdFIs && add_lotItem.lotItem_getItemFlagId != -1)
+                                            add_currentGetItemFlagId = add_lotItem.lotItem_getItemFlagId;
+                                        Line add_l = null;
+                                       if (!add_lotItem.IsEmpty())
+                                        {
+                                            var add_hasLotCond = new LotItem.HasLotItem(add_lotItem, 1);
+                                            add_l = ((Lines)ItemLotParam_map.GetLinesWithId(((Lines)ItemLotParam_map.vanillaParamFile.GetLinesOnCondition(add_hasLotCond)).GetIDs())).GetLineOnCondition(add_hasLotCond); //both vanilla and current lines have the lot
+                                            if (add_l == null)
+                                                add_l = EnemyDropLinesWorthCheckingForFlagIds.GetLineOnCondition(new LotItem.HasLotItem(add_lotItem, 1));
+                                        }else
+                                            continue;
 
-                            IntFilter.Single filter = RandomizedItem_getItemFlagIDFilter;
-                            if (index > RCI_last_index)
-                                fiter = RoundtableItem_getItemFlagIDFilter;
+                                        if (add_l != null)
+                                        {
+                                            if (add_currentGetItemFlagId == -1)
+                                                add_currentGetItemFlagId = add_l.GetFieldAsInt(LotItem.getItemFlagIdFI);
+                                            /*if (BackupExistingItemLot.ContainsKey(add_lotItem) && add_l.file == ItemLotParam_map)
+                                            {
+                                                var backUpLI = BackupExistingItemLot[add_lotItem];
+                                                backUpLI.SetLotItemToLine(add_l, 2, 1, backUpLI.amount, false);
+                                                l.SetField(LotItem.lotItem_getItemFlagIdFIs[add_lotItem.GetLotItemIndex(l, false) - 1], add_currentGetItemFlagId);
+                                                int newGetItemFlagIdForOldLine = IntFilter.GetRandomInt(add_lotItem.id, filter, usedGetItemFlagId);
+                                                usedGetItemFlagId.Add(newGetItemFlagIdForOldLine);
+
+                                                //replaces all line with currentGetItemFlagId to the newGetItemFlagId
+                                                ItemLotParam_map.Operate(new SetFieldTo(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine), new Condition.FieldIs(LotItem.getItemFlagIdFI, currentGetItemFlagId), true);
+                                                //l.SetField(LotItem.getItemFlagIdFI, newGetItemFlagIdForOldLine);
+                                            }*/
+                                        }
+                                        else if (add_currentGetItemFlagId == -1)
+                                            add_currentGetItemFlagId = IntFilter.GetRandomInt(add_lotItem.id, filter, usedGetItemFlagId);
+                                        if (add_currentGetItemFlagId > 0)
+                                            usedGetItemFlagId.Add(add_currentGetItemFlagId);
+                                        lotItemToFlagIdDict.Add(add_lotItem, add_currentGetItemFlagId);
+                                    }
+                                }
+                            }
+
+                            
 
                             if (l != null)
                             {
@@ -1871,14 +1974,16 @@ namespace EldenRingCSVHelper
                         }
                         line = ItemLotFile.GetLineWithId(id);
 
-                        if (lineIdToLotItemsDict[id].Count > 6)
+                        if (lineIdToLotItemsDict[dict_id].Count > 6)
                         {
                             Util.p();
                         }
 
-                        if (lineIdToLotItemsDict[id].Count > 1)//cumu fix
+                        if (lineIdToLotItemsDict[dict_id].Count > 1)//cumu fix
                         {
-                            lineIdToLotItemsDict.Add(LotItem.newEmpty(0, false, 0, line.GetFieldAsInt(LotItem.getItemFlagIdFI), 1, 1, false)); //uses getitemflagid as the cumuflagid, works for forcing drop to be 1time drop, even when using multiple lotitem-specific getItemLotIds
+                            var emptyLot = LotItem.newEmpty(0, false, 0, line.GetFieldAsInt(LotItem.getItemFlagIdFI), 1, 1, false);
+                            lineIdToLotItemsDict[dict_id].Add(emptyLot); //uses getitemflagid as the cumuflagid, works for forcing drop to be 1time drop, even when using multiple lotitem-specific getItemLotIds
+                            //lotItemToFlagIdDict.Add(emptyLot, 0);
                         }
 
                         bool isNewLine = false;
@@ -1928,21 +2033,47 @@ namespace EldenRingCSVHelper
                             {
                                 ReplaceFirstLotItem[lotItem].SetLotItemToLine(line, 1);
                             }
+                            if ((!ConditionForAdditionalItemLots.ContainsKey(lotItem) || ConditionForAdditionalItemLots[lotItem].Pass(line))) {
 
-                            if (AdditionalItemLots.ContainsKey(lotItem) && (!ConditionForAdditionalItemLots.ContainsKey(lotItem) || ConditionForAdditionalItemLots[lotItem].Pass(line)))    //should only happen if there is one lineIdToLot
-                            {
-                                foreach (LotItem AdditionalItemLot in AdditionalItemLots[lotItem])
+                                if (AdditionalItemLots.ContainsKey(lotItem))    //should only happen if there is one lineIdToLot
                                 {
+                                    foreach (LotItem AdditionalItemLot in AdditionalItemLots[lotItem])
+                                    {
 
+                                        Line newLine = baseLine.Copy().SetField(0, line.GetNextFreeId());
+                                        newLine.Operate(new LotItem.SetLotItem(AdditionalItemLot, 1));
+                                        //Util.println(AdditionalItemLot.id);
+                                        newLine.SetField(1, AdditionalItemLot.Name);
+                                        newLine.SetField(getItemFlagIdFI, line.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
+                                        newLine.SetField(LotItem.lotItem_getItemFlagIdFIs[0], lotItemToFlagIdDict[lotItem]);//USES THE SAME LOT SPECIFIC FLAG AS BOW
+                                        ItemLotFile.OverrideOrAddLine(newLine);
+                                    }
+
+                                }
+                                if (AdditionalItemLotsOneLine.ContainsKey(lotItem))
+                                {
                                     Line newLine = baseLine.Copy().SetField(0, line.GetNextFreeId());
-                                    newLine.Operate(new LotItem.SetLotItem(AdditionalItemLot, 1));
-                                    //Util.println(AdditionalItemLot.id);
-                                    newLine.SetField(1, AdditionalItemLot.Name);
+                                    newLine.SetField(1, "");
                                     newLine.SetField(getItemFlagIdFI, line.GetField(getItemFlagIdFI)); //USES THE SAME PICKUP FLAG AS ITEM
-                                    newLine.SetField(LotItem.lotItem_getItemFlagIdFIs[0], lotItemToFlagIdDict[lotItem]);//USES THE SAME LOT SPECIFIC FLAG AS BOW
+                                    int add_lotIndex = 1;
+                                    foreach (LotItem AdditionalItemLotOneLine in AdditionalItemLotsOneLine[lotItem])
+                                    {
+                                        
+                                        if (!AdditionalItemLotOneLine.IsEmpty())
+                                        {
+                                            var add_namestr = newLine.name;
+                                            if (add_namestr != "")
+                                                add_namestr += " & ";
+                                            add_namestr += AdditionalItemLotOneLine.Name;
+                                            newLine.SetField(1, add_namestr);
+                                        }
+                                        newLine.Operate(new LotItem.SetLotItem(AdditionalItemLotOneLine, add_lotIndex));
+                                        newLine.SetField(LotItem.lotItem_getItemFlagIdFIs[add_lotIndex-1], lotItemToFlagIdDict[AdditionalItemLotOneLine]);//USES SPECIFIC FLAG TO Item
+                                        //Util.println(AdditionalItemLotOneLine.id);
+                                        add_lotIndex++;
+                                    }
                                     ItemLotFile.OverrideOrAddLine(newLine);
                                 }
-
                             }
                             if (false)//testing
                             {
@@ -1966,13 +2097,19 @@ namespace EldenRingCSVHelper
                             if (lotItem.chance == LotItem.MAX_CHANCE)
                                 line.SetField(LotItem.chanceFIs[0], 1); //set regular drop to 1
 
+                            int getItemFlagId = 0;
+                            if (lotItemToFlagIdDict.ContainsKey(lotItem))
+                                getItemFlagId = lotItemToFlagIdDict[lotItem];
 
-                            lotItem.SetLotItemToLine(line, lotIndex, lotItem.chance, lotItem.amount, false, lotItemToFlagIdDict[lotItem]);
+                            if (lotIndex == 9)
+                                Util.p();
+
+                            lotItem.SetLotItemToLine(line, lotIndex, lotItem.chance, lotItem.amount, false, getItemFlagId);
                             lotIndex++;
                         }
                     }
 
-                    ((Lines)ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.getItemFlagIdFI, 400370))).RevertFieldsToVanilla();  //Revert Corhyns flail drop to vanilla
+                    //((Lines)ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.getItemFlagIdFI, 400370))).RevertFieldsToVanilla();  //Revert Corhyns flail drop to vanilla
 
                 }
             }
