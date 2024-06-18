@@ -116,6 +116,11 @@ namespace EldenRingCSVHelper
             else
             if (RunSettings.CreateSmithingStoneMods)
             {
+                var flagIds = ItemLotParam_enemy.GetFields(LotItem.getItemFlagIdF)
+                    .Concat(ItemLotParam_map.GetFields(LotItem.getItemFlagIdFI))
+                    .ToArray();
+                IntFilter.CreateFromAcceptableInts(flagIds, 10).Print();
+
                 RunOverride_CreateSmithingStoneMod();
             }
             else
