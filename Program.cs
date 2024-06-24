@@ -9,7 +9,26 @@ namespace EldenRingCSVHelper
 {
     public class Program
     {
-        
+        public static class IdFilters
+        {
+
+            //base id for my mods: 	1029570000
+            //10(3, 5) - (3, 5) - (0, 7)--0                                                                                     //0+4+(7-9) saved flags
+            //specific number                       //specific range 2                                                                 
+            public static IntFilter.Single RoundtableItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(0, 0), -1, -1, -1);
+            public static IntFilter.Single RandomizedItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(4, 4), -1, -1, -1);
+            //specific number                       //specific range 2
+            //public static IntFilter.Single RoundtableItem_emptyLotCumulateFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         7       , IntFilter.Digit(7, 9), -1, -1, -1);
+            //public static IntFilter.Single RandomizedItem_emptyLotCumulateFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         6       , IntFilter.Digit(7, 9), -1, -1, -1);
+
+            //public static IntFilter.Single MaterialOneTimeDrop_getItemFlagIDFilter =    IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(7, 7), IntFilter.Digit(0,4), -1, -1);
+
+            public static IntFilter.Single OneTimeDrop_getItemFlagIDFilter =            IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(7, 7), -1, -1, -1);
+            //Specific Filter Digit
+            public static IntFilter.Single StoneDrop_getItemFlagIDFilter =              IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(8, 8), -1, -1, -1);
+            public static IntFilter.Single RuneDrop_getItemFlagIDFilter =               IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(9, 9), -1, -1, -1);
+        }
+
         const string VanillaFilesPath = @"C:\CODING\Souls Modding\Elden Ring Modding\ModEngine-2.0.0\mod\Vanilla\CSV\";
 
         const string DocsFilesPath = @"C:\CODING\Souls Modding\ModdingTools\Docs\";
@@ -116,12 +135,38 @@ namespace EldenRingCSVHelper
             else
             if (RunSettings.CreateSmithingStoneMods)
             {
-                var flagIds = ItemLotParam_enemy.GetFields(LotItem.getItemFlagIdF)
-                    .Concat(ItemLotParam_map.GetFields(LotItem.getItemFlagIdFI))
-                    .ToArray();
-                IntFilter.CreateFromAcceptableInts(flagIds, 10).Print();
 
-                RunOverride_CreateSmithingStoneMod();
+                var oldPath = @"C:\CODING OUTPUT\";
+                ParamFile ItemLotParam_enemy_old = new ParamFile(oldPath, "ItemLotParam_enemy ALL.csv");
+
+
+                var v1 = FlagIds.GetUsedGetItemFlagIds(FlagIds.is10digitFlag, new ParamFile[] { ItemLotParam_enemy_old });
+                //var v2 = FlagIds.GetUsedGetItemFlagIds(FlagIds.is10digitFlag, new ParamFile[] { ItemLotParam_enemy, ItemLotParam_map });
+                foreach(Line l in ItemLotParam_enemy.lines.Concat(ItemLotParam_map.lines))
+                {
+                    var f = l.GetFieldAsInt(LotItem.getItemFlagIdFI);
+                    if (v1.Contains(f))
+                    {
+                        
+                        var ol = ItemLotParam_enemy_old.GetLinesOnCondition(new Condition.FieldIs(LotItem.getItemFlagIdFI, f));
+                        //if (ol.GetField(LotItem.idFIs[1]) == l.GetField(LotItem.idFIs[1]) && ol.GetField(LotItem.idFIs[0]) == l.GetField(LotItem.idFIs[0]))
+                        //    continue;
+                        Util.println("vanilla occurence:  " + l._idName + "      flag:" + f);
+                        foreach (Line o in ol)
+                        {
+                            Util.println("mod occurence:      " + o._idName + "      flag:" + o.GetField(LotItem.getItemFlagIdFI));
+                        }
+                        Util.println();
+                    }
+                }
+                
+
+                /*var flagIds = ItemLotParam_enemy.GetIntFields(LotItem.getItemFlagIdFI)
+                    .Concat(ItemLotParam_map.GetIntFields(LotItem.getItemFlagIdFI))
+                    .ToArray();
+                IntFilter.CreateFromAcceptableInts(flagIds, 10).Print();*/
+
+                //RunOverride_CreateSmithingStoneMod();
             }
             else
             {
@@ -875,14 +920,7 @@ namespace EldenRingCSVHelper
        {
            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map , ItemLotParam_enemy}))
                return;
-                                                                                                   //specific number                       //specific range 2
-           var RoundtableItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       9      , 7, -1, -1, 0);
-           var RandomizedItem_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     3      , IntFilter.Digit(3, 5),       8      , 7, -1, -1, 0);
-                                                                                                                //specific number                       //specific range 2
-            //var RoundtableItem_emptyLotCumulateFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         7       , 7, -1, -1, 0);
-            //var RandomizedItem_emptyLotCumulateFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         6       , 7, -1, -1, 0);
-
-
+           
             List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
            int getItemFlagIdFI = ItemLotParam_map.GetFieldIndex("getItemFlagId");
 
@@ -958,7 +996,7 @@ namespace EldenRingCSVHelper
                        line.SetField(1, "Roundtable Item - " + EquipParamWeapon.GetLineWithId(lotItem.id).name);
 
                    lotItem.SetLotItemToLine(line, 1);
-                   int currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                   int currentGetItemFlagId = IntFilter.GetRandomInt(line.id_int, IdFilters.RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                    usedGetItemFlagId.Add(currentGetItemFlagId);
                    line.SetField(getItemFlagIdFI, currentGetItemFlagId);
                    ItemLotParam_map.OverrideOrAddLine(line);
@@ -1872,9 +1910,9 @@ namespace EldenRingCSVHelper
                             Line l = null;
                             var hasLotCond = new LotItem.HasLotItem(lotItem, 1);
 
-                            IntFilter.Single filter = RandomizedItem_getItemFlagIDFilter;
+                            IntFilter.Single filter = IdFilters.RandomizedItem_getItemFlagIDFilter;
                             if (index > RCI_last_index)
-                                filter = RoundtableItem_getItemFlagIDFilter;
+                                filter = IdFilters.RoundtableItem_getItemFlagIDFilter;
 
                             if (!lotItem.IsEmpty())
                             {
@@ -2002,7 +2040,7 @@ namespace EldenRingCSVHelper
                             {
                                 Util.println("id:" + id + " does not exist in ItemLotParam_map");
                                 continue;
-                                int currentGetItemFlagId = IntFilter.GetRandomInt(id, RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
+                                int currentGetItemFlagId = IntFilter.GetRandomInt(id, IdFilters.RoundtableItem_getItemFlagIDFilter, usedGetItemFlagId);
                                 usedGetItemFlagId.Add(currentGetItemFlagId);
                                 line = ItemLotFile.GetLineWithId(10000).Copy().SetField(LotItem.getItemFlagIdFI, currentGetItemFlagId);
                             }
@@ -2128,8 +2166,7 @@ namespace EldenRingCSVHelper
             int itemLotId_enemy = NpcParam.GetFieldIndex("itemLotId_enemy");
 
                                                                                                            //specific num 1                    //specific num 2
-            var MaterialOneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),    3     , IntFilter.Digit(3, 5),     7      , 7, -1, -1, 0);
-
+            
             var NonMaterialLinesToInclude = new List<Line>();
             Condition isMaterial =
                     new Condition.NameStartsWith("[").AND(
@@ -2813,7 +2850,7 @@ namespace EldenRingCSVHelper
 
 
 
-            var OneTimeDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 9, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+            
 
             Dictionary<int, int> AssignedWeaponsFlagIdDict;
             Dictionary<int, int> AssignedArmorsFlagIdDict;
@@ -2970,7 +3007,7 @@ namespace EldenRingCSVHelper
                     }
                     else if (createUniqueFlagId)
                     {
-                        int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
+                        int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, IdFilters.OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
                         usedGetItemFlagId.Add(currentGetItemFlagId);
 
                         if (isArmor)
@@ -2990,7 +3027,7 @@ namespace EldenRingCSVHelper
                         curLine.SetField("getItemFlagId02", OtherFlagId);
                     else if (createUniqueFlagIdForOther)
                     {
-                        int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
+                        int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, IdFilters.OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
                         usedGetItemFlagId.Add(currentGetItemFlagId);
                         if (isArmor)
                             AssignedArmorsFlagIdDict.Add(OtherToAddId, currentGetItemFlagId);
@@ -3602,7 +3639,8 @@ namespace EldenRingCSVHelper
             var cumulateNumMax = ItemLotParam_enemy.GetFieldIndex("cumulateNumMax");
             var cumulateLotPoint01 = ItemLotParam_enemy.GetFieldIndex("cumulateLotPoint01");
             var cumulateReset01 = ItemLotParam_enemy.GetFieldIndex("cumulateReset01");*/
-            
+
+            Dictionary<string, string> descriptionDict = new Dictionary<string, string>();
 
             for (int k = 0; k < 2; k++)
             {
@@ -3686,7 +3724,8 @@ namespace EldenRingCSVHelper
 
                     string normalizedKeyword = keyword; //used for getting a name. removes "S"s used in overrides. 
 
-                    
+                    string description = "";
+
                     //assign keyword values;
                     {
                         bool isBoth = false;
@@ -4034,6 +4073,63 @@ namespace EldenRingCSVHelper
                     //Debug.Assert(!simplifiedKeywordNameDict.ContainsKey(simplifiedKeywordName), "cant share same keyword phrase");
                     //Debug.Assert(!isSmithingDict.ContainsKey(keyword), "cant share same keyword");
 
+                    description += percentNum * (LevelCasscade + 1) + "% chance to drop ";
+                    string noun = "Stone";
+
+                    if (isSmithing)
+                        description += "Smithing Stones ";
+                    if (isSmithing && isSomber)
+                        description += "& ";
+                    if (isSomber)
+                        description += "Somber Smithing Stones ";
+                    if ((isSmithing || isSomber) && isRune)
+                        description += "& ";
+                    if (isRune) {
+                        description += "Runes ";
+                        noun = "Rune";
+                    }
+                    
+
+                    float hL = levelAdj;
+                    float lL = levelAdj - LevelCasscade;
+
+                    {
+                        string qualifier = "";
+                        if (Math.Abs(somberLevelAdj) < 1)
+                            qualifier = "can ";
+                        if (levelAdj > 0)
+                        {
+                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "can drop higher level " + noun + "s)";
+                        }
+                        else if (levelAdj < 0)
+                        {
+                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
+                        }
+                    }
+                    if (isSomber) {
+                        string qualifier = "";
+                        if(Math.Abs(somberLevelAdj) < 1)
+                            qualifier = "can ";
+                        if (somberLevelAdj+levelAdj > 0)
+                        {
+                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drop higher level " + noun + "s)";
+                        } else if (somberLevelAdj+levelAdj < 0)
+                        {
+                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
+                        }
+                    }
+
+                    if (LevelCasscade == 1)
+                        description += "\n   inludes " + noun + "s " + 1 + " level lower than adjusted level";
+                    else if(LevelCasscade > 1)
+                        description += "\n   inludes " + noun + "s up to "+LevelCasscade+ " levels lower than adjusted level";
+
+                    if (firstTimeDropSeverity != -1)
+                    {
+                        description += "\n   has a guarenteed drop on the first kill (varient based)";
+                    }
+
+                    descriptionDict.Add(keyword, description);
 
                     isSmithingDict.Add(keyword, isSmithing);
                     isSomberDict.Add(keyword, isSomber);
@@ -4162,10 +4258,7 @@ namespace EldenRingCSVHelper
             */
             //var commongetItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), -1, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0); //all available ids.
 
-                                                                                                 //Specific Filter Digit
-            var StoneDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),     1,      IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
-            var RuneDrop_getItemFlagIDFilter = IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),      2,      IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
-
+            
             List<int> usedGetItemFlagId = FlagIds.usedGetItemFlagId;
 
             //Util.println("" + 7.5f);
@@ -6277,9 +6370,9 @@ namespace EldenRingCSVHelper
                             if (curStoneLinesAddItemFlagIdLots.Count > 0 && currentlyFirstDropGuarentee)
                             {
 
-                                IntFilter.Single filter = StoneDrop_getItemFlagIDFilter;
+                                IntFilter.Single filter = IdFilters.StoneDrop_getItemFlagIDFilter;
                                 if (typeIndex == 2)
-                                    filter = RuneDrop_getItemFlagIDFilter;
+                                    filter = IdFilters.RuneDrop_getItemFlagIDFilter;
 
                                 int currentGetItemFlagId = IntFilter.GetRandomInt(npcID, filter, usedGetItemFlagId);
                                 usedGetItemFlagId.Add(currentGetItemFlagId);

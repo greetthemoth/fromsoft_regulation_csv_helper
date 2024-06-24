@@ -70,6 +70,7 @@ namespace EldenRingCSVHelper
         /// </summary>
         public static void RevertAll(bool checkIsModified = false)
         {
+            FlagIds.ClearUsedFlagIds();
             foreach(ParamFile file in paramFiles)
             {
                 if(!checkIsModified || file.numberOfModifiedOrAddedLines > 0)

@@ -11,7 +11,7 @@ namespace EldenRingCSVHelper
         public static bool LESS_THAN(float i, float x) { return i < x; }
         public static bool GREATER_THAN_OR_EQUAL_TO(float i, float x) { return i >= x; }
         public static bool LESS_THAN_OR_EQUAL_TO(float i, float x) {
-            return i <= x; 
+            return i <= x;
         }
         public static bool EQUAL_TO(float i, float x) { return i == x; }
         public static bool NOT_EQUAL_TO(float i, float x) { return i != x; }
@@ -22,7 +22,7 @@ namespace EldenRingCSVHelper
             {
                 if (andTrue_OrFalse && !condition.Pass(line))
                     return false;
-                else if(!andTrue_OrFalse && condition.Pass(line))
+                else if (!andTrue_OrFalse && condition.Pass(line))
                     return true;
             }
             if (andTrue_OrFalse)
@@ -51,8 +51,50 @@ namespace EldenRingCSVHelper
             return new Either(this, condition);
         }
 
-        
-
+        public class CondOnOtherLines_SharesField : FieldCondition
+        {
+            public List<Line> linesToCheck;
+            public int fieldToCheckIsSame = 0;
+            public bool retIfNotFound = false;
+            public CondOnOtherLines_SharesField(int fieldToCheckIsSame, List<Line> linesToCheck, bool retIfNotFound)
+            {
+                this.linesToCheck = linesToCheck;
+                this.field = fieldToCheckIsSame;
+                this.retIfNotFound = retIfNotFound;
+            }
+            public override bool Pass(Line line)
+            {
+                foreach(Line checkLine in linesToCheck)
+                {
+                    if(checkLine.GetField(fieldToCheckIsSame) == line.GetField(fieldToCheckIsSame))
+                    {
+                        return true;
+                    }
+                }
+                return retIfNotFound;
+            }
+        }
+        public class CondOnOtherLines_SharesID : Condition
+        {
+            public List<Line> linesToCheck;
+            public bool retIfNotFound = false;
+            public CondOnOtherLines_SharesID( List<Line> linesToCheck, bool retIfNotFound)
+            {
+                this.linesToCheck = linesToCheck;
+                this.retIfNotFound = retIfNotFound;
+            }
+            public override bool Pass(Line line)
+            {
+                foreach (Line checkLine in linesToCheck)
+                {
+                    if (checkLine.GetField(0) == line.GetField(0))
+                    {
+                        return true;
+                    }
+                }
+                return retIfNotFound;
+            }
+        }
         public class FloatBetween : Condition
         {
             FloatReturn num;

@@ -95,7 +95,12 @@ namespace EldenRingCSVHelper
             }
             return bools;
         }
-
+        public static string S(int return_S_IfGreaterThan1)
+        {
+            if (return_S_IfGreaterThan1 > 1)
+                return "s";
+            return "";
+        }
         //APPEND string to string
         public static string Append(string a,string middle, string b)
         {

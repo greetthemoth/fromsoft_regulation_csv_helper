@@ -1945,7 +1945,7 @@ namespace EldenRingCSVHelper
     public static class FlagIds
     {
         //public static IntFilter.Single cumulateIds = new IntFilter.Multiple(IntFilter.Single(-1, -1), new IntFilter.Single(1,new IntFilter.DigitRange(0,1),-1), new IntFilter.Single(1, 2, IntFilter.DigitRange(0,8)));
-        public static List<int> usedCumulateNumFlagIds = SetUsedCumulateNumFlagIds();
+        //public static List<int> usedCumulateNumFlagIds = SetUsedCumulateNumFlagIds();
         /*public static int lastCumulateNumFlagId = 0;
         public static int GetNextCulmulateNumFlagId()
         {
@@ -1956,17 +1956,24 @@ namespace EldenRingCSVHelper
             }
             return lastCumulateNumFlagId;
         }*/
-        public static List<int> usedGetItemFlagId = SetUsedGetItemFlagIds();
-        static List<int> SetUsedGetItemFlagIds()
+        static int _getItemFlagId = Program.ItemLotParam_map.GetFieldIndex("getItemFlagId");
+        public static Condition is10digitFlag = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
+        public static List<int> usedGetItemFlagId = GetUsedGetItemFlagIds(is10digitFlag, new ParamFile[] { Program.ItemLotParam_enemy, Program.ItemLotParam_map });
+        public static List<int> GetUsedGetItemFlagIds(Condition condition, ParamFile[] ps)
         {
-            int _getItemFlagId = Program.ItemLotParam_map.GetFieldIndex("getItemFlagId");
-            var inIdRange = new Condition.FloatFieldBetween(_getItemFlagId, 1000000000, 2000000000);
-            List<int> _usedGetItemFlagId = 
-                Util.ToInts(((Lines)Program.ItemLotParam_enemy.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))
-                .Concat(
-                    Util.ToInts(((Lines)Program.ItemLotParam_map.GetLinesOnCondition(inIdRange)).GetFields(_getItemFlagId))).ToList();
+            
+            List<int> _usedGetItemFlagId = new List<int>();
+            foreach (ParamFile p in ps)
+            {
+                _usedGetItemFlagId = Util.ToInts(((Lines)p.GetLinesOnCondition(condition)).GetFields(_getItemFlagId)).Concat(_usedGetItemFlagId).ToList();
+            }
             return _usedGetItemFlagId;
         }
+        public static void ClearUsedFlagIds()
+        {
+            usedGetItemFlagId.Clear();
+        }
+
         static List<int> SetUsedCumulateNumFlagIds()
         {
             int cumulateNumFlagIdFI = Program.ItemLotParam_map.GetFieldIndex("cumulateNumFlagId");
