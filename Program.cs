@@ -3641,6 +3641,8 @@ namespace EldenRingCSVHelper
             var cumulateReset01 = ItemLotParam_enemy.GetFieldIndex("cumulateReset01");*/
 
             Dictionary<string, string> descriptionDict = new Dictionary<string, string>();
+            Dictionary<string, int> numberOfAppearencesDict = new Dictionary<string, int>();
+            Dictionary<string, List<string>> namesOfNpcsDict = new Dictionary<string, List<string>>();
 
             for (int k = 0; k < 2; k++)
             {
@@ -4076,12 +4078,39 @@ namespace EldenRingCSVHelper
                     description += percentNum * (LevelCasscade + 1) + "% chance to drop ";
                     string noun = "Stone";
 
+
+
+                    int amountStart = 1;
+                    int amountEnd = 1;
+                    if (amountMults.Count > 0) {
+                        amountStart = amountMults[0];
+                        amountEnd = amountMults[amountMults.Count - 1];
+                    }
+                    string amountText = "";
+
+                    if(amountStart == amountEnd)
+                    {
+                        if(amountStart != 1)
+                            amountText = amountEnd + "x";
+                    }
+                    else
+                    {
+                        amountText = "" + amountStart + "-" + amountEnd + "x ";
+                    }
+
+                    description += amountText;
+
                     if (isSmithing)
-                        description += "Smithing Stones ";
+                        description += "Smithing Stones";
                     if (isSmithing && isSomber)
-                        description += "& ";
+                        description += " & ";
                     if (isSomber)
-                        description += "Somber Smithing Stones ";
+                        description += "Somber Smithing Stones";
+                    if(isSomber && isSmithing && !isRune)
+                    {
+                        description += "(" + 100 - bothPercentSplitForSomber + ":" + bothPercentSplitForSomber + " ration) ";
+                    }
+                    description += " ";
                     if ((isSmithing || isSomber) && isRune)
                         description += "& ";
                     if (isRune) {
@@ -4099,11 +4128,11 @@ namespace EldenRingCSVHelper
                             qualifier = "can ";
                         if (levelAdj > 0)
                         {
-                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "can drop higher level " + noun + "s)";
+                            description += "\n   "+noun+" level adjustment : +" + levelAdj + " x" + levelMult; //" (" + qualifier + "can drop higher level " + noun + "s)";
                         }
                         else if (levelAdj < 0)
                         {
-                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
+                            description += "\n   "+noun+" level adjustment : "  + levelAdj + " x" + levelMult; //" (" + qualifier + "drops lower level " + noun + "s)";
                         }
                     }
                     if (isSomber) {
@@ -4112,10 +4141,10 @@ namespace EldenRingCSVHelper
                             qualifier = "can ";
                         if (somberLevelAdj+levelAdj > 0)
                         {
-                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drop higher level " + noun + "s)";
+                            description += "\n   level adjustment specifically for Somber Stones:+" + somberLevelAdj + levelAdj;// + " (" + qualifier + "drop higher level " + noun + "s)";
                         } else if (somberLevelAdj+levelAdj < 0)
                         {
-                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
+                            description += "\n   level adjustment specifically for Somber Stones:"  + somberLevelAdj + levelAdj;// + " (" + qualifier + "drops lower level " + noun + "s)";
                         }
                     }
 
@@ -4126,10 +4155,88 @@ namespace EldenRingCSVHelper
 
                     if (firstTimeDropSeverity != -1)
                     {
-                        description += "\n   has a guarenteed drop on the first kill (varient based)";
+                        if(ftdx1ExcessToEmpty == false)
+                            description += "\n   has a guarenteed drop on the first kill (varient based). ";
+                        else
+                            description += "\n   has a "+(int)(ftdx1ChanceMult*100+0.5f)+" percent chance to drop a treasure drop but only once (varient based). ";
+
+                        switch (firstTimeDropSeverity)
+                        {
+                            //case 1:
+                            //    description += "basic";
+                            //    break;
+                            case 2:
+                                //avoid x1
+                                if (amountStart < amountEnd)
+                                {
+                                    description += "will drop "+Math.Max(2,amountStart)+"";
+                                    if(amountEnd > Math.Max(2, amountStart))
+                                        description+= "-"+ amountEnd;
+                                    description += "x ";
+                                    break;
+                                }
+                                continue;
+
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 8:
+                                //highest x amount
+                                if (amountStart < amountEnd)
+                                {
+                                    description += "will drop "+amountEnd +"x ";
+                                    
+                                }
+                                continue;
+                            case 9:
+                                if (amountEnd > 1)
+                                {
+                                    description += "will drop 1x ";
+                                }
+                                continue;
+                            case 4:
+                            case 6:
+                            case 7:
+                            case 8:
+                                //highest level
+                                if (LevelCasscade > 0)
+                                {
+                                    if (LevelCasscade > 0)
+                                        description += "only highest level "+noun+" ";
+                                }
+                                continue;
+                            
+                            case 5:
+                            case 8:
+                                //force first drop type
+                                if((isSomber || isRune) && isSmithing)
+                                {
+                                    description += "only regular smithing stones ";
+                                }else if (isSomber && isRune && !isSmithing)
+                                {
+                                    description += "only somber smithing stone ";
+                                }
+                                continue;
+                            case 7:
+                                //force somber smithing stone
+                                if (isSmithing || isRune)
+                                {
+                                    if(isSomber)
+                                        description += "only somber smithing stones ";
+                                    else
+                                        description += "somber smithing stones ";
+                                }
+                                continue;
+                            default:
+                                //description += "basic"
+                                break;
+                        }
                     }
 
                     descriptionDict.Add(keyword, description);
+                    numberOfAppearencesDict.Add(keyword, 0);
+                    namesOfNpcsDict.Add(keyword, new List<string>());
 
                     isSmithingDict.Add(keyword, isSmithing);
                     isSomberDict.Add(keyword, isSomber);
@@ -4267,6 +4374,8 @@ namespace EldenRingCSVHelper
             Dictionary<Line, string> idToVariantsDict = new Dictionary<Line, string>();
             Dictionary<Line, float> idToLevelDict = new Dictionary<Line, float>();
 
+            
+
             foreach (int npcID in npcIDs)
             {
                 testId = -1;
@@ -4365,6 +4474,8 @@ namespace EldenRingCSVHelper
                     continue;
                 }
 
+
+
                 //if(keywordOverrideIDsDict.ContainsKey(npcID))
                 // if(somberLevelAdjDict[keyword] != 0)\
                 //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
@@ -4383,7 +4494,15 @@ namespace EldenRingCSVHelper
 
                 bool isBoss = BossOrMiniBossIds.Contains(npcLine.id_int);
 
+                const bool PRINT_DESCRIPTION = true;
 
+                numberOfAppearencesDict[keyword]++;
+                if(PRINT_DESCRIPTION && !isBoss )
+                {
+                    var n = namesOfNpcsDict[keyword].Contains(npcLine.name);
+                    if(!n)
+                        namesOfNpcsDict[keyword].Add(npcLine.name);
+                }
 
 
                 if (test)
@@ -6426,6 +6545,22 @@ namespace EldenRingCSVHelper
                 }
 
                 
+            }
+
+            foreach(string keyword in namesOfNpcsDict.Keys)
+            {
+                string common = "";
+                string simplifiedKeyword = simplifiedKeywordNameDict[keyword];
+                var l = namesOfNpcsDict[keyword];
+                foreach (string s in l)
+                {
+                    if (common == "")
+                    {
+                        if (s.Length > simplifiedKeyword.Length)
+                            common = s;
+                        continue;
+                    }
+                }
             }
             
             //Util.PrintStrings(Util.ToStrings(freedFlagIds.ToArray()));
