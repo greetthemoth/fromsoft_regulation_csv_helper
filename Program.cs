@@ -4243,6 +4243,7 @@ namespace EldenRingCSVHelper
                 .SetField(1,"");
 
             Lines itemLotMainLines = new Lines(ItemLotParam_enemy);
+            List<int> itemLotMainLinesIDs = new List<int>();
 
             //string[] typeStrings = { "Smithing Stone", "Somber Smithing Stone", "Golden Rune" };
             var smithingStoneIDsDict = new Dictionary<int, int>();
@@ -5032,6 +5033,7 @@ namespace EldenRingCSVHelper
                             //itemLotLine.SetField(1, itemLotLine.name + levelString + variantString);
                             itemLotMainLines.lines.Add(itemLotLine);
                         }
+                        itemLotMainLinesIDs.Add(itemLotID);
                     }
                     else if (CanHijack && itemLotLine != null && !itemLotLine.name.Contains("(Level: ") //unused
                         && NpcParam.GetLineOnCondition(
@@ -5094,6 +5096,7 @@ namespace EldenRingCSVHelper
                             //itemLotLine.SetField(1, itemLotLine.name + levelString + variantString);
                             itemLotMainLines.lines.Add(itemLotLine);
                         }
+                        itemLotMainLinesIDs.Add(itemLotID);
                         //npcLine.MarkModified(false);    //just for now.
 
                         //if we find them change the item lot to the specifc smithing stones we want. chanece and all
@@ -5224,7 +5227,7 @@ namespace EldenRingCSVHelper
                             int nextLineIndex = 0;
                             int newLineIndex = 0;
                             //find new line ID
-                            while (ItemLotParam_enemy.GetLineWithId(newItemLotID, out newLineIndex, newLineIndex) != null || newNextLineID < newItemLotID + 100)
+                            while (itemLotMainLinesIDs.Contains(newItemLotID) || ItemLotParam_enemy.GetLineWithId(newItemLotID, out newLineIndex, newLineIndex) != null || newNextLineID < newItemLotID + 100)
                             {
                                 newItemLotID = ItemLotParam_enemy.GetNextFreeId(newItemLotID, out newLineIndex);
                                 newItemLotID += 100 - (newItemLotID % 100);
@@ -5311,9 +5314,10 @@ namespace EldenRingCSVHelper
                             //itemLotLine.SetField(1, itemLotLine.name + levelString + variantString);
                             itemLotMainLines.lines.Add(itemLotLine);
                         }
-
+                        itemLotMainLinesIDs.Add(itemLotID);
                     }
-
+                    
+                   
                     {
                         if (!RUNES && !STONES)
                         {
@@ -6367,8 +6371,8 @@ namespace EldenRingCSVHelper
                                             break;
                                         }
                                         stoneLine.SetField("lotItemBasePoint0" + lotIndex.ToString(), 34463);//
-                                        if (npcID == 21400114)
-                                            Util.p();
+                                        //if (npcID == 21400114)
+                                        //    Util.p();
                                         curStoneLinesToAddGetItemFlagId.Add(stoneLine);
                                         curStoneLinesAddItemFlagIdLots.Add(lotIndex);
                                         //lotIndex++;
