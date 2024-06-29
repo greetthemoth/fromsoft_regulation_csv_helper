@@ -146,6 +146,14 @@ namespace EldenRingCSVHelper
                 return comparerFunc(line);
             }
         }
+        public class IsFieldModified: FieldCondition
+        {
+            public IsFieldModified( int field) { this.field = field; }
+            public override bool Pass(Line line)
+            {
+                return Line.IsFieldModified(field.GetInt(line), line);
+            }
+        }
 
         public class FloatCompare : Condition
         {

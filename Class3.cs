@@ -95,7 +95,7 @@ namespace EldenRingCSVHelper
             }
             return bools;
         }
-        public static string S(int return_S_IfGreaterThan1)
+        public static string S(float return_S_IfGreaterThan1)
         {
             if (return_S_IfGreaterThan1 > 1)
                 return "s";

@@ -87,7 +87,7 @@ namespace EldenRingCSVHelper
             return null;
         }
 
-        public ParamFile(string fileLocation, string filename, char delimiter = ';')
+        public ParamFile(string fileLocation, string filename, char delimiter = ';', bool addToParamFilesList = true)
         {
             this.delimiter = delimiter;
             this.filename = filename;
@@ -116,7 +116,8 @@ namespace EldenRingCSVHelper
             lines = GetOrderedLines();
             vanillaParamFile.lines = vanillaParamFile.GetOrderedLines();
             vanillaParamFiles.Add(vanillaParamFile);
-            paramFiles.Add(this);
+            if(addToParamFilesList)
+                paramFiles.Add(this);
         }
 
         ParamFile(char delimiter,string filename,string paramName,string fileExtension,string parentFile, string[] header) 
@@ -536,6 +537,23 @@ namespace EldenRingCSVHelper
                 if (paramFile.numberOfModifiedOrAddedLines > 0)
                 {
                     paramFile.WriteModifiedFile(fileNamePre,fileNamePost,condition, conditionToTurnToRelaceWithBaseLine, baseLine);
+                    filesPrinted++;
+                }
+            }
+            if (filesPrinted > 0)
+                Console.WriteLine();
+            return filesPrinted;
+        }
+
+        public static int WriteModifiedField(int fieldIndex, string fileNamePre = "", string fileNamePost = "", Condition condition = null, Condition conditionToTurnToRelaceWithBaseLine = null, Line baseLine = null)
+        {
+            int filesPrinted = 0;
+            foreach (ParamFile paramFile in ParamFile.paramFiles)
+            {
+                string debugName = paramFile.paramName;
+                if (paramFile.numberOfModifiedOrAddedLines > 0)
+                {
+                    //paramFile.WriteModifiedField(fieldIndex, fileNamePre, fileNamePost, condition, conditionToTurnToRelaceWithBaseLine, baseLine);
                     filesPrinted++;
                 }
             }
@@ -1209,6 +1227,15 @@ namespace EldenRingCSVHelper
         {
             Util.PrintStrings(Util.Append(GetFields(0), delimiter, GetFields(1)));
         }
+        public void PrintIDAndField(int fieldIndex, string delimiter = ";")
+        {
+            Util.PrintStrings(Util.Append(GetFields(0), delimiter, GetFields(fieldIndex)));
+        }
+        public void PrintModifiedIDAndField(int fieldIndex, string delimiter = ";")
+        {
+            var lines =(Lines)GetLinesOnCondition(new Condition.IsFieldModified(fieldIndex));
+            Util.PrintStrings(Util.Append(lines.GetFields(0), delimiter, lines.GetFields(1)));
+        }
         /// <summary> 
         /// Prints field for of all lines in this container.
         /// </summary>
@@ -1300,6 +1327,10 @@ namespace EldenRingCSVHelper
         public static bool IsModified(Line line)
         {
             return line.modified;
+        }
+        public static bool IsFieldModified(int fieldindex, Line line)
+        {
+            return line.modifiedFieldIndexes.Contains(fieldindex);
         }
         public static bool IsExtraLineStatic(Line line)
         {
@@ -1521,7 +1552,8 @@ namespace EldenRingCSVHelper
         {
             if (setTo == _data[fieldIndex])
                 return this;
-
+            if (fieldIndex == 0 && setTo == "463000500")
+                Util.p();
             if (fieldIndex == 0)
             {
                 _extraLineCheckQued = true;

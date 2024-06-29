@@ -9,242 +9,6 @@ namespace EldenRingCSVHelper
 {
     public class Program
     {
-        public static class IdFilters
-        {
-
-            //base id for my mods: 	1029570000
-            //10(3, 5) - (3, 5) - (0, 7)--0                                                                                     //0+4+(7-9) saved flags
-            //specific number                       //specific range 2                                                                 
-            public static IntFilter.Single RoundtableItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(0, 0), -1, -1, -1);
-            public static IntFilter.Single RandomizedItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(4, 4), -1, -1, -1);
-            //specific number                       //specific range 2
-            //public static IntFilter.Single RoundtableItem_emptyLotCumulateFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         7       , IntFilter.Digit(7, 9), -1, -1, -1);
-            //public static IntFilter.Single RandomizedItem_emptyLotCumulateFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         6       , IntFilter.Digit(7, 9), -1, -1, -1);
-
-            //public static IntFilter.Single MaterialOneTimeDrop_getItemFlagIDFilter =    IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(7, 7), IntFilter.Digit(0,4), -1, -1);
-
-            public static IntFilter.Single OneTimeDrop_getItemFlagIDFilter =            IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(7, 7), -1, -1, -1);
-            //Specific Filter Digit
-            public static IntFilter.Single StoneDrop_getItemFlagIDFilter =              IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(8, 8), -1, -1, -1);
-            public static IntFilter.Single RuneDrop_getItemFlagIDFilter =               IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(9, 9), -1, -1, -1);
-        }
-
-        const string VanillaFilesPath = @"C:\CODING\Souls Modding\Elden Ring Modding\ModEngine-2.0.0\mod\Vanilla\CSV\";
-
-        const string DocsFilesPath = @"C:\CODING\Souls Modding\ModdingTools\Docs\";
-        //update this periodically by updating the Vanilla project with the games regulation bin.
-        //NVM Map studios has a method for doing just press "Upgrade Params" in the new version.
-        //You should update the Vanilla Files tho.
-
-        //WIth Yapped
-        //...Open Yapped.
-        //......exists at CODING\Souls Modding\ModdingTools\Yapped-Rune-Bear-Shortcut
-        //...Open the your Elden RIng regulation bin.
-        //......File -> Open -> Find and Select "C:\Steam\steamapps\common\ELDEN RING\Game\regulation.bin" 
-        //...Change Project to "Vanilla"
-        //......Settings -> View General Setting -> Set "Project Name" to "Vanilla" (no quotes)
-
-        //...Apply both Stock and Project Row Names before exporting.
-        //......Field Data - Import Stock Row Names. Yes
-        //......Field Data - Import Project Row Names. No (OVERRIDE EXISTING NAMES).
-
-        //...Mass export the data to create the new csv files (should override the existing files)
-        //......Field Data - Mass Export Data
-        //
-
-        //...Additional notes. 
-        //...Make sure the CSV is not unfurled when exporting. 
-        //...Settings: Export Settings: Unfurl export.
-
-
-        //With MapStudio
-        //...Open Map Studio (make sure its the most recent version updated for the most recent update)
-        //......exists at CODING\Souls Modding\ModdingTools\DSMapStudio
-        //...Create a new project using a copy of the vinalla regulation bin.
-        //...GO to the param editor.
-        //...Export each of the params...
-        //......click the param.
-        //......Select all the lines using ctrl+a
-        //......Edit-> Export CSV -> as Fill -> All.
-        //......Save the csv in the Vanilla file path.
-
-
-
-        //Import names (example "- FP" and "- No FP" from an old file) with map studio.
-        //...Have a target file with the prefered names, temporatily remove the header from it.
-        //...Edit -> Import CSV -> Set Delmiter to ";" (or the one in target file), then 'From File' -> Name _> Find the File with the names and select it.
-        //...Undo the deletion of the header in the temproaty change to the target file.     
-
-
-        public static ParamFile BonfireWarpParam = new ParamFile(VanillaFilesPath, "BonfireWarpParam.csv");
-
-
-        //to read
-        public static ParamFile EquipParamWeapon = new ParamFile(VanillaFilesPath, "EquipParamWeapon.csv");
-        public static ParamFile EquipParamGoods = new ParamFile(VanillaFilesPath, "EquipParamGoods.csv");
-        public static ParamFile EquipParamProtector = new ParamFile(VanillaFilesPath, "EquipParamProtector.csv");
-        public static ParamFile EquipParamAccessory = new ParamFile(VanillaFilesPath, "EquipParamAccessory.csv");
-        public static ParamFile EquipParamGem = new ParamFile(VanillaFilesPath, "EquipParamGem.csv");
-        //to write
-
-        //currently updated to: 1.10
-        public static ParamFile AtkParam_Pc = new ParamFile(VanillaFilesPath, "AtkParam_Pc.csv");
-        public static ParamFile BehaviorParam_PC = new ParamFile(VanillaFilesPath, "BehaviorParam_PC.csv"); //The names of this file should be renamed to the proper FP ones found in 
-        public static ParamFile Bullet = new ParamFile(VanillaFilesPath, "Bullet.csv");
-        public static ParamFile CalcCorrectGraph = new ParamFile(VanillaFilesPath, "CalcCorrectGraph.csv");
-        public static ParamFile ItemLotParam_enemy = new ParamFile(VanillaFilesPath, "ItemLotParam_enemy.csv");
-        public static ParamFile ItemLotParam_map = new ParamFile(VanillaFilesPath, "ItemLotParam_map.csv");
-        public static ParamFile Magic = new ParamFile(VanillaFilesPath, "Magic.csv");
-        public static ParamFile SpEffectParam = new ParamFile(VanillaFilesPath, "SpEffectParam.csv");
-        public static ParamFile SwordArtsParam = new ParamFile(VanillaFilesPath, "SwordArtsParam.csv");
-        public static ParamFile NpcParam = new ParamFile(VanillaFilesPath, "NpcParam.csv");
-
-        public static ParamFile ShopLineupParam = new ParamFile(VanillaFilesPath, "ShopLineupParam.csv");
-
-        public static ParamFile EquipParamCustomWeapon = new ParamFile(VanillaFilesPath, "EquipParamCustomWeapon.csv");
-
-
-        static void Main()
-        {
-            if (false)
-            {
-                RunSettings.RunIfNull = true;
-                //noupgradedweaponsFromNpcs();
-                //enemyDrops_IncreasedMaterialDrops();
-                //enemyDrops_OneTimeEquipmentDrops();
-                //worldChangesPlus();
-                //replaceOpenWorldSmithingStones();
-                /*string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
-                string dropTypeDirString = @"\WorldChangesPlus";
-                RunSettings.Write_directory = exportDirectory + dropTypeDirString;
-                ParamFile.WriteModifiedFiles("", "__" + "WCP");
-                ParamFile.ResetAll();*/
-                int[] resists = null;
-                int resist_sleep =  NpcParam.GetFieldIndex("resist_sleep");
-                {
-                    resists = NpcParam.GetFieldIndexesContains("resist_");
-                    var r2 = resists.ToList();
-                    r2.Remove(resist_sleep);
-                    resists = r2.ToArray();
-                }
-                var c = new Condition.MultiFieldCondition(new Condition.FloatFieldCompare(Condition.LESS_THAN_OR_EQUAL_TO, new FloatFieldRef(resist_sleep)), resists, true);
-                var ls = ((Lines)NpcParam.GetLinesOnCondition(c));
-                    ls.PrintIDAndNames();
-                Util.println("found "+ ls.Length);
-            }
-            else
-            if (RunSettings.CreateSmithingStoneMods)
-            {
-
-                var oldPath = @"C:\CODING OUTPUT\";
-                ParamFile ItemLotParam_enemy_old = new ParamFile(oldPath, "ItemLotParam_enemy ALL.csv");
-
-
-                var v1 = FlagIds.GetUsedGetItemFlagIds(FlagIds.is10digitFlag, new ParamFile[] { ItemLotParam_enemy_old });
-                //var v2 = FlagIds.GetUsedGetItemFlagIds(FlagIds.is10digitFlag, new ParamFile[] { ItemLotParam_enemy, ItemLotParam_map });
-                foreach(Line l in ItemLotParam_enemy.lines.Concat(ItemLotParam_map.lines))
-                {
-                    var f = l.GetFieldAsInt(LotItem.getItemFlagIdFI);
-                    if (v1.Contains(f))
-                    {
-                        
-                        var ol = ItemLotParam_enemy_old.GetLinesOnCondition(new Condition.FieldIs(LotItem.getItemFlagIdFI, f));
-                        //if (ol.GetField(LotItem.idFIs[1]) == l.GetField(LotItem.idFIs[1]) && ol.GetField(LotItem.idFIs[0]) == l.GetField(LotItem.idFIs[0]))
-                        //    continue;
-                        Util.println("vanilla occurence:  " + l._idName + "      flag:" + f);
-                        foreach (Line o in ol)
-                        {
-                            Util.println("mod occurence:      " + o._idName + "      flag:" + o.GetField(LotItem.getItemFlagIdFI));
-                        }
-                        Util.println();
-                    }
-                }
-                
-
-                /*var flagIds = ItemLotParam_enemy.GetIntFields(LotItem.getItemFlagIdFI)
-                    .Concat(ItemLotParam_map.GetIntFields(LotItem.getItemFlagIdFI))
-                    .ToArray();
-                IntFilter.CreateFromAcceptableInts(flagIds, 10).Print();*/
-
-                //RunOverride_CreateSmithingStoneMod();
-            }
-            else
-            {
-
-                RunSettings.SetToRun();
-
-                weaponArtsCostMoreMana();
-                //                                          weaponArtsDamageModify();
-                Console.WriteLine("1");
-                spellsCostMoreMana();
-                Console.WriteLine("2");
-                //                                          naturalFpRegen();
-                changeMindToBeLinear();
-                Console.WriteLine("3");
-                reduceMaxManaSystem();
-                Console.WriteLine("4");
-                manaRegenOnHit();
-                Console.WriteLine("5");
-
-                manaGradualRegenOnCast();
-                Console.WriteLine("6");
-
-                //                                //makeRuneArchsGive2500()
-                //MaloModShopChanges();
-                ShopLineupChanges(true, false, false, false);
-                Console.WriteLine("7");
-
-                enemyDrops_MoreSmithingStoneDrops(true);
-                Console.WriteLine("8");
-
-                replaceOpenWorldSmithingStones();
-                Console.WriteLine("9");
-
-
-                limitWarpPoints();
-                Console.WriteLine(10);
-
-                Output();
-            }
-
-            if (RunSettings.PrintOnConsole)
-                Console.ReadKey();
-        }
-        static void Output()
-        {
-            if (!RunSettings.Testing)
-            {
-                if (RunSettings.Write)
-                {
-                    if (RunSettings.Write_AllModifiedFiles)
-                    {
-                        Util.println("_______________________________________");
-                        int filesPrinted = ParamFile.WriteModifiedFiles();
-                        Util.println("_______________________________________");
-                        Util.println("Succesfully printed " + filesPrinted + " files.");
-                    }
-                    else
-                    {
-                        RunSettings.ToRun.WriteModifiedFile();
-                    }
-                }
-                else
-                if (RunSettings.ToRun != null && RunSettings.PrintFile)
-                {
-
-                    if (RunSettings.PrintFile_OnlyModifiedLines)
-                        RunSettings.ToRun.PrintModifiedFile();
-                    else
-                        RunSettings.ToRun.PrintFile();
-                }
-            }
-            else
-            {
-                //Run Tests
-                RunSettings.Tests();
-            }
-        }
-
         static void RunOverride_CreateSmithingStoneMod()
         {
             RunSettings.Testing = false;
@@ -275,13 +39,47 @@ namespace EldenRingCSVHelper
                 //1.5f,2f,3f,5f,
             };
 
-            
+
+
+
 
             {
                 exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                 Keyword.IfModifiedSet_ON = true;
                 string ChangeKeyword;
                 //Condition WriteCond;
+
+
+                string individual_RuneDropsDirectory = "";
+                /*{
+                    Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
+                    enemyDrops_IncreasedMaterialDrops();
+                    if (CREATE_SOFT_RANDOMIZER)
+                    {
+                        worldChangesPlus(true, false);
+                        worldChangesPlus(false, true);
+                    }
+                    noupgradedweaponsFromNpcs();
+                    enemyDrops_OneTimeEquipmentDrops();
+
+                    foreach (ParamFile p in ParamFile.paramFiles)
+                    {
+                        foreach (Line line in p.lines)
+                        {
+                            if (!line.added && line.modified)
+                            {
+                                line.RevertFieldsToVanilla();
+                            }
+                        }
+                    }
+
+                    ChangeKeyword = "!Rune Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondRuneDrops = new KeywordCondition.Is(ChangeKeyword);
+                    enemyDrops_MoreSmithingStoneDrops(true, false, 1);
+                    RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
+                    individual_RuneDropsDirectory = RunSettings.Write_directory;
+                    ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
+                }*/
+                ///TESTO END^^^^
 
                 const bool MATERIAL_DROP_MULT_OPTIONS = true;
                 var individual_MaterialDropsDirectory = "";
@@ -329,15 +127,15 @@ namespace EldenRingCSVHelper
                 }
                 ChangeKeyword = "!Material Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); //var WriteCondMatDrops = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 enemyDrops_IncreasedMaterialDrops();
-                ChangeKeyword = "!Soft Item Randomizer!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondSIR = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                ChangeKeyword = "!Soft Item Randomizer!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondSIR = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 if (CREATE_SOFT_RANDOMIZER) worldChangesPlus(true, false);
-                ChangeKeyword = "!Add Roundtable Items!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondARI = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                ChangeKeyword = "!Add Roundtable Items!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondARI = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 if (CREATE_SOFT_RANDOMIZER) worldChangesPlus(false, true);
-                ChangeKeyword = "!Unupgrade NPC Weap!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondUNW = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                ChangeKeyword = "!Unupgrade NPC Weap!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondUNW = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 noupgradedweaponsFromNpcs();
-                ChangeKeyword = "!OneTime Equipment Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0,true); var WriteCondOTED = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                ChangeKeyword = "!OneTime Equipment Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondOTED = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
                 enemyDrops_OneTimeEquipmentDrops();
-                
+
                 Keyword.IfModifiedSet_ON = false;
                 enemyDrops_MoreSmithingStoneDrops(true, true, 1);
                 Keyword.IfModifiedSet_ON = true;
@@ -346,7 +144,7 @@ namespace EldenRingCSVHelper
                 //ParamFile.WriteModifiedFiles("", "__" + "MatDrops", WriteCondMatDrops);
                 RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Soft Item Randomizer";
                 var individual_WCP_SoftItemRandomizerDirectory = RunSettings.Write_directory;
-                if(CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR", WriteCondSIR);
+                if (CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR", WriteCondSIR);
                 RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Add Roundtable Items";
                 var individual_WCP_AddRoundtableItemsDirectory = RunSettings.Write_directory;
                 if (CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI", WriteCondARI);
@@ -355,7 +153,7 @@ namespace EldenRingCSVHelper
                 var individual_WCP_UnupgradeNPCWeapDirectory = RunSettings.Write_directory;
                 ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW", WriteCondUNW);
 
-                RunSettings.Write_directory = exportDirectory +  @"\Equipment Drops\One Time Drops";
+                RunSettings.Write_directory = exportDirectory + @"\Equipment Drops\One Time Drops";
                 var individual_OTEDDirectory = RunSettings.Write_directory;
                 ParamFile.WriteModifiedFiles("", "__" + "OTED", WriteCondOTED);
 
@@ -414,7 +212,7 @@ namespace EldenRingCSVHelper
 
                     ParamFile.RevertAll(true);
                 }
-                
+
                 /*
                 for (int i = 0; i < DropMultsToWrite.Length; i++)
                 {
@@ -457,34 +255,34 @@ namespace EldenRingCSVHelper
                 return;
                 */
 
-
-                Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
-                enemyDrops_IncreasedMaterialDrops();
-                if (CREATE_SOFT_RANDOMIZER)
                 {
-                    worldChangesPlus(true, false);
-                    worldChangesPlus(false, true);
-                }
-                noupgradedweaponsFromNpcs();
-                enemyDrops_OneTimeEquipmentDrops();
-
-                foreach (ParamFile p in ParamFile.paramFiles)
-                {
-                    foreach (Line line in p.lines)
+                    Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
+                    enemyDrops_IncreasedMaterialDrops();
+                    if (CREATE_SOFT_RANDOMIZER)
                     {
-                        if (!line.added && line.modified)
+                        worldChangesPlus(true, false);
+                        worldChangesPlus(false, true);
+                    }
+                    noupgradedweaponsFromNpcs();
+                    enemyDrops_OneTimeEquipmentDrops();
+
+                    foreach (ParamFile p in ParamFile.paramFiles)
+                    {
+                        foreach (Line line in p.lines)
                         {
-                            line.RevertFieldsToVanilla();
+                            if (!line.added && line.modified)
+                            {
+                                line.RevertFieldsToVanilla();
+                            }
                         }
                     }
+
+                    ChangeKeyword = "!Rune Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondRuneDrops = new KeywordCondition.Is(ChangeKeyword);
+                    enemyDrops_MoreSmithingStoneDrops(true, false, 1);
+                    RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
+                    individual_RuneDropsDirectory = RunSettings.Write_directory;
+                    ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
                 }
-
-                ChangeKeyword = "!Rune Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondRuneDrops = new KeywordCondition.Is(ChangeKeyword);
-                enemyDrops_MoreSmithingStoneDrops(true, false, 1);
-                RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
-                var individual_RuneDropsDirectory = RunSettings.Write_directory;
-                ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
-
                 //already done
                 {
                     /* exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
@@ -685,12 +483,12 @@ namespace EldenRingCSVHelper
                 ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
                 ParamFile.RevertAll(true);
 
-               
+
                 exportDirectory = @"C:\CODING OUTPUT\CSV\Choose Options";
                 {
 
-                   for (int i = 0;i < DropMultsToWrite.Length && (STONE_DROP_MULT_OPTIONS || i == 0); i++)
-                   {
+                    for (int i = 0; i < DropMultsToWrite.Length && (STONE_DROP_MULT_OPTIONS || i == 0); i++)
+                    {
                         string multString = "";
                         string multDirString = "";
                         if (STONE_DROP_MULT_OPTIONS)
@@ -769,7 +567,7 @@ namespace EldenRingCSVHelper
                                         else
                                             dropTypeDirString += @"StoneDrops ONLY";
 
-                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + matDrops_DirString+ worldChanges_DirString;
+                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + matDrops_DirString + worldChanges_DirString;
 
                                         var individual_exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                                         ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[i]);//add the multiplier
@@ -800,7 +598,7 @@ namespace EldenRingCSVHelper
                                             ParamFile.ImportCSVs(individual_WorldChangesDirectory);
                                         }
                                         //AddedLineManager.CreateEmptyLines(emptyItemLot, "");
-                                        ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + OTED_string + matDrops_string+ worldChanges_string);
+                                        ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + OTED_string + matDrops_string + worldChanges_string);
                                         ParamFile.RevertAll(true);
 
                                         if (DropRunes == true)
@@ -816,13 +614,272 @@ namespace EldenRingCSVHelper
                             if (MatDrops == true)
                                 break;
                         }
-                   }
+                    }
 
-               }//old version
+                }//old version
 
-           }
+            }
 
-       }
+        }
+        public static class IdFilters
+        {
+
+            ////base id for my mods: 	1029570000
+            ////10(3, 5) - (3, 5) - (0, 7)--0                                                                                     //0+4+(7-9) saved flags
+            ////specific number                       //specific range 2                                                                 
+            //public static IntFilter.Single RoundtableItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(0, 0), -1, -1, -1);
+            //public static IntFilter.Single RandomizedItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(4, 4), -1, -1, -1);
+            public static IntFilter.Single RoundtableItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 8, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+            public static IntFilter.Single RandomizedItem_getItemFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 7, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+            ////specific number                       //specific range 2
+            ////public static IntFilter.Single RoundtableItem_emptyLotCumulateFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         7       , IntFilter.Digit(7, 9), -1, -1, -1);
+            ////public static IntFilter.Single RandomizedItem_emptyLotCumulateFlagIDFilter =         IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5),       3      , IntFilter.Digit(3, 5),         6       , IntFilter.Digit(7, 9), -1, -1, -1);
+
+            ////public static IntFilter.Single MaterialOneTimeDrop_getItemFlagIDFilter =    IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(7, 7), IntFilter.Digit(0,4), -1, -1);
+
+            //public static IntFilter.Single OneTimeDrop_getItemFlagIDFilter =            IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(7, 7), -1, -1, -1);
+            public static IntFilter.Single OneTimeDrop_getItemFlagIDFilter =            IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 9, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+            ////Specific Filter Digit
+            //public static IntFilter.Single StoneDrop_getItemFlagIDFilter =              IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(8, 8), -1, -1, -1);
+            //public static IntFilter.Single RuneDrop_getItemFlagIDFilter =               IntFilter.Create(true, 1, 0, 2, 9, 5, 7, IntFilter.Digit(9, 9), -1, -1, -1);
+                                                                                                        //1041347160 was invalid
+            public static IntFilter.Single StoneDrop_getItemFlagIDFilter =              IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 1, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+            public static IntFilter.Single RuneDrop_getItemFlagIDFilter =               IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 2, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
+        }
+
+        const string VanillaFilesPath = @"C:\CODING\Souls Modding\Elden Ring Modding\ModEngine-2.0.0\mod\Vanilla 1.12\CSV\";
+
+        const string DocsFilesPath = @"C:\CODING\Souls Modding\ModdingTools\Docs\";
+        //update this periodically by updating the Vanilla project with the games regulation bin.
+        //NVM Map studios has a method for doing just press "Upgrade Params" in the new version.
+        //You should update the Vanilla Files tho.
+
+        //WIth Yapped
+        //...Open Yapped.
+        //......exists at CODING\Souls Modding\ModdingTools\Yapped-Rune-Bear-Shortcut
+        //...Open the your Elden RIng regulation bin.
+        //......File -> Open -> Find and Select "C:\Steam\steamapps\common\ELDEN RING\Game\regulation.bin" 
+        //...Change Project to "Vanilla"
+        //......Settings -> View General Setting -> Set "Project Name" to "Vanilla" (no quotes)
+
+        //...Apply both Stock and Project Row Names before exporting.
+        //......Field Data - Import Stock Row Names. Yes
+        //......Field Data - Import Project Row Names. No (OVERRIDE EXISTING NAMES).
+
+        //...Mass export the data to create the new csv files (should override the existing files)
+        //......Field Data - Mass Export Data
+        //
+
+        //...Additional notes. 
+        //...Make sure the CSV is not unfurled when exporting. 
+        //...Settings: Export Settings: Unfurl export.
+
+
+        //With MapStudio
+        //...Open Map Studio (make sure its the most recent version updated for the most recent update)
+        //......exists at CODING\Souls Modding\ModdingTools\DSMapStudio
+        //...Create a new project using a copy of the vinalla regulation bin.
+        //...GO to the param editor.
+        //...Export each of the params...
+        //......click the param.
+        //......Select all the lines using ctrl+a
+        //......Edit-> Export CSV -> as Fill -> All.
+        //......Save the csv in the Vanilla file path.
+
+
+
+        //Import names (example "- FP" and "- No FP" from an old file) with map studio.
+        //...Have a target file with the prefered names, temporatily remove the header from it.
+        //...Edit -> Import CSV -> Set Delmiter to ";" (or the one in target file), then 'From File' -> Name _> Find the File with the names and select it.
+        //...Undo the deletion of the header in the temproaty change to the target file.     
+
+
+        public static ParamFile BonfireWarpParam = new ParamFile(VanillaFilesPath, "BonfireWarpParam.csv");
+
+
+        //to read
+        public static ParamFile EquipParamWeapon = new ParamFile(VanillaFilesPath, "EquipParamWeapon.csv");
+        public static ParamFile EquipParamGoods = new ParamFile(VanillaFilesPath, "EquipParamGoods.csv");
+        public static ParamFile EquipParamProtector = new ParamFile(VanillaFilesPath, "EquipParamProtector.csv");
+        public static ParamFile EquipParamAccessory = new ParamFile(VanillaFilesPath, "EquipParamAccessory.csv");
+        public static ParamFile EquipParamGem = new ParamFile(VanillaFilesPath, "EquipParamGem.csv");
+        //to write
+
+        //currently updated to: 1.10
+        public static ParamFile AtkParam_Pc = new ParamFile(VanillaFilesPath, "AtkParam_Pc.csv");
+        public static ParamFile BehaviorParam_PC = new ParamFile(VanillaFilesPath, "BehaviorParam_PC.csv"); //The names of this file should be renamed to the proper FP ones found in 
+        public static ParamFile Bullet = new ParamFile(VanillaFilesPath, "Bullet.csv");
+        public static ParamFile CalcCorrectGraph = new ParamFile(VanillaFilesPath, "CalcCorrectGraph.csv");
+        public static ParamFile ItemLotParam_enemy = new ParamFile(VanillaFilesPath, "ItemLotParam_enemy.csv");
+        public static ParamFile ItemLotParam_map = new ParamFile(VanillaFilesPath, "ItemLotParam_map.csv");
+        public static ParamFile Magic = new ParamFile(VanillaFilesPath, "Magic.csv");
+        public static ParamFile SpEffectParam = new ParamFile(VanillaFilesPath, "SpEffectParam.csv");
+        public static ParamFile SwordArtsParam = new ParamFile(VanillaFilesPath, "SwordArtsParam.csv");
+        public static ParamFile NpcParam = new ParamFile(VanillaFilesPath, "NpcParam.csv");
+
+        public static ParamFile ShopLineupParam = new ParamFile(VanillaFilesPath, "ShopLineupParam.csv");
+
+        public static ParamFile EquipParamCustomWeapon = new ParamFile(VanillaFilesPath, "EquipParamCustomWeapon.csv");
+
+
+        static void Main()
+        {
+            if (false)
+            {
+                RunSettings.RunIfNull = true;
+                //noupgradedweaponsFromNpcs();
+                //enemyDrops_IncreasedMaterialDrops();
+                //enemyDrops_OneTimeEquipmentDrops();
+                //worldChangesPlus();
+                //replaceOpenWorldSmithingStones();
+                /*string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
+                string dropTypeDirString = @"\WorldChangesPlus";
+                RunSettings.Write_directory = exportDirectory + dropTypeDirString;
+                ParamFile.WriteModifiedFiles("", "__" + "WCP");
+                ParamFile.ResetAll();*/
+                int[] resists = null;
+                int resist_sleep =  NpcParam.GetFieldIndex("resist_sleep");
+                {
+                    resists = NpcParam.GetFieldIndexesContains("resist_");
+                    var r2 = resists.ToList();
+                    r2.Remove(resist_sleep);
+                    resists = r2.ToArray();
+                }
+                var c = new Condition.MultiFieldCondition(new Condition.FloatFieldCompare(Condition.LESS_THAN_OR_EQUAL_TO, new FloatFieldRef(resist_sleep)), resists, true);
+                var ls = ((Lines)NpcParam.GetLinesOnCondition(c));
+                    ls.PrintIDAndNames();
+                Util.println("found "+ ls.Length);
+            }
+            else
+            if (RunSettings.CreateSmithingStoneMods)
+            {
+                /*const string VanillaFilesPathOld = @"C:\CODING\Souls Modding\Elden Ring Modding\ModEngine-2.0.0\mod\Vanilla 1.10\CSV\";
+                foreach (ParamFile param in ParamFile.paramFiles)
+                {
+                    ParamFile pold = new ParamFile(VanillaFilesPathOld, param.filename,';',false);
+                    foreach (Line line in param.lines)
+                    {
+                        if (line.name != "")
+                            continue;
+                        var lineold = pold.GetLineWithId(line.id);
+                        if (lineold == null)
+                            continue;
+                        line.SetField(1, lineold.name);
+                    }
+                    param.PrintModifiedIDAndField(1);
+                    Util.println("_______________________________________________________");
+                }*/
+
+                //var oldPath = @"C:\CODING OUTPUT\";
+                //ParamFile ItemLotParam_enemy_old = new ParamFile(oldPath, "ItemLotParam_enemy ALL.csv");
+
+
+                //var v1 = FlagIds.GetUsedGetItemFlagIds(FlagIds.is10digitFlag, new ParamFile[] { ItemLotParam_enemy_old });
+                //var v2 = FlagIds.GetUsedGetItemFlagIds(FlagIds.is10digitFlag, new ParamFile[] { ItemLotParam_enemy, ItemLotParam_map });
+                //foreach(Line l in ItemLotParam_enemy.lines.Concat(ItemLotParam_map.lines))
+                /*{
+                    var f = l.GetFieldAsInt(LotItem.getItemFlagIdFI);
+                    if (v1.Contains(f))
+                    {
+                        
+                        var ol = ItemLotParam_enemy_old.GetLinesOnCondition(new Condition.FieldIs(LotItem.getItemFlagIdFI, f));
+                        //if (ol.GetField(LotItem.idFIs[1]) == l.GetField(LotItem.idFIs[1]) && ol.GetField(LotItem.idFIs[0]) == l.GetField(LotItem.idFIs[0]))
+                        //    continue;
+                        Util.println("vanilla occurence:  " + l._idName + "      flag:" + f);
+                        foreach (Line o in ol)
+                        {
+                            Util.println("mod occurence:      " + o._idName + "      flag:" + o.GetField(LotItem.getItemFlagIdFI));
+                        }
+                        Util.println();
+                    }
+                }*/
+                
+
+                /*var flagIds = ItemLotParam_enemy.GetIntFields(LotItem.getItemFlagIdFI)
+                    .Concat(ItemLotParam_map.GetIntFields(LotItem.getItemFlagIdFI))
+                    .ToArray();
+                IntFilter.CreateFromAcceptableInts(flagIds, 10).Print();*/
+
+                RunOverride_CreateSmithingStoneMod();
+            }
+            else
+            {
+
+                RunSettings.SetToRun();
+
+                weaponArtsCostMoreMana();
+                //                                          weaponArtsDamageModify();
+                Console.WriteLine("1");
+                spellsCostMoreMana();
+                Console.WriteLine("2");
+                //                                          naturalFpRegen();
+                changeMindToBeLinear();
+                Console.WriteLine("3");
+                reduceMaxManaSystem();
+                Console.WriteLine("4");
+                manaRegenOnHit();
+                Console.WriteLine("5");
+
+                manaGradualRegenOnCast();
+                Console.WriteLine("6");
+
+                //                                //makeRuneArchsGive2500()
+                //MaloModShopChanges();
+                ShopLineupChanges(true, false, false, false);
+                Console.WriteLine("7");
+
+                enemyDrops_MoreSmithingStoneDrops(true);
+                Console.WriteLine("8");
+
+                replaceOpenWorldSmithingStones();
+                Console.WriteLine("9");
+
+
+                limitWarpPoints();
+                Console.WriteLine(10);
+
+                Output();
+            }
+
+            if (RunSettings.PrintOnConsole)
+                Console.ReadKey();
+        }
+        static void Output()
+        {
+            if (!RunSettings.Testing)
+            {
+                if (RunSettings.Write)
+                {
+                    if (RunSettings.Write_AllModifiedFiles)
+                    {
+                        Util.println("_______________________________________");
+                        int filesPrinted = ParamFile.WriteModifiedFiles();
+                        Util.println("_______________________________________");
+                        Util.println("Succesfully printed " + filesPrinted + " files.");
+                    }
+                    else
+                    {
+                        RunSettings.ToRun.WriteModifiedFile();
+                    }
+                }
+                else
+                if (RunSettings.ToRun != null && RunSettings.PrintFile)
+                {
+
+                    if (RunSettings.PrintFile_OnlyModifiedLines)
+                        RunSettings.ToRun.PrintModifiedFile();
+                    else
+                        RunSettings.ToRun.PrintFile();
+                }
+            }
+            else
+            {
+                //Run Tests
+                RunSettings.Tests();
+            }
+        }
+
+        
 
        static void noupgradedweaponsFromNpcs()
        {
@@ -840,8 +897,8 @@ namespace EldenRingCSVHelper
            {
                var debugline = line._idName;
                string name = line.name;
-               string new_name;
-               {
+               string new_name = "";
+               if(name.Contains("+")){
                    int toplus = name.IndexOf("+");
                    int tospace = name.Substring(toplus).IndexOf(" ");
                    if (tospace != -1)
@@ -1022,7 +1079,7 @@ namespace EldenRingCSVHelper
                 var isLegacyDungeon = new Condition.HasInName("[LD -");
                 var isFieldBoss = new Condition.HasInName("- Field ");
                 var isMaterialNode = new Condition.HasInName("[Material Node]");
-                var isTunnel = new Condition.HasInName(new string[] { "Tunnel" });
+                var isTunnel = new Condition.HasInName(new string[] { "Tunnel" , "[Ruin - Strewn Precipice]"});
 
                 var isValidSmithingStoneForWeapon =
                     new Condition.AllOf(
@@ -2448,7 +2505,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Land Octopus Ovary",0, 200),
 
 
-                    new LotItem(good,"Thin Beast Bones",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]"),
+                    new LotItem(good,"Thin Beast Bones",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Wolf]"),
                     new LotItem(good,"Thin Beast Bones",0,150),
 
                     new LotItem(good,"Hefty Beast Bone",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]"),
@@ -2457,6 +2514,10 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Hefty Beast Bone",0,200),
 
                     new LotItem(good,"Budding Horn",0,250),
+
+                    new LotItem(good,"Great Dragonfly Head",0,150),
+
+                    new LotItem(good,"Smoldering Butterfly",0,200).addKW("Fire Monk").addKW("[Blackflame Monk]"),
 
                     new LotItem(good,"Old Fang",0,450).addKW("[Winged Misbegotten]"), //Leonine Misbegotten for some reason misnamed itemlot 
                     new LotItem(good,"Old Fang",0,200),
@@ -2469,15 +2530,17 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Trina's Lily",1), //maintain rarity
                     new LotItem(good,"Beast Liver",1),
                     new LotItem(good,"Turtle Neck Meat",1),
+                    new LotItem(good,"Great Dragonfly Head",1),
                      new LotItem(good,"Yellow Ember",2),
 
-                    new LotItem(good,"Stormhawk Feather",5),
+                    new LotItem(good,"Stormhawk Feather",5).addKW("[Warhawk]"),
                     new LotItem(good,"Flight Pinion",5).addKW("[Warhawk]"),
 
                     new LotItem(good,"Land Octopus Ovary",2),  //only 2 overies in body
                     new LotItem(good,"Budding Horn",1).addKW("Perfumer"),
                     new LotItem(good,"Budding Horn",4).addKW("Ancestral Follower"),
                     new LotItem(good,"Budding Horn",2),
+
 
                     new LotItem(good,"Old Fang",4).addKW("[Winged Misbegotten]"), //Leonine Misbegotten for some reason misnamed itemlot 
                     new LotItem(good,"Old Fang",3).addKW("Misbegotten]"),
@@ -2489,31 +2552,39 @@ namespace EldenRingCSVHelper
 
                 setLots = setLots.Concat(new LotItem[]
                 {
-                    new LotItem(good,"String",1,50).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
-                    new LotItem(good,"String",2,100).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
-                    new LotItem(good,"String",3,75).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
-                    new LotItem(good,"String",4,25).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",1,15).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",2,40).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",3,70).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",4,100).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
+                    new LotItem(good,"String",5,25).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
 
-                    new LotItem(good,"String",3,100).addKW("[Demi-Human Beastman]"),
-                    new LotItem(good,"String",4,200).addKW("[Demi-Human Beastman]"),
+                    new LotItem(good,"String",4,100).addKW("[Demi-Human Beastman]"),
                     new LotItem(good,"String",5,150).addKW("[Demi-Human Beastman]"),
-                    new LotItem(good,"String",6,50).addKW("[Demi-Human Beastman]"),
+                    new LotItem(good,"String",6,200).addKW("[Demi-Human Beastman]"),
+                    new LotItem(good,"String",7,50).addKW("[Demi-Human Beastman]"),
 
 
-                    new LotItem(good,"Thin Beast Bones",1,550).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
-                    new LotItem(good,"Thin Beast Bones",2,150).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
-                    new LotItem(good,"Thin Beast Bones",3,50).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+                    new LotItem(good,"Thin Beast Bones",1,350).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+                    new LotItem(good,"Thin Beast Bones",2,300).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+                    new LotItem(good,"Thin Beast Bones",3,100).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
+
+                    new LotItem(good,"Thin Beast Bones",2,10).addKW("%").addKW("[White Wolf]"),
+                    new LotItem(good,"Thin Beast Bones",3,30).addKW("%").addKW("[White Wolf]"),
+                    new LotItem(good,"Thin Beast Bones",4,35).addKW("%").addKW("[White Wolf]"),
+                    new LotItem(good,"Thin Beast Bones",5,25).addKW("%").addKW("[White Wolf]"),
 
                     new LotItem(good,"Thin Beast Bones",1,20).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",2,30).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",3,40).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",4,10).addKW("").addKW("%"),
 
+                    
 
-                    new LotItem(good,"Stormhawk Feather",1,30).addKW("[Warhawk]").addKW("%"),
-                    new LotItem(good,"Stormhawk Feather",2,40).addKW("[Warhawk]").addKW("%"),
-                    new LotItem(good,"Stormhawk Feather",3,20).addKW("[Warhawk]").addKW("%"),
-                    new LotItem(good,"Stormhawk Feather",4,10).addKW("[Warhawk]").addKW("%"),
+
+                    new LotItem(good,"Stormhawk Feather",1,10).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Stormhawk Feather",2,30).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Stormhawk Feather",3,50).addKW("[Warhawk]").addKW("%"),
+                    new LotItem(good,"Stormhawk Feather",4,20).addKW("[Warhawk]").addKW("%"),
 
                     new LotItem(good,"Flight Pinion",1,20).addKW("[Warhawk]").addKW("%"),
                     new LotItem(good,"Flight Pinion",2,30).addKW("[Warhawk]").addKW("%"),
@@ -2533,10 +2604,10 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Hefty Beast Bone",2,125).addKW("[Boar]"),
                     new LotItem(good,"Hefty Beast Bone",3,25).addKW("[Boar]"),
 
-                    new LotItem(good,"Hefty Beast Bone",2,20).addKW("%").addKW("[Runebear]"),
-                    new LotItem(good,"Hefty Beast Bone",3,40).addKW("%").addKW("[Runebear]"),
-                    new LotItem(good,"Hefty Beast Bone",4,30).addKW("%").addKW("[Runebear]"),
-                    new LotItem(good,"Hefty Beast Bone",5,10).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",2,10).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",3,30).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",4,40).addKW("%").addKW("[Runebear]"),
+                    new LotItem(good,"Hefty Beast Bone",5,20).addKW("%").addKW("[Runebear]"),
 
 
                     new LotItem(good,"Hefty Beast Bone",1,65).addKW("[Small Putrid Flesh]").addKW("%"),
@@ -2557,13 +2628,13 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Smoldering Butterfly",1,200).addKW("[Guilty]"),
                     new LotItem(good,"Smoldering Butterfly",2,50).addKW("[Guilty]"),
 
-                    new LotItem(good,"Smoldering Butterfly",2,45).addKW("[Fire Monk]"),
-                    new LotItem(good,"Smoldering Butterfly",3,60).addKW("[Fire Monk]"),
-                    new LotItem(good,"Smoldering Butterfly",4,45).addKW("[Fire Monk]"),
+                    //new LotItem(good,"Smoldering Butterfly",3,45).addKW("[Fire Monk]").addKW("%"),
+                    //new LotItem(good,"Smoldering Butterfly",4,60).addKW("[Fire Monk]").addKW("%"),
+                    new LotItem(good,"Smoldering Butterfly",5,100).addKW("[Fire Monk]").addKW("%"),
 
-                    new LotItem(good,"Smoldering Butterfly",4,45).addKW("[Blackflame Monk]"),
-                    new LotItem(good,"Smoldering Butterfly",5,60).addKW("[Blackflame Monk]"),
-                    new LotItem(good,"Smoldering Butterfly",6,45).addKW("[Blackflame Monk]"),
+                    //new LotItem(good,"Smoldering Butterfly",4,45).addKW("[Blackflame Monk]").addKW("%"),
+                    //new LotItem(good,"Smoldering Butterfly",5,60).addKW("[Blackflame Monk]").addKW("%"),
+                    new LotItem(good,"Smoldering Butterfly",6,100).addKW("[Blackflame Monk]").addKW("%"),
 
                 }).ToList();
 
@@ -2885,10 +2956,12 @@ namespace EldenRingCSVHelper
             var isArmorCond = new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemCategory02"), "3");
 
             var curLineHasOneItemCond = //naturally excludes any guarenteed drops (1000 chance_ that are narmally at lot 01.
+                                        
+                //new Condition.MultiFieldCondition(new Condition.FloatFieldCompare(Condition.GREATER_THAN, 0), LotItem.lotItem_getItemFlagIdFIs, false);
                 new Condition.AllOf(
                 new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId01"), "0"),
-                //new Condition.FloatFieldCompare(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), Condition.GREATER_THAN, 0),
-                new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId03"), "0"));
+                new Condition.FloatFieldCompare(ItemLotParam_enemy.GetFieldIndex("lotItemId02"), Condition.GREATER_THAN, 0),
+                new Condition.FieldIs(ItemLotParam_enemy.GetFieldIndex("lotItemId03"), "0")) ;
 
 
             foreach (Line curLine in ItemLotParam_enemy.lines)
@@ -2946,7 +3019,7 @@ namespace EldenRingCSVHelper
                             FlagId = AssignedArmorsFlagIdDict[_curLot2Id];
                         else
                             createUniqueFlagId = true;
-
+                        PercentMult = OneTimeWeaponAndArmorDrops_ArmorDropChanceMult;
                         if (OtherToAddId != -1)
                         {
                             OtherCategory = 3;
@@ -2954,7 +3027,6 @@ namespace EldenRingCSVHelper
                                 OtherFlagId = AssignedArmorsFlagIdDict[OtherToAddId];
                             else
                                 createUniqueFlagIdForOther = true;
-                            PercentMult = OneTimeWeaponAndArmorDrops_ArmorDropChanceMult;
                             OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult;
                             addToName = " & " + OtherToAddEquipLine.name;
                         }
@@ -3024,7 +3096,7 @@ namespace EldenRingCSVHelper
                             curLine.SetField("getItemFlagId02", currentGetItemFlagId);
                     }
                     if (OtherFlagId != -1)
-                        curLine.SetField("getItemFlagId02", OtherFlagId);
+                        curLine.SetField("getItemFlagId03", OtherFlagId);
                     else if (createUniqueFlagIdForOther)
                     {
                         int currentGetItemFlagId = IntFilter.GetRandomInt(curLine.id_int, IdFilters.OneTimeDrop_getItemFlagIDFilter, usedGetItemFlagId);
@@ -3429,7 +3501,7 @@ namespace EldenRingCSVHelper
 
                 runeKeywords = new string[]{
                     "100 ##13 Elite Runebear",
-                    "100 %0.5 +3 #13 {1.15 }0.85 sp1 & $2 Runebear",
+                    "100 %0.5 +3 #13 {1.15  sp1 & $2 Runebear",//}0.85
                     "60" + GiantCrab + "Giant Death Crab",
                     "10 %0.5 #1 }0.85 sp1 Death Crab",
                     "60" + GiantCrab + "Giant Black Crab",
@@ -3641,8 +3713,6 @@ namespace EldenRingCSVHelper
             var cumulateReset01 = ItemLotParam_enemy.GetFieldIndex("cumulateReset01");*/
 
             Dictionary<string, string> descriptionDict = new Dictionary<string, string>();
-            Dictionary<string, int> numberOfAppearencesDict = new Dictionary<string, int>();
-            Dictionary<string, List<string>> namesOfNpcsDict = new Dictionary<string, List<string>>();
 
             for (int k = 0; k < 2; k++)
             {
@@ -4078,39 +4148,12 @@ namespace EldenRingCSVHelper
                     description += percentNum * (LevelCasscade + 1) + "% chance to drop ";
                     string noun = "Stone";
 
-
-
-                    int amountStart = 1;
-                    int amountEnd = 1;
-                    if (amountMults.Count > 0) {
-                        amountStart = amountMults[0];
-                        amountEnd = amountMults[amountMults.Count - 1];
-                    }
-                    string amountText = "";
-
-                    if(amountStart == amountEnd)
-                    {
-                        if(amountStart != 1)
-                            amountText = amountEnd + "x";
-                    }
-                    else
-                    {
-                        amountText = "" + amountStart + "-" + amountEnd + "x ";
-                    }
-
-                    description += amountText;
-
                     if (isSmithing)
-                        description += "Smithing Stones";
+                        description += "Smithing Stones ";
                     if (isSmithing && isSomber)
-                        description += " & ";
+                        description += "& ";
                     if (isSomber)
-                        description += "Somber Smithing Stones";
-                    if(isSomber && isSmithing && !isRune)
-                    {
-                        description += "(" + 100 - bothPercentSplitForSomber + ":" + bothPercentSplitForSomber + " ration) ";
-                    }
-                    description += " ";
+                        description += "Somber Smithing Stones ";
                     if ((isSmithing || isSomber) && isRune)
                         description += "& ";
                     if (isRune) {
@@ -4128,11 +4171,11 @@ namespace EldenRingCSVHelper
                             qualifier = "can ";
                         if (levelAdj > 0)
                         {
-                            description += "\n   "+noun+" level adjustment : +" + levelAdj + " x" + levelMult; //" (" + qualifier + "can drop higher level " + noun + "s)";
+                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "can drop higher level " + noun + "s)";
                         }
                         else if (levelAdj < 0)
                         {
-                            description += "\n   "+noun+" level adjustment : "  + levelAdj + " x" + levelMult; //" (" + qualifier + "drops lower level " + noun + "s)";
+                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
                         }
                     }
                     if (isSomber) {
@@ -4141,10 +4184,10 @@ namespace EldenRingCSVHelper
                             qualifier = "can ";
                         if (somberLevelAdj+levelAdj > 0)
                         {
-                            description += "\n   level adjustment specifically for Somber Stones:+" + somberLevelAdj + levelAdj;// + " (" + qualifier + "drop higher level " + noun + "s)";
+                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drop higher level " + noun + "s)";
                         } else if (somberLevelAdj+levelAdj < 0)
                         {
-                            description += "\n   level adjustment specifically for Somber Stones:"  + somberLevelAdj + levelAdj;// + " (" + qualifier + "drops lower level " + noun + "s)";
+                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
                         }
                     }
 
@@ -4155,88 +4198,10 @@ namespace EldenRingCSVHelper
 
                     if (firstTimeDropSeverity != -1)
                     {
-                        if(ftdx1ExcessToEmpty == false)
-                            description += "\n   has a guarenteed drop on the first kill (varient based). ";
-                        else
-                            description += "\n   has a "+(int)(ftdx1ChanceMult*100+0.5f)+" percent chance to drop a treasure drop but only once (varient based). ";
-
-                        switch (firstTimeDropSeverity)
-                        {
-                            //case 1:
-                            //    description += "basic";
-                            //    break;
-                            case 2:
-                                //avoid x1
-                                if (amountStart < amountEnd)
-                                {
-                                    description += "will drop "+Math.Max(2,amountStart)+"";
-                                    if(amountEnd > Math.Max(2, amountStart))
-                                        description+= "-"+ amountEnd;
-                                    description += "x ";
-                                    break;
-                                }
-                                continue;
-
-                            case 3:
-                            case 4:
-                            case 5:
-                            case 6:
-                            case 8:
-                                //highest x amount
-                                if (amountStart < amountEnd)
-                                {
-                                    description += "will drop "+amountEnd +"x ";
-                                    
-                                }
-                                continue;
-                            case 9:
-                                if (amountEnd > 1)
-                                {
-                                    description += "will drop 1x ";
-                                }
-                                continue;
-                            case 4:
-                            case 6:
-                            case 7:
-                            case 8:
-                                //highest level
-                                if (LevelCasscade > 0)
-                                {
-                                    if (LevelCasscade > 0)
-                                        description += "only highest level "+noun+" ";
-                                }
-                                continue;
-                            
-                            case 5:
-                            case 8:
-                                //force first drop type
-                                if((isSomber || isRune) && isSmithing)
-                                {
-                                    description += "only regular smithing stones ";
-                                }else if (isSomber && isRune && !isSmithing)
-                                {
-                                    description += "only somber smithing stone ";
-                                }
-                                continue;
-                            case 7:
-                                //force somber smithing stone
-                                if (isSmithing || isRune)
-                                {
-                                    if(isSomber)
-                                        description += "only somber smithing stones ";
-                                    else
-                                        description += "somber smithing stones ";
-                                }
-                                continue;
-                            default:
-                                //description += "basic"
-                                break;
-                        }
+                        description += "\n   has a guarenteed drop on the first kill (varient based)";
                     }
 
                     descriptionDict.Add(keyword, description);
-                    numberOfAppearencesDict.Add(keyword, 0);
-                    namesOfNpcsDict.Add(keyword, new List<string>());
 
                     isSmithingDict.Add(keyword, isSmithing);
                     isSomberDict.Add(keyword, isSomber);
@@ -4374,8 +4339,6 @@ namespace EldenRingCSVHelper
             Dictionary<Line, string> idToVariantsDict = new Dictionary<Line, string>();
             Dictionary<Line, float> idToLevelDict = new Dictionary<Line, float>();
 
-            
-
             foreach (int npcID in npcIDs)
             {
                 testId = -1;
@@ -4474,35 +4437,25 @@ namespace EldenRingCSVHelper
                     continue;
                 }
 
-
-
                 //if(keywordOverrideIDsDict.ContainsKey(npcID))
                 // if(somberLevelAdjDict[keyword] != 0)\
                 //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
                 //SET TEST
-                //if (npcID == 44701021)
+                if (npcID == 21000052)
                 //if( 
                 //    npcLine.name.Contains("Draconic Tree"))
                 //&& (keywordOverrideIDsDict.ContainsKey(npcID))
                 //  npcLine.name.Contains("Godrick Soldier") )
                 //if     (npcLine.name.Contains("igger"))
 
-                //testId = npcID;
+                testId = npcID;
 
                 bool test = testId == npcID;
 
 
                 bool isBoss = BossOrMiniBossIds.Contains(npcLine.id_int);
 
-                const bool PRINT_DESCRIPTION = true;
 
-                numberOfAppearencesDict[keyword]++;
-                if(PRINT_DESCRIPTION && !isBoss )
-                {
-                    var n = namesOfNpcsDict[keyword].Contains(npcLine.name);
-                    if(!n)
-                        namesOfNpcsDict[keyword].Add(npcLine.name);
-                }
 
 
                 if (test)
@@ -4905,6 +4858,8 @@ namespace EldenRingCSVHelper
                             else
                                 variantID = ("ok" + keywordIndex.ToString() + "lotID" + itemLotID.ToString());
                         }
+                        if (isBoss || isForceBossDisplay)
+                            npcLine.SetField("dropType", 1);
                         if (isBoss)
                             variantID += "boss";
                         else if (isFirstTimeDrop)
@@ -4914,8 +4869,7 @@ namespace EldenRingCSVHelper
                             specialDropUniqueIndex++;
                             UniqueVariant = true;
                         }
-                        if (isBoss || isForceBossDisplay)
-                            npcLine.SetField("dropType", 1);
+                        
 
                         //variantString = "(VariantID: " + variantID + ")";
                     }
@@ -5287,6 +5241,8 @@ namespace EldenRingCSVHelper
                         int currentLineToCopyID = itemLotID;
                         int currentNewLineCopyID = newItemLotID;
                         //copy lines from itemLotLine to the new itemLotID location
+                        if (newItemLotID == 463000500)
+                            Util.p();
 
                         var curLineIndex = -1;
                         while (true)
@@ -5341,8 +5297,7 @@ namespace EldenRingCSVHelper
                         //    Util.println("newItemLotID: "+newItemLotID+"   "+npcLine.id+":"+npcLine.name+"   " +newItemLotID);
 
                         itemLotID = newItemLotID;
-
-                        npcLine.SetField("itemLotId_enemy", itemLotID);
+                        var debugfjddkd = npcID;
                         HighestIdPossible = ItemLotParam_enemy.GetNextLine(targetSmithingStoneLineID, false, curLineIndex).id_int - 2;
                         itemLotLine = ItemLotParam_enemy.GetLineWithId(itemLotID);
 
@@ -5375,6 +5330,7 @@ namespace EldenRingCSVHelper
                             continue;
                     }
 
+                    npcLine.SetField("itemLotId_enemy", itemLotID);
                     //create smithing stone line.
 
                     if (test)
@@ -6546,22 +6502,6 @@ namespace EldenRingCSVHelper
 
                 
             }
-
-            foreach(string keyword in namesOfNpcsDict.Keys)
-            {
-                string common = "";
-                string simplifiedKeyword = simplifiedKeywordNameDict[keyword];
-                var l = namesOfNpcsDict[keyword];
-                foreach (string s in l)
-                {
-                    if (common == "")
-                    {
-                        if (s.Length > simplifiedKeyword.Length)
-                            common = s;
-                        continue;
-                    }
-                }
-            }
             
             //Util.PrintStrings(Util.ToStrings(freedFlagIds.ToArray()));
         }
@@ -6812,7 +6752,7 @@ namespace EldenRingCSVHelper
             var isLegacyDungeon = new Condition.HasInName("[LD -");
             var isFieldBoss = new Condition.HasInName("- Field ");
             var isMaterialNode = new Condition.HasInName("[Material Node]");
-            var isTunnel = new Condition.HasInName(new string[] { "Tunnel"});
+            var isTunnel = new Condition.HasInName(new string[] { "Tunnel", "[Ruin-Strewn Precipice]" });
 
             //var isInDungeon = new Condition.NameStartsWith("["); //is in dungen or material node or dropped by bosses.
 
