@@ -63,9 +63,9 @@ namespace EldenRingCSVHelper
         {
             return hasKeyword(keywords, keyword, minScale, maxScale);
         }
-        public int hasKeywordContaining(string keywordContains, int minScale = -int.MaxValue, int maxScale = int.MaxValue)
+        public bool hasKeywordContaining(string keywordContains, int minScale = -int.MaxValue, int maxScale = int.MaxValue)
         {
-            return hasKeywordContaining(keywords, keywordContains, minScale, maxScale);
+            return getIndexKeywordContaining(keywords, keywordContains, minScale, maxScale)!=-1;
         }
         public static bool hasKeyword(List<Keyword> keywords, Keyword keyword, int minScale = -int.MaxValue, int maxScale = int.MaxValue)
         {
@@ -95,7 +95,7 @@ namespace EldenRingCSVHelper
             }
             return false;
         }
-        public static int hasKeywordContaining(List<Keyword> keywords, string keywordContains, int minScale = -int.MaxValue, int maxScale = int.MaxValue)
+        public static int getIndexKeywordContaining(List<Keyword> keywords, string keywordContains, int minScale = -int.MaxValue, int maxScale = int.MaxValue)
         {
             int i = 0;
             foreach (Keyword kw in keywords)
@@ -1598,7 +1598,7 @@ namespace EldenRingCSVHelper
                             //if (npcID == 49100038)
                             //    Util.p();
                             string[] exclusions = new string[] { " of ", " the " };
-                            var orderedLines = LineFunctions.GetOrderedWordMatchedLinesDict(targetWords, BossItemLotMapLines, out int maxMatchCount, out int curScore, 0, importantWords, false, exclusions, "[", "]", " - ");
+                            var orderedLines = LineFunctions.GetOrderedWordMatchedLinesDict(targetWords, BossItemLotMapLines, out int maxMatchCount, out int curScore, 0, importantWords, false, false, exclusions,  "[", "]", " - ");
 
                             Util.p(LineFunctions.Debug_LastBestlWordsTogether);
                             Util.p(LineFunctions.Debug_LastBesttargetWordsTogether);

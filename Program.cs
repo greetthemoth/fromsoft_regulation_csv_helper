@@ -15,11 +15,6 @@ namespace EldenRingCSVHelper
             RunSettings.Write_OnlyModifiedLines = true;
             RunSettings.RunIfNull = true;
 
-
-
-
-
-
             //RunSettings.RunIfNull = false;  //dont re create files
 
 
@@ -78,6 +73,7 @@ namespace EldenRingCSVHelper
                     RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
                     individual_RuneDropsDirectory = RunSettings.Write_directory;
                     ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
+                    ParamFile.RevertAll(true);
                 }*/
                 ///TESTO END^^^^
 
@@ -282,6 +278,7 @@ namespace EldenRingCSVHelper
                     RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
                     individual_RuneDropsDirectory = RunSettings.Write_directory;
                     ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse)), LotItem.newBaseItemLotLine(ItemLotParam_enemy));
+                    ParamFile.RevertAll(true);
                 }
                 //already done
                 {
@@ -2323,7 +2320,7 @@ namespace EldenRingCSVHelper
 
                 //Buff all arrow and bolt drops
                 {
-                    var Cond = new Condition.NameEndsWith("Arrow").OR(Condition.NameEndsWith("Bolt"));//new Condition.FloatFieldBetween(1, 50000000, 60000000);
+                    var Cond = new Condition.NameEndsWith("Arrow").OR(new Condition.NameEndsWith("Bolt"));//new Condition.FloatFieldBetween(1, 50000000, 60000000);
                     var Ids = ((Lines)EquipParamWeapon.GetLinesOnCondition(Cond)).GetIDs();
                     foreach (int id in Ids)
                     {
@@ -2332,13 +2329,13 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(LotItem.Category.Weapon, id, 200).addKW("%").addKW("!Param:ItemLotParam_enemy!"));
                         setLots.Add(new LotItem(LotItem.Category.Weapon, id, 0).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!"));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff all throwing daggers type consumables drops
                 {
-                    var Cond = new Condition.NameIs("Throwing Dagger").OR(Condition.NameIs("Fan Dagger")).OR(Condition.NameEndsWith("Dart"));
+                    var Cond = new Condition.NameIs("Throwing Dagger").OR(new Condition.NameIs("Fan Dagger")).OR(new Condition.NameEndsWith("Dart"));
                     var Ids = ((Lines)EquipParamWeapon.GetLinesOnCondition(Cond)).GetIDs();
                     foreach (int id in Ids)
                     {
@@ -2347,8 +2344,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(LotItem.Category.Weapon, id, 300).addKW("%").addKW("!Param:ItemLotParam_enemy!"));
                         setLots.Add(new LotItem(LotItem.Category.Weapon, id, 5).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!"));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff all kukris
@@ -2362,8 +2359,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(LotItem.Category.Weapon, id, 250).addKW("%").addKW("!Param:ItemLotParam_enemy!"));
                         setLots.Add(new LotItem(LotItem.Category.Weapon, id, 0).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!"));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff all gravity stone type items
@@ -2377,13 +2374,13 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(LotItem.Category.Weapon, id, 250).addKW("%").addKW("!Param:ItemLotParam_enemy!"));
                         setLots.Add(new LotItem(LotItem.Category.Weapon, id, 0).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!"));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff drawstring grease
                 {
-                    var Cond = new Condition.NameStartsWith("Drawstring").AND(Condition.FieldEndsWith("Grease"));
+                    var Cond = new Condition.NameStartsWith("Drawstring").AND(new Condition.NameEndsWith("Grease"));
                     //var Cond = new Condition.NameStartsWith("Drawstring").IsFalse.AND(Condition.FieldEndsWith("Grease")); normal grease
                     var Ids = ((Lines)EquipParamWeapon.GetLinesOnCondition(Cond)).GetIDs();
                     foreach (int id in Ids)
@@ -2392,8 +2389,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(LotItem.Category.Weapon, id, 250).addKW("%").addKW("!Param:ItemLotParam_map!"));
                         setLots.Add(new LotItem(LotItem.Category.Weapon, id, 2).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!"));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesWithCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //root resin - skeletons - erdtree guardan
@@ -2741,7 +2738,7 @@ namespace EldenRingCSVHelper
                     float chanceMult = (float)chanceAdjPercent / 100;
                     foreach (LotItem li in materials_chance_percentMultipler)
                     {
-                        if (li.hasKeywordContaining("!Param:") && !li.hasKeyword("!Param:" + curLine.file.paramName.Remove(".csv") + "!"))
+                        if (li.hasKeywordContaining("!Param:") && !li.hasKeyword("!Param:" + curLine.file.paramName.Replace(".csv","") + "!"))
                             continue;
                         if (!li.LineHasLotItem(curLine, false))
                             continue;
@@ -2775,7 +2772,7 @@ namespace EldenRingCSVHelper
                     bool maxAmountPercentMultiplier = false;
                     foreach (LotItem li in materials_to_set_max)
                     {
-                        if (li.hasKeywordContaining("!Param:") && !li.hasKeyword("!Param:" + curLine.file.paramName.Remove(".csv") + "!"))
+                        if (li.hasKeywordContaining("!Param:") && !li.hasKeyword("!Param:" + curLine.file.paramName.Replace(".csv","") + "!"))
                             continue;
                         if (!li.LineHasLotItem(curLine, false))
                             continue;
@@ -2793,7 +2790,7 @@ namespace EldenRingCSVHelper
                                     continue;
                                 if (curLine.name.Contains(k.keyword))
                                 {
-                                    if (li.keywords.Contains("%"))
+                                    if (li.hasKeyword("%"))
                                         //maxAmountPercentMultiplier = li.keywords[li.keywords.GetIndexOf("%")].value;
                                         maxAmountPercentMultiplier = true;
                                     maxAmount = li.amount;
@@ -2814,7 +2811,7 @@ namespace EldenRingCSVHelper
                         for (int i = 0; i < setLots.Count; i++)
                         {
                             LotItem li = setLots[i];
-                            if(li.hasKeywordContaining("!Param:") && !li.hasKeyword("!Param:" + curLine.file.paramName.Remove(".csv") + "!"))
+                            if (li.hasKeywordContaining("!Param:") && !li.hasKeyword("!Param:" + curLine.file.paramName.Replace(".csv", "") + "!"))
                                 continue;
                             if (test)
                                 Util.p();
@@ -2850,7 +2847,7 @@ namespace EldenRingCSVHelper
                                             maxAmount = li.amount;
                                         state = foundLotsSpecificState;
                                         var liCopy = li.Copy();
-                                        if (li.keywords.Contains("!Unspecified Amount!"))
+                                        if (li.hasKeyword("!Unspecified Amount!"))
                                             liCopy.addKW("!Specified Amount!");
                                         lotItemsSelected.Add(liCopy);
                                         break;
@@ -4621,7 +4618,7 @@ namespace EldenRingCSVHelper
                             }
 
                             int maxMatchCount = 0;
-                            var orderedNestedLines = LineFunctions.GetOrderedWordMatchedNestedLines(targetWords, documentedLines, out maxMatchCount, out int maxScore, importantWords.Length, importantWords, true);
+                            var orderedNestedLines = LineFunctions.GetOrderedWordMatchedNestedLines(targetWords, documentedLines, out maxMatchCount, out int maxScore, importantWords.Length, importantWords, true, true);
 
 
 
@@ -5255,10 +5252,14 @@ namespace EldenRingCSVHelper
                         // proper item lot not found.  so instead we will create one.
 
 
+                        string matchDebug = "";
+                        const bool DEBUG_MATCH_NAME = false;
                         //find an ID to use as the start to search for a location to create it.
+                        int searchInterval = 100;
                         int startingSearchForLocationItemLotID = -1;
                         if (itemLotLine == null)
                         {
+                            searchInterval = 10000;
                             if (mostMatchedLine != null)
                             {
                                 startingSearchForLocationItemLotID = mostMatchedLine.id_int;
@@ -5279,7 +5280,35 @@ namespace EldenRingCSVHelper
                                 }
 
                                 int maxMatchCount = 0;
-                                var mostMatchedLines = LineFunctions.GetOrderedWordMatchedNestedLines(targetWords, ItemLotParam_enemy.lines, out maxMatchCount, out int maxScore, 1, importantWords, false, null, "[", "]");
+                                var mostMatchedLines = LineFunctions.GetOrderedWordMatchedNestedLines(targetWords, ItemLotParam_enemy.lines, out maxMatchCount, out int maxScore, 1, importantWords, false,true, null, "[", "]");
+
+                                if (DEBUG_MATCH_NAME)
+                                {
+                                    matchDebug = target + "     ";
+                                    foreach (string tw in importantWords)
+                                    {
+                                        matchDebug += "tw:" + tw + " ";
+                                    }
+                                    foreach (string iw in importantWords)
+                                    {
+                                        matchDebug += "iw:" + iw + " ";
+                                    }
+                                    matchDebug += "     ";
+                                }
+                                foreach (List<Line> lines in mostMatchedLines)
+                                {
+                                    List<string> cont = new List<string>();
+                                    foreach(Line l in lines)
+                                    {
+                                        var sub = l.name.Substring(l.name.IndexOf("[")+1, l.name.IndexOf("]"));
+                                        if (!cont.Contains(sub))
+                                        {
+                                            cont.Add(sub);
+                                            matchDebug += sub + ", ";
+                                        }
+                                    }
+                                }
+                                
 
                                 if (mostMatchedLines.Count > 0 && mostMatchedLines[0].Count > 0)
                                     mostMatchedLine = mostMatchedLines[0][0];
@@ -5295,7 +5324,35 @@ namespace EldenRingCSVHelper
                                     //targetWords = target.Split(LineFunctions.wordSplitters, StringSplitOptions.RemoveEmptyEntries);
 
                                     maxMatchCount = 0;
-                                    List<Line> orderedLines = LineFunctions.GetOrderedWordMatchedLines(targetWords, NpcParam.lines, out maxMatchCount, out maxScore, 1, importantWords, true);
+                                    List<Line> orderedLines = LineFunctions.GetOrderedWordMatchedLines(targetWords, NpcParam.lines, out maxMatchCount, out maxScore, 1, importantWords, true,true);
+
+                                    if (DEBUG_MATCH_NAME)
+                                    {
+                                        matchDebug = target + "     ";
+                                        foreach (string tw in importantWords)
+                                        {
+                                            matchDebug += "tw:" + tw + " ";
+                                        }
+                                        foreach (string iw in importantWords)
+                                        {
+                                            matchDebug += "iw:" + iw + " ";
+                                        }
+                                        matchDebug += "     ";
+                                    }
+                                    foreach (List<Line> lines in mostMatchedLines)
+                                    {
+                                        List<string> cont = new List<string>();
+                                        foreach (Line l in lines)
+                                        {
+                                            var sub = l.name.Substring(l.name.IndexOf("[") + 1, l.name.IndexOf("]"));
+                                            if (!cont.Contains(sub))
+                                            {
+                                                cont.Add(sub);
+                                                matchDebug += sub + ", ";
+                                            }
+                                        }
+                                    }
+
                                     foreach (Line l in orderedLines)
                                     {
                                         int foundID = int.Parse(l.GetField("itemLotId_enemy"));
@@ -5322,6 +5379,7 @@ namespace EldenRingCSVHelper
 
                         //now we search down for a free ID spot to create it.
                         //looks for free 100s place
+
                         int newItemLotID = startingSearchForLocationItemLotID;
                         {
                             int newNextLineID = -1;
@@ -5330,10 +5388,10 @@ namespace EldenRingCSVHelper
                             int nextLineIndex = 0;
                             int newLineIndex = 0;
                             //find new line ID
-                            while (itemLotMainLinesIDs.Contains(newItemLotID) || ItemLotParam_enemy.GetLineWithId(newItemLotID, out newLineIndex, newLineIndex) != null || newNextLineID < newItemLotID + 100)
+                            while (itemLotMainLinesIDs.Contains(newItemLotID) || ItemLotParam_enemy.GetLineWithId(newItemLotID, out newLineIndex, newLineIndex) != null || newNextLineID < newItemLotID + searchInterval)
                             {
                                 newItemLotID = ItemLotParam_enemy.GetNextFreeId(newItemLotID, out newLineIndex);
-                                newItemLotID += 100 - (newItemLotID % 100);
+                                newItemLotID += searchInterval - (newItemLotID % searchInterval);
                                 newNextLineID = ItemLotParam_enemy.GetNextLine(newItemLotID, out nextLineIndex, nextLineIndex).id_int;
                                 /*Console.WriteLine(npcLine._idName +
                                     Util.IndentedText("start:" + startingSearchForLocationItemLotID, 25) +
@@ -5347,7 +5405,8 @@ namespace EldenRingCSVHelper
                         int currentLineToCopyID = itemLotID;
                         int currentNewLineCopyID = newItemLotID;
                         //copy lines from itemLotLine to the new itemLotID location
-                        if (newItemLotID == 463000500)
+
+                        if (newItemLotID == 227000800 && matchDebug != "")
                             Util.p();
 
                         var curLineIndex = -1;
@@ -5355,12 +5414,14 @@ namespace EldenRingCSVHelper
                         {
 
                             Line curLine = ItemLotParam_enemy.GetLineWithId(currentLineToCopyID, out curLineIndex, curLineIndex);
-
+                            var debugLineName = "";
                             if (curLine == null)
                             {
                                 targetSmithingStoneLineID = currentNewLineCopyID;
                                 break;
                             }
+                            else
+                                debugLineName = curLine._idName;
                             if (
                                 //curLineEmptyAndNoDropCondition.Pass(curLine) ||
                                 ((dropSmithing || dropSomber) && isSmithingLineCondition.Pass(curLine)) ||

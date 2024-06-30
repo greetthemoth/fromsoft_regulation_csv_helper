@@ -1552,8 +1552,8 @@ namespace EldenRingCSVHelper
         {
             if (setTo == _data[fieldIndex])
                 return this;
-            if (fieldIndex == 0 && setTo == "463000500")
-                Util.p();
+            //if (fieldIndex == 0 && setTo == "227000800")
+            //    Util.p();
             if (fieldIndex == 0)
             {
                 _extraLineCheckQued = true;

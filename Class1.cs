@@ -334,6 +334,8 @@ namespace EldenRingCSVHelper
             public override bool Pass(Line line)
             {
                 string s = line.GetData()[1];
+                if (s.Length < endsWith.Length)
+                    return false;
                 string sEnding = s.Remove(0, s.Length - endsWith.Length);
                 return (sEnding == endsWith);
             }

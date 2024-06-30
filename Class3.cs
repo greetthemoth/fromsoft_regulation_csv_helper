@@ -555,36 +555,59 @@ namespace EldenRingCSVHelper
         public static string Debug_LastintersectTogether;
 
 
-        public static int WordMatchScore(string s, string[] targetWords, out int matchCount, int minMatchCount = 0, string[] importantWords = null, bool deprioritizeExtraWords = false)
+        public static int WordMatchScore(string s, string[] targetWords, out int matchCount, int minMatchCount = 0, string[] importantWords = null, bool deprioritizeExtraWords = false, bool prioritizeWordLength = false)
         {
+            //if ( targetWords.Length == 2 && targetWords[1] == "Fingercreeper" && s.Contains("Fingercreeper"))
+            //    Util.p();
             string[] lWords = s.Split(LineFunctions.wordSplitters, StringSplitOptions.RemoveEmptyEntries);
 
-            
-            
-
             int score = 0;
+            int wordLengthScoreBonus = 0;
+
+            
             var intersect = lWords.Intersect(targetWords, StringComparer.OrdinalIgnoreCase);
             matchCount = intersect.Count();
 
+            if (prioritizeWordLength)
+            {
+                foreach (string word in intersect)
+                {
+                    wordLengthScoreBonus += word.Length;
+                }
+            }
+
             //debug
-             Debug_LastlWordsTogether = String.Join(" ", lWords);
+            Debug_LastlWordsTogether = String.Join(" ", lWords);
              Debug_LasttargetWordsTogether = String.Join(" ", targetWords);
              Debug_LastintersectTogether = String.Join(" ", intersect);
             //
 
-            int importantMatchCount = matchCount;
-            if (importantWords != null)
-                importantMatchCount = lWords.Intersect(importantWords, StringComparer.OrdinalIgnoreCase).Count();
+            
 
+            int importantMatchCount = matchCount;
+            if (importantWords != null) {
+                var commonIWs = lWords.Intersect(importantWords, StringComparer.OrdinalIgnoreCase);
+                importantMatchCount = commonIWs.Count();
+                if (prioritizeWordLength)
+                {
+                    foreach (string word in commonIWs)
+                    {
+                        wordLengthScoreBonus += word.Length * 4;
+                    }
+                }
+            }
+            
 
             int nonImportantMatchCount = matchCount - importantMatchCount;
 
-            score = (importantMatchCount * 10) + nonImportantMatchCount;
+            
+
+            score = (importantMatchCount * 1000) + (nonImportantMatchCount*100) + wordLengthScoreBonus;
 
             if (deprioritizeExtraWords && lWords.Length > targetWords.Length)
             {
                 int extraWords = lWords.Length - targetWords.Length;
-                score -= extraWords;
+                score -= extraWords * 100;
             }
             if (matchCount < minMatchCount)
                 score = -1;
@@ -748,7 +771,7 @@ namespace EldenRingCSVHelper
         public static string Debug_LastBestlWordsTogether2;
         public static string Debug_LastBesttargetWordsTogether2;
         public static string Debug_LastBestintersectTogether2;
-        public static Dictionary<int, List<Line>> GetOrderedWordMatchedLinesDict(string[] targetWords, List<Line> lines, out int maxMatchCount, out int maxScore, int minMatchCount = 0, string[] importantWords = null, bool deprioritizeExtraWords = false, string[] exclusionTerms = null, string lineNameStart = "", string lineNameCutOff = "", string lineNameImportantPartStart = "", string lineNameImportantPartEnd = "")
+        public static Dictionary<int, List<Line>> GetOrderedWordMatchedLinesDict(string[] targetWords, List<Line> lines, out int maxMatchCount, out int maxScore, int minMatchCount = 0, string[] importantWords = null, bool deprioritizeExtraWords = false, bool prioritizeWordLength = false, string[] exclusionTerms = null, string lineNameStart = "", string lineNameCutOff = "", string lineNameImportantPartStart = "", string lineNameImportantPartEnd = "")
         {
             string Debug_LastBestlWordsTogether2Temp = "";
             string Debug_LastBesttargetWordsTogether2Temp = "";
@@ -766,7 +789,7 @@ namespace EldenRingCSVHelper
                     int targetStart = target.IndexOf(lineNameStart);
                     if (targetStart == -1)
                         continue;
-                    target = target.Remove(0,targetStart);
+                    target = target.Remove(0,targetStart+1);
                 }
                 if (lineNameCutOff != "")
                 {
@@ -791,7 +814,7 @@ namespace EldenRingCSVHelper
                         int targetStart = target.IndexOf(lineNameImportantPartStart);
                         if (targetStart == -1)
                             targetStart = 0;
-                        importantPart = importantPart.Remove(0, targetStart);
+                        importantPart = importantPart.Remove(0, targetStart+1);
                     }
                     if (lineNameImportantPartEnd != "")
                     {
@@ -799,16 +822,16 @@ namespace EldenRingCSVHelper
                         if (targetEnd != -1)
                             importantPart = importantPart.Remove(targetEnd);
                     }
-                    score = Util.WordMatchScore(target.Replace(importantPart, " "), targetWords, out matchCount, minMatchCount, null, deprioritizeExtraWords);
+                    score = Util.WordMatchScore(target.Replace(importantPart, " "), targetWords, out matchCount, minMatchCount, null, deprioritizeExtraWords, prioritizeWordLength);
                     Debug_LastBestintersectTogether2Temp = Util.Debug_LastintersectTogether;
                     Debug_LastBestlWordsTogether2Temp = Util.Debug_LastlWordsTogether;
                     Debug_LastBesttargetWordsTogether2Temp = Util.Debug_LasttargetWordsTogether;
-                    score += Util.WordMatchScore(importantPart, importantWords, out int matchCount2, minMatchCount, importantWords, deprioritizeExtraWords);
+                    score += Util.WordMatchScore(importantPart, importantWords, out int matchCount2, minMatchCount, importantWords, deprioritizeExtraWords, prioritizeWordLength);
                     matchCount += matchCount2;
                 }
                 else
                 {
-                    score = Util.WordMatchScore(target, targetWords, out matchCount, minMatchCount, importantWords, deprioritizeExtraWords);
+                    score = Util.WordMatchScore(target, targetWords, out matchCount, minMatchCount, importantWords, deprioritizeExtraWords, prioritizeWordLength);
                 }
 
                 /*if (target.Contains("Night"))
@@ -844,9 +867,9 @@ namespace EldenRingCSVHelper
             
             return orderedLinesDict;
         }
-        public static List<Line> GetOrderedWordMatchedLines(string[] targetWords, List<Line> lines, out int maxMatchCount, out int maxScore, int minMatchCount = 0, string[]importantWords = null, bool deprioritizeExtraWords = false, string[] exclusionTerms = null, string lineNameStart = "", string lineNameCutOff = "")
+        public static List<Line> GetOrderedWordMatchedLines(string[] targetWords, List<Line> lines, out int maxMatchCount, out int maxScore, int minMatchCount = 0, string[]importantWords = null, bool deprioritizeExtraWords = false, bool prioritizeWordLength = false, string[] exclusionTerms = null, string lineNameStart = "", string lineNameCutOff = "")
         {
-            var orderedLinesDict = GetOrderedWordMatchedLinesDict(targetWords, lines, out maxMatchCount, out maxScore, minMatchCount, importantWords, deprioritizeExtraWords, exclusionTerms, lineNameStart, lineNameCutOff);
+            var orderedLinesDict = GetOrderedWordMatchedLinesDict(targetWords, lines, out maxMatchCount, out maxScore, minMatchCount, importantWords, deprioritizeExtraWords, prioritizeWordLength, exclusionTerms, lineNameStart, lineNameCutOff);
 
             List<Line> orderedLineList = new List<Line>();
 
@@ -864,9 +887,9 @@ namespace EldenRingCSVHelper
             return orderedLineList;
         }
 
-        public static List<List<Line>> GetOrderedWordMatchedNestedLines(string[] targetWords, List<Line> lines, out int maxMatchCount, out int maxScore, int minMatchCount = 0, string[] importantWords = null, bool deprioritizeExtraWords = false, string[] exclusionTerms = null, string lineNameStart = "", string lineNameCutOff = "")
+        public static List<List<Line>> GetOrderedWordMatchedNestedLines(string[] targetWords, List<Line> lines, out int maxMatchCount, out int maxScore, int minMatchCount = 0, string[] importantWords = null, bool deprioritizeExtraWords = false, bool prioritizeWordLength = true, string[] exclusionTerms = null, string lineNameStart = "", string lineNameCutOff = "")
         {
-            var orderedLinesDict = GetOrderedWordMatchedLinesDict(targetWords, lines, out maxMatchCount, out maxScore, minMatchCount, importantWords, deprioritizeExtraWords,exclusionTerms, lineNameStart, lineNameCutOff);
+            var orderedLinesDict = GetOrderedWordMatchedLinesDict(targetWords, lines, out maxMatchCount, out maxScore, minMatchCount, importantWords, deprioritizeExtraWords, prioritizeWordLength, exclusionTerms, lineNameStart, lineNameCutOff);
 
             List<List<Line>> orderedLineNestedList = new List<List<Line>>();
 
