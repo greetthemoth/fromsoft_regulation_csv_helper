@@ -197,6 +197,9 @@ namespace EldenRingCSVHelper
                             if (!line.added && line.modified)
                             {
                                 line.RevertFieldsToVanilla(true);
+                            }else if (line.added)
+                            {
+                                Util.println(line._idName);//testo
                             }
                         }
                     }
@@ -2404,7 +2407,7 @@ namespace EldenRingCSVHelper
                             //.GetNextFreeIds();
                             .GetIDs()
                             ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 80,true), ids);
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 70,true), ids);
                 }
                 //Golden rowa - lleyndel foot soldier, celebrant
                 {
