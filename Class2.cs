@@ -401,12 +401,14 @@ namespace EldenRingCSVHelper
                             continue;
                         Line curLine = line;
                         if (conditionToTurnToRelaceWithBaseLine != null && conditionToTurnToRelaceWithBaseLine.Pass(line))
+                        {
                             curLine = baseLine.Copy().SetField(0, curLine.id);
+                        }
                         if (!RunSettings.Write_OnlyModifiedLines || curLine.modified)
                         {
                             if(i < 0)
                             {
-                                if(i == -1 && curLine.added)
+                                if(i == -1 && (line.added)) //use line not cur line becuase base ;ine is not considered added
                                     writer.WriteLine(curLine.ToWrite());
 
                                 if (i == -2)
@@ -511,6 +513,8 @@ namespace EldenRingCSVHelper
                         //newLine.MarkModified(false);
                         //newLines.Add(newLine);
 
+                        //if (newLine.id_int == 463000405 )
+                        //    Util.println(newLine._idName);
                         if (lastId > newLine.id_int)
                             Util.p();
 

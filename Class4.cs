@@ -12,18 +12,14 @@ namespace EldenRingCSVHelper
         public string keyword;
         public float value;
         public bool copyable;
+        public bool permanent;
 
-        public Keyword(string keyword, float scale = 100)
-        {
-            this.keyword = keyword;
-            this.value = scale;
-            this.copyable = false;
-        }
-        public Keyword(string keyword, float scale, bool copyKWforCopys)
+        public Keyword(string keyword, float scale = 100, bool copyKWforCopys = false, bool dontClear = false)
         {
             this.keyword = keyword;
             this.value = scale;
             this.copyable = copyKWforCopys;
+            this.permanent = dontClear;
         }
         public static bool IfModifiedSet_ON = false;
         public static Keyword IfModifiedSet;
@@ -41,10 +37,32 @@ namespace EldenRingCSVHelper
     public class Themescaped : IThemescaped
     {
         public List<Keyword> keywords = new List<Keyword>();
-
+        public Keyword GetKeyword(int index)
+        {
+            return keywords[index];
+        }
+        public Keyword GetKeywordContaining(string keywordContains)
+        {
+            return keywords[getIndexKeywordContaining(keywords, keywordContains)];
+        }
+        public void SetKeywords(List<Keyword> newKeywords)
+        {
+            keywords = newKeywords;
+        }
         public void ClearKeywords()
         {
-            keywords.Clear();
+            for (int i = 0; i < keywords.Count; i++)
+            {
+                if (!keywords[i].permanent)
+                {
+                    keywords.RemoveAt(i);
+                    i--;
+                }
+                else
+                {
+                    Util.p(keywords[i].keyword);
+                }
+            }
         }
         public Themescaped addKeyword(string keyword, float scale = 100)
         {
@@ -155,7 +173,7 @@ namespace EldenRingCSVHelper
             var ret = new LotItem(category, id, amount, chance, affectByLuck);
             ret.hasLotItem_getItemFlagIdFIs = hasLotItem_getItemFlagIdFIs;
             ret.lotItem_getItemFlagId = lotItem_getItemFlagId;
-            ret.keywords = new List<Keyword>().Concat(keywords).ToList();
+            ret.SetKeywords(new List<Keyword>().Concat(keywords).ToList());
             return ret;
         }
         public static Line newBaseItemLotLine(ParamFile param, int id = 0)
@@ -222,7 +240,16 @@ namespace EldenRingCSVHelper
         {
             return new LotItem(line, lotIndex, true);
         }
-
+        public static int GetChanceTotal(Line line)
+        {
+            int total = 0;
+            for (int i = 0; i < chanceFIs.Length; i++)
+            {
+                var li = Get(line, i + 1);
+                total += li.chance;
+            }
+            return total;
+        }
         public static int GetItemChanceTotal(Line line)
         {
             int total = 0;
@@ -234,6 +261,24 @@ namespace EldenRingCSVHelper
                 total += li.chance;
             }
             return total;
+        }
+        public static void RegulateLine(Line line)
+        {
+            if (line.id_int == 308000155)
+                Util.p();
+            int total = GetChanceTotal(line);
+            if (total == 0)
+                return;
+            float mult = 1000f / total;
+            for (int lotIndex = 1; lotIndex <= MAX_LOT_INDEX; lotIndex++)
+            {
+                int fi = chanceFIs[lotIndex - 1];
+                int chance = line.GetFieldAsInt(fi);
+                int newChance = (int)((chance * mult) + 0.5);
+                if (chance == 0)
+                    continue;
+                line.SetField(fi, newChance);
+            }
         }
         public static int GetFirstNonEmptyItemLotIndex(Line line)
         {
@@ -1559,7 +1604,7 @@ namespace EldenRingCSVHelper
 
                     if (!_npcDocToLocationsDict.ContainsKey(npcID))
                         _npcDocToLocationsDict.Add(npcID, new List<Keyword>());
-                    _npcDocToLocationsDict[npcID].Add(new Keyword("location: " + locationName, difficulty));
+                    _npcDocToLocationsDict[npcID].Add(new Keyword("location: " + locationName, difficulty,false, true));
 
 
                     if (!_npcsDocDifficultyDict.ContainsKey(npcID))
@@ -1731,7 +1776,7 @@ namespace EldenRingCSVHelper
                     var npcLine = Program.NpcParam.GetLineWithId(npcId);
                     foreach (Keyword k in _npcDocToLocationsDict[npcId])
                     {
-                        npcLine.addKeyword(k);
+                        npcLine.vanillaLine.addKeyword(k);
                     }
                 }
                 const bool debugAssignMapLots = false;
