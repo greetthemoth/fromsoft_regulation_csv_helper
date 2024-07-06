@@ -31,10 +31,8 @@ namespace EldenRingCSVHelper
             var DropMultsToWrite = new float[]
             {
                 1,
-                //1.5f,2f,3f,5f,
+                //1.5f,2f,3f,5f
             };
-
-
 
 
 
@@ -46,49 +44,6 @@ namespace EldenRingCSVHelper
 
 
                 string individual_RuneDropsDirectory = "";
-                {
-                    /*
-                    Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
-                    enemyDrops_IncreasedMaterialDrops();
-                    if (CREATE_SOFT_RANDOMIZER)
-                    {
-                        worldChangesPlus(true, false);
-                        worldChangesPlus(false, true);
-                    }
-                    noupgradedweaponsFromNpcs();
-                    enemyDrops_OneTimeEquipmentDrops();
-
-                    foreach (ParamFile p in ParamFile.paramFiles)
-                    {
-                        foreach (Line line in p.lines)
-                        {
-                            if (!line.added && line.modified)
-                            {
-                                line.RevertFieldsToVanilla();
-                            }
-                            //else if (line.added && line.id_int ==463000004)
-                            //{
-                            //    Util.println(line._idName);
-                            //}
-                        }
-                    }
-
-                    ChangeKeyword = "!Rune Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondRuneDrops = new KeywordCondition.Is(ChangeKeyword);
-                    enemyDrops_MoreSmithingStoneDrops(true, false, 1);
-                    
-                    RunSettings.Write_directory = exportDirectory + @"\RuneDrops (import first)";
-                    var emptyLineCond = new Condition.Func(Line.IsAdded).AND(new KeywordCondition.Is("!!!").AND(new KeywordCondition.Is("!VanillaItemLotCopy!").IsFalse));
-                    
-                    //var testLine = ItemLotParam_enemy.GetLineWithId(463000204);
-                    //var testPass = emptyLineCond.Pass(testLine);
-                    //var debuggggy = testLine._idName;
-                    
-                    individual_RuneDropsDirectory = RunSettings.Write_directory;
-                    ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, emptyLineCond, LotItem.newBaseItemLotLine(ItemLotParam_enemy));
-                    ParamFile.RevertAll(true);
-                    */
-                }
-                ///TESTO END^^^^
 
                 const bool MATERIAL_DROP_MULT_OPTIONS = true;
                 var individual_MaterialDropsDirectory = "";
@@ -151,14 +106,14 @@ namespace EldenRingCSVHelper
 
                 //RunSettings.Write_directory = exportDirectory + @"\MaterialDrops";
                 //ParamFile.WriteModifiedFiles("", "__" + "MatDrops", WriteCondMatDrops);
-                RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Soft Item Randomizer";
+                RunSettings.Write_directory = exportDirectory + @"\Other Changes\World Changes\Soft Item Randomizer";
                 var individual_WCP_SoftItemRandomizerDirectory = RunSettings.Write_directory;
                 if (CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR", WriteCondSIR);
-                RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Add Roundtable Items";
+                RunSettings.Write_directory = exportDirectory + @"\Other Changes\World Changes\Add Roundtable Items";
                 var individual_WCP_AddRoundtableItemsDirectory = RunSettings.Write_directory;
                 if (CREATE_SOFT_RANDOMIZER) ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI", WriteCondARI);
 
-                RunSettings.Write_directory = exportDirectory + @"\World Changes Plus\Unupgrade NPC Weap";
+                RunSettings.Write_directory = exportDirectory + @"\Other Changes\World Changes\Unupgrade NPC Weap";
                 var individual_WCP_UnupgradeNPCWeapDirectory = RunSettings.Write_directory;
                 ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW", WriteCondUNW);
 
@@ -231,48 +186,6 @@ namespace EldenRingCSVHelper
                     ParamFile.RevertAll(true);
                 }
 
-                /*
-                for (int i = 0; i < DropMultsToWrite.Length; i++)
-                {
-                    string multString = "x" + DropMultsToWrite[i];
-                    string multDirString = @"\MaterialDrops\" + multString + @" Mats";
-                    if (DropMultsToWrite[i] == 1)
-                    {
-                        multDirString += "(recommended)";
-                        multString = "";
-                    }
-                    else if (DropMultsToWrite[i] == 1.5f)
-                        multDirString += "";
-                    RunSettings.Write_directory = exportDirectory + multDirString;
-                    //ShopLineupChanges(false,false,true, false);
-                    enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
-                    ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
-                    AddedLineManager.Catalog("MatDrops");
-                    ParamFile.RevertAll();
-                }
-
-                for (int i = 0; i < DropMultsToWrite.Length; i++)
-                {
-                    string multString = "x" + DropMultsToWrite[i];
-                    string multDirString = @"\StoneDrops\" + multString + @" Stones";
-                    if (DropMultsToWrite[i] == 1)
-                    {
-                        multDirString += "(recommended)";
-                        multString = "";
-                    }
-                    else if (DropMultsToWrite[i] == 1.5f)
-                        multDirString += "";
-                    RunSettings.Write_directory = exportDirectory + multDirString;
-                    enemyDrops_MoreSmithingStoneDrops(false, true, DropMultsToWrite[i]);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "StoneDrops");
-                    ParamFile.WriteModifiedFiles("", "__" + multString + "StoneDrops");
-                    AddedLineManager.Catalog("StoneDrops");
-                    ParamFile.RevertAll();
-                }
-                return;
-                */
-
                 {
                     Keyword.IfModifiedSet = new Keyword("!!!", 0, true);
                     enemyDrops_IncreasedMaterialDrops();
@@ -313,108 +226,19 @@ namespace EldenRingCSVHelper
                     ParamFile.WriteModifiedFiles("", "__" + "RuneDrops", WriteCondRuneDrops, emptyLineCond, LotItem.newBaseItemLotLine(ItemLotParam_enemy));
                     ParamFile.RevertAll(true);
                 }
-                //already done
-                {
-                    /* exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
-
-                    RunSettings.Write_directory = exportDirectory;
-                    worldChangesPlus(true, true);
-                    enemyDrops_OneTimeEquipmentDrops();
-                    enemyDrops_IncreasedMaterialDrops();
-                    replaceOpenWorldSmithingStones();
-                    noupgradedweaponsFromNpcs();
-                    ShopLineupChanges(true, true, true, true);
-                    enemyDrops_MoreSmithingStoneDrops(true, true);
-                    ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
-                    ParamFile.ResetAll();
-
-                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "EnemyDrop");
-                    AddedLineManager.Catalog("EnemyDrop");
-                    ItemLotParam_enemy.SetToFakeVanilla();
-                    ParamFile.RevertAll();
-
-                    exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
-                    for (int i = 0; i < DropMultsToWrite.Length; i++)
-                    {
-                        string multString = "x" + DropMultsToWrite[i];
-                        string multDirString = @"\MaterialDrops\" + multString + @" Mats";
-                        if (DropMultsToWrite[i] == 1)
-                        {
-                            multDirString += "(recommended)";
-                            multString = "";
-                        }
-                        else if (DropMultsToWrite[i] == 1.5f)
-                            multDirString += "";
-                        RunSettings.Write_directory = exportDirectory + multDirString;
-                        //ShopLineupChanges(false,false,true, false);
-                        enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
-                        enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-                        AddedLineManager.CreateEmptyLines(emptyItemLot, "MatDrops");
-                        ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops");
-                        AddedLineManager.Catalog("EnemyDrops");
-                        ParamFile.RevertAll();
-                    }
-
-                    string dropTypeDirString = @"\RuneDrops";
-                    RunSettings.Write_directory = exportDirectory + dropTypeDirString;
-                    enemyDrops_MoreSmithingStoneDrops(true, false);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "RuneDrops");
-                    ParamFile.WriteModifiedFiles("", "__" + "RuneDrops");
-                    AddedLineManager.Catalog("RuneDrops");
-                    ParamFile.RevertAll();
-
-
-                    string OTED_DirString = @"\OneTime Equipment Drops (import last)";
-                    RunSettings.Write_directory = exportDirectory + OTED_DirString;
-                    enemyDrops_OneTimeEquipmentDrops();
-                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "OTED");
-                    ParamFile.WriteModifiedFiles("", "__" + "OTED");
-                    AddedLineManager.Catalog("OTED");
-                    ParamFile.RevertAll();
-
-                    string WCP_DirString = @"\World Changes Plus\Soft Item Randomizer";
-                    RunSettings.Write_directory = exportDirectory + WCP_DirString;
-                    worldChangesPlus(true, false);
-                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_SIR");
-                    ParamFile.WriteModifiedFiles("", "__" + "WCP_SIR");
-                    AddedLineManager.Catalog("WCP_SIR");
-                    ParamFile.RevertAll();
-
-                    WCP_DirString = @"\World Changes Plus\Add Roundtable Items";
-                    RunSettings.Write_directory = exportDirectory + WCP_DirString;
-                    worldChangesPlus(false, true);
-                    //giveEnemieSmithingStoneDrops(false, false, 1);
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_ARI");
-                    ParamFile.WriteModifiedFiles("", "__" + "WCP_ARI");
-                    AddedLineManager.Catalog("WCP_ARI");
-                    ParamFile.RevertAll();
-
-
-                    WCP_DirString = @"\World Changes Plus\Unupgrade NPC Weap";
-                    RunSettings.Write_directory = exportDirectory + WCP_DirString;
-                    noupgradedweaponsFromNpcs();
-                    AddedLineManager.CreateEmptyLines(emptyItemLot, "WCP_UNW");
-                    ParamFile.WriteModifiedFiles("", "__" + "WCP_UNW");
-                    AddedLineManager.Catalog("WCP_UNW");
-                    ParamFile.RevertAll();
-                    */
-                }
-                string worldChanges_DirString = @"\World Changes";
-                RunSettings.Write_directory = exportDirectory + worldChanges_DirString;
+                string lessSmithingStonePickups_DirString = @"\Less Stone Pickups";
+                RunSettings.Write_directory = exportDirectory + lessSmithingStonePickups_DirString;
                 var individual_WorldChangesDirectory = RunSettings.Write_directory;
                 //ShopLineupChanges(true, false, false, false);
                 //var testLine = ItemLotParam_enemy.GetLineWithId(463000204);
                 //var debuggggy = testLine._idName;
-                replaceOpenWorldSmithingStones();
+                reduceSmithingStonePickups();
                 //AddedLineManager.CreateEmptyLines(emptyItemLot, "WorldChanges");
-                ParamFile.WriteModifiedFiles("", "__WorldChanges");
+                ParamFile.WriteModifiedFiles("", "__LessStonePickups");
                 //AddedLineManager.Catalog("WorldChanges");
                 ParamFile.RevertAll(true);
 
-                string ShopChanges_DirString = @"\Shop Changes\Vendor Stone Nerf";
+                string ShopChanges_DirString = @"\Other Changes\Shop Changes\Vendor Stone Nerf";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
                 var individual_ShopChanges_StoneNerfDirectory = RunSettings.Write_directory;
                 ShopLineupChanges(true, true, false, false);
@@ -423,7 +247,7 @@ namespace EldenRingCSVHelper
                 //AddedLineManager.Catalog("SC_VSN");
                 ParamFile.RevertAll(true);
 
-                /*ShopChanges_DirString = @"\Shop Changes\TwinMaiden Stone Nerf";
+                /*ShopChanges_DirString = @"\Other Changes\Shop Changes\TwinMaiden Stone Nerf";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
                 ShopLineupChanges(false, true, false, false);
                 //AddedLineManager.CreateEmptyLines(emptyItemLot ,"SC_TMSN");
@@ -431,7 +255,7 @@ namespace EldenRingCSVHelper
                 //AddedLineManager.Catalog("SC_TMSN");
                 ParamFile.ResetAll();*/
 
-                ShopChanges_DirString = @"\Shop Changes\Vendor Material Buff";
+                ShopChanges_DirString = @"\Other Changes\Shop Changes\Vendor Material Buff";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
                 var individual_ShopChanges_MaterialBuffDirectory = RunSettings.Write_directory;
                 ShopLineupChanges(false, false, true, false);
@@ -440,7 +264,7 @@ namespace EldenRingCSVHelper
                /// AddedLineManager.Catalog("SC_VMB");
                 ParamFile.RevertAll(true);
 
-                ShopChanges_DirString = @"\Shop Changes\Misc Balancing";
+                ShopChanges_DirString = @"\Other Changes\Shop Changes\Misc Balancing";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
                 var individual_ShopChanges_MiscBalancingDirectory = RunSettings.Write_directory;
                 ShopLineupChanges(false, false, false, true);
@@ -551,11 +375,11 @@ namespace EldenRingCSVHelper
                                 if (WorldChanges)
                                     worldChanges_string = "+WC";//" and OneTimeEquipmentDrops";
 
-                                worldChanges_DirString = @"\";
+                                lessSmithingStonePickups_DirString = @"\";
                                 if (WorldChanges)
-                                    worldChanges_DirString += @"World Changes";
+                                    lessSmithingStonePickups_DirString += @"Less Stone Pickups";
                                 else
-                                    worldChanges_DirString += @"No World Changes";
+                                    lessSmithingStonePickups_DirString += @"Regular Stone Pickups";
 
                                 for (int equipType = 0; equipType < 3; equipType++)
                                 {
@@ -595,7 +419,7 @@ namespace EldenRingCSVHelper
                                         else
                                             dropTypeDirString += @"StoneDrops ONLY";
 
-                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + matDrops_DirString + worldChanges_DirString;
+                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + matDrops_DirString + lessSmithingStonePickups_DirString;
 
                                         var individual_exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                                         ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[i]);//add the multiplier
@@ -622,7 +446,7 @@ namespace EldenRingCSVHelper
                                         if (WorldChanges)
                                         {
                                             ////ShopLineupChanges(true, false,false,false);
-                                            //replaceOpenWorldSmithingStones();
+                                            //reduceSmithingStonePickups();
                                             ParamFile.ImportCSVs(individual_WorldChangesDirectory);
                                         }
                                         //AddedLineManager.CreateEmptyLines(emptyItemLot, "");
@@ -759,7 +583,7 @@ namespace EldenRingCSVHelper
                 //enemyDrops_IncreasedMaterialDrops();
                 //enemyDrops_OneTimeEquipmentDrops();
                 //worldChangesPlus();
-                //replaceOpenWorldSmithingStones();
+                //reduceSmithingStonePickups();
                 /*string exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                 string dropTypeDirString = @"\WorldChangesPlus";
                 RunSettings.Write_directory = exportDirectory + dropTypeDirString;
@@ -859,7 +683,7 @@ namespace EldenRingCSVHelper
                 enemyDrops_MoreSmithingStoneDrops(true);
                 Console.WriteLine("8");
 
-                replaceOpenWorldSmithingStones();
+                reduceSmithingStonePickups();
                 Console.WriteLine("9");
 
 
@@ -2571,7 +2395,6 @@ namespace EldenRingCSVHelper
                 }
                 
             }
-
            /* materials_to_exclude.Clear();
             material_chancePercent_multipler.Clear();
             materials_to_set_max.Clear();
@@ -2625,6 +2448,8 @@ namespace EldenRingCSVHelper
 
                     new LotItem(good,"Great Dragonfly Head",0,150),
 
+                    new LotItem(good,"Bloodrose",0,250),
+                    new LotItem(good,"Aeonian Butterfly",0,250).addKW("of Rot]"),
                     new LotItem(good,"Smoldering Butterfly",0,200).addKW("Fire Monk").addKW("[Blackflame Monk]"),
 
                     new LotItem(good,"Old Fang",0,450).addKW("[Winged Misbegotten]"), //Leonine Misbegotten for some reason misnamed itemlot 
@@ -2639,7 +2464,9 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Beast Liver",1),
                     new LotItem(good,"Turtle Neck Meat",1),
                     new LotItem(good,"Great Dragonfly Head",1),
-                     new LotItem(good,"Yellow Ember",2),
+                    new LotItem(good,"Yellow Ember",2),
+
+                    //new LotItem(good,"Bloodrose",4).addKW("[Sanguine Noble]"),
 
                     new LotItem(good,"Stormhawk Feather",5).addKW("[Warhawk]"),
                     new LotItem(good,"Flight Pinion",5).addKW("[Warhawk]"),
@@ -2748,12 +2575,9 @@ namespace EldenRingCSVHelper
 
                 foreach (Line curLine in materialLines)
                 {
-                    bool test = curLine.id == "308000155";
+                    bool test = curLine.id == "355000000";
                     string debugName = curLine._idName;
-
-                    float totalEmptyPercent = LotItem.GetEmptyChanceTotal(curLine);
-                    bool firstLotEmpty = totalEmptyPercent > 0;
-                    float totalItemPercent = LotItem.GetItemChanceTotal(curLine);
+                    
                     int lotIndex = 1;
                     if (test)
                         Util.p();
@@ -2939,6 +2763,18 @@ namespace EldenRingCSVHelper
                         }
                     }
 
+                    float totalItemPercent = LotItem.GetItemChanceTotal(curLine);
+                    float totalEmptyPercent = LotItem.GetEmptyChanceTotal(curLine);
+                    bool firstLotEmpty = totalEmptyPercent > 0;
+
+
+                    float newTotalItemPercent = 0;
+                    float newTotalEmptyPercent = 1000;
+
+                    float currentChance = totalItemPercent / (totalEmptyPercent + totalItemPercent);
+                    float newChance = currentChance * chanceMult * DROPMULT;
+                    float newItemTotalTarget = newChance * 1000;
+
                     if (test)
                         Util.p();
                     int totalSpread = maxSpread - minSpread;
@@ -2951,146 +2787,112 @@ namespace EldenRingCSVHelper
                         maxAmount += Math.Max(0, baseLineAmount - 1);
                     if (test)
                         Util.p();
+
                     if (lotItemsSelected.Count == 0)
                     {
                         lotItemsSelected = new LotItem[] {
-                            new LotItem(good, baseLotItem.id, startingAmount-2,7).addKW("%"),//remove startingAmount? test
-                            new LotItem(good, baseLotItem.id, startingAmount-1,18).addKW("%"),
-                            new LotItem(good, baseLotItem.id, startingAmount,41).addKW("%"),
-                            new LotItem(good, baseLotItem.id, startingAmount+1,26).addKW("%"),
-                            new LotItem(good, baseLotItem.id, startingAmount+2,12).addKW("%"),
+                            new LotItem(good, baseLotItem.id, -2,7).addKW("%"),//remove startingAmount? test
+                            new LotItem(good, baseLotItem.id, -1,18).addKW("%"),
+                            new LotItem(good, baseLotItem.id, 0,41).addKW("%"),
+                            new LotItem(good, baseLotItem.id, 1,26).addKW("%"),
+                            new LotItem(good, baseLotItem.id, 2,12).addKW("%"),
                         }.ToList();
-                        if (firstLotEmpty)
-                        {
-                            totalItemPercent = LotItem.GetItemChanceTotal(curLine);
-                            totalEmptyPercent = LotItem.GetEmptyChanceTotal(curLine);
-                        }
-                        else
-                        {
-                            totalItemPercent = 1000;
-                            totalEmptyPercent = 0;
-                        }
-
-                        
+                        //newItemTotalTarget = totalItemPercent * DROPMULT;
+                        //newTotalEmptyPercent = 1000 - totalItemPercent;
                     }
-                    else
+                    var floatChances = new List<float>();
                     {
-                        float newTotalItemPercent = 0;
-                        totalEmptyPercent = 1000;
+                        
                         for (int i = 0; i < lotItemsSelected.Count; i++)
                         {
                             if (lotItemsSelected[i].hasKeyword("!Specified Amount!"))
                                 lotItemsSelected[i].amount = lotItemsSelected[i].amount;
                             else
                                 lotItemsSelected[i].amount = startingAmount + (lotItemsSelected[i].amount); 
-                            int chance = lotItemsSelected[i].chance;
+                            float chance = lotItemsSelected[i].chance;
                             if (lotItemsSelected[i].hasKeyword("%"))
                             {
-                                chance = (int)Math.Round(((double)chance / 100f) * totalItemPercent);
+                                chance = (chance / 100f) * newItemTotalTarget;
                             }
-
-                            newTotalItemPercent += chance;
-                            totalEmptyPercent -= chance;
-                        }
-                        totalItemPercent = newTotalItemPercent;
-                        if (test)
-                            Util.p();
-                    }
-                    float lostPercent = 0;
-                    float chanceMultAddedChance = 0;
-                    for (int i = 0; i < lotItemsSelected.Count; i++)
-                    {
-                        var li = lotItemsSelected[i];
-
-                        float chance = li.chance;
-                        if (li.hasKeyword("%"))
-                        {
-                            chance =totalItemPercent * (((float)li.chance) / 100f);
-                            chanceMultAddedChance += (chance * chanceMult * DROPMULT) - chance;
-                        }
-                        else
-                        {
-                            chanceMultAddedChance += (chance * DROPMULT) - chance;
-                        }
-                        if (test)
-                            Util.p();
-                        if (li.amount < 1 || li.amount > maxAmount || chance < minChance)
-                        {
-                            lostPercent += chance; //* Math.Max(1,li.amount);
-                            lotItemsSelected.Remove(li);
+                            else
+                            {
+                                chance *= DROPMULT;
+                            }
                             if (test)
                                 Util.p();
-                            i--;
-                            continue;
+                            //lotItemsSelected[i].chance = (int)Math.Round(chance);
+                            floatChances.Add(chance);
+                            newTotalItemPercent += chance;
+                            newTotalEmptyPercent -= chance;
                         }
-
+                        if (newTotalEmptyPercent < 0.5f)
+                            firstLotEmpty = false;
+                        if (test)
+                            Util.p();
                     }
+
+                    
+                    {
+                        float lostPercent = 0;
+                        //float chanceMultAddedChance = 0;
+                        for (int i = 0; i < lotItemsSelected.Count; i++)
+                        {
+                            var li = lotItemsSelected[i];
+
+                            float chance = floatChances[i];
+                            //chanceMultAddedChance += (chance * DROPMULT) - chance;
+                            if (test)
+                                Util.p();
+                            if (li.amount < 1 || li.amount > maxAmount || chance < minChance)
+                            {
+                                lostPercent += chance; //* Math.Max(1,li.amount);
+                                lotItemsSelected.RemoveAt(i);
+                                floatChances.RemoveAt(i);
+                                if (test)
+                                    Util.p();
+                                i--;
+                                continue;
+                            }
+                        }
+                        if (lotItemsSelected.Count == 0)
+                            continue;
+                        float lostPercentMult = 1+(lostPercent/newTotalItemPercent);
+                        if (test)
+                            Util.p();
+                        for (int i = 0; i < floatChances.Count; i++)
+                        {
+                            floatChances[i] *= lostPercentMult;
+                        }
+                    }
+
                     //float newChanceMult = (totalItemPercent / ((float)totalItemPercent - lostPercent));
                     if (test)
                        Util.p();
 
-                    float mult = 1;
                     if (firstLotEmpty)
                     {
-                        //int prevTotalPercent = (int)Math.Round((double)(totalItemPercent));
-                        //int afterTotalItemPercent = (int) Math.Round( ((double)totalItemPercent) * chanceMult);
-                        //int dif = afterTotalItemPercent - prevTotalPercent;
-
-                        //chanceMultAddedChance += lostPercent;
-                        //int newEmptyPercent = totalEmptyPercent - (chanceMultAddedChance * 2 );
-
-                        mult = ((totalItemPercent + chanceMultAddedChance) / totalItemPercent) * ((totalItemPercent + lostPercent) / totalItemPercent);
-                        totalItemPercent = (int)((totalItemPercent *  mult) + 0.5f);
-                        int newEmptyPercent = (int)((totalItemPercent - 1000)+0.5);
-                         
-
-                       
-                        
-                        if (test)
-                            Util.p();
-                        //newEmptyPercent -= lostPercent;
-                        if (newEmptyPercent <= 0)
-                        {
-                            firstLotEmpty = false;
-                        }
-                        if (firstLotEmpty)
-                        {
-                            LotItem.newEmpty(newEmptyPercent).SetLotItemToLine(curLine, lotIndex);
-                            lotIndex++;
-                        }
-
+                        LotItem.newEmpty((int)Math.Round(newTotalEmptyPercent)).SetLotItemToLine(curLine, lotIndex);
+                        lotIndex++;
                     }
 
-                    foreach (var li in lotItemsSelected)
+                    for (int i = 0; i < lotItemsSelected.Count; i++)
                     {
-                        double chance = li.chance;
-                        if (li.hasKeyword("%"))
-                            chance = totalItemPercent * (double)(li.chance / (100f));//* DROPMULT;  //* chanceMult;
-                        else
-                            chance = (double)(li.chance / (100f)) * mult; //* DROPMULT * mult;
-
-                        double lostPercentAdd = 0;// (li.chance / (totalItemPercent - lostPercent)) * lostPercent * chanceMult * DROPMULT;
-                        chance += lostPercentAdd;
-                        int ichance = (int)Math.Round(chance);
-                        if (ichance < 0)
-                            Util.p();
-                        li.chance = ichance;
+                        var li = lotItemsSelected[i];
+                        li.chance = Math.Min(LotItem.MAX_CHANCE,Math.Max(0,(int)Math.Round(floatChances[i])));
                         curLine.Operate(new LotItem.SetLotItem(li, lotIndex));
                         if (firstLotEmpty)
                             curLine.SetField(LotItem.affectByLuckFIs[lotIndex - 1], true);
-
                         if (test)
                             Util.p();
                         lotIndex++;
                         if (lotIndex > LotItem.MAX_LOT_INDEX)
                             break;
                     }
-                    LotItem.RegulateLine(curLine);
                     for (; lotIndex <= LotItem.MAX_LOT_INDEX; lotIndex++)
                     {
-
                         LotItem.newEmpty().SetLotItemToLine(curLine, lotIndex);
                     }
+                    LotItem.RegulateLine(curLine);
                     //check set slots
                     //check if lotitem applies to line  if not next.
                     //manual check all kws to see if it contains the name
@@ -3207,7 +3009,8 @@ namespace EldenRingCSVHelper
                         const bool ALLOW_REVERSE_ALTERED_DROP = false;
                         //OtherToAddId = _curLot2Id + 1000;
                         //var OtherToAddEquipLine = EquipParamProtector.GetLineWithId(OtherToAddId);
-                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithName(EquipParamProtector.GetLineWithId(_curLot2Id).name + " (Altered)");
+                        var ItemName = EquipParamProtector.GetLineWithId(_curLot2Id).name;
+                        var OtherToAddEquipLine = EquipParamProtector.GetLineWithName(ItemName + " (Altered)");
                         if (OtherToAddEquipLine != null)
                         {
                             OtherToAddId = OtherToAddEquipLine.id_int;
@@ -3239,7 +3042,7 @@ namespace EldenRingCSVHelper
                             else
                                 createUniqueFlagIdForOther = true;
                             OtherToAddPercentMult = OneTimeWeaponAndArmorDrops_AlteredArmorDropChanceMult;
-                            addToName = " & " + OtherToAddEquipLine.name;
+                            addToName = ItemName + " & " + OtherToAddEquipLine.name;
                         }
                     }
                     else if (isWeapon && isNotArrow)
@@ -6319,9 +6122,14 @@ namespace EldenRingCSVHelper
                                             {
                                                 float prevAmount = curXasscadeFinalPercent;
                                                 curXasscadeFinalPercent *= ftdx1ChanceMult;
+                                                //if (keyword == "15 > %0.65 #6 }0.85 +0.6 & sp1 & $$$$5 @@0.3  $0.6 White Wolf")
+                                                //    Util.p();
+                                                //if (stoneLine.id_int == 407100103)
+                                                //    Util.p();
                                                 if (ftdx1ExcessToEmpty && !emptyLotReplaced)
                                                 {
-                                                    int chanceToGiveToEmpty = Math.Max(0,(int)((curXasscadeFinalPercent - prevAmount) + 0.5));
+                                                    var stoneId = stoneLine.id_int;
+                                                    int chanceToGiveToEmpty = Math.Max(0,(int)((prevAmount - curXasscadeFinalPercent) + 0.5));
                                                     stoneLine.SetField("lotItemNum01", chanceToGiveToEmpty);
                                                 }
                                             }
@@ -6972,7 +6780,7 @@ namespace EldenRingCSVHelper
                 }
             }
         }
-        static void replaceOpenWorldSmithingStones()
+        static void reduceSmithingStonePickups()
         {
             if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_map}))
                 return;

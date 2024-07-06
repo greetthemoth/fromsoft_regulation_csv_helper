@@ -1216,8 +1216,10 @@ namespace EldenRingCSVHelper
                     Util.println(s);
                     foreach (int i in line.modifiedFieldIndexes)
                     {
-                        s = Util.IndentedText(""); 
-                        s += Util.IndentedText(line.file.header[i] + ":", 30) + Util.IndentedText(Util.IndentedText(line.vanillaLine.GetField(i), 3)+"  -->  " +line.GetField(i), 20);
+                        s = Util.IndentedText("");
+                        s += Util.IndentedText(line.file.header[i] + ":", 30);
+                        if (!line.added)
+                            s += Util.IndentedText(Util.IndentedText(line.vanillaLine.GetField(i), 3) + "  -->  " + line.GetField(i), 20);
                         Util.println(s);
                     }
                     Util.println();
@@ -1556,7 +1558,7 @@ namespace EldenRingCSVHelper
         {
             if (setTo == _data[fieldIndex])
                 return this;
-            //if (fieldIndex == 0 && setTo == "227000800")
+            //if (file.filename == "ItemLotParam_enemy.csv" && fieldIndex == Program.ItemLotParam_enemy.GetFieldIndex("lotItemNum01") && id_int == 407100103)
             //    Util.p();
             if (fieldIndex == 0)
             {

@@ -1317,6 +1317,7 @@ namespace EldenRingCSVHelper
         }
         //Bosses^^^^^^^^^^^^^^^
         //Enemies vvvvvvvvvvvv
+        static List<int> _documentedNpcIDsList;
         static Dictionary<int, float> _npcsDocDifficultyDict;
         static Dictionary<int, List<Keyword>> _npcDocToLocationsDict;
         static Dictionary<int, int> _npcsIdToSpLevelsDict;
@@ -1325,10 +1326,12 @@ namespace EldenRingCSVHelper
         public static Dictionary<int, float> NpcsDocDifficultyDict { get { if (_npcsDocDifficultyDict == null && !setInfo) SetInfo(); return _npcsDocDifficultyDict; } }
         public static Dictionary<int, int> NpcsIdToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null && !setInfo) SetInfo(); return _npcsIdToSpLevelsDict; } }
         public static Dictionary<int, float> SpLevelToDifficultyDict { get { if (_spLevelToDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToDifficultyDict; } }
+        public static List<int> DocumentedNpcIDsList { get { if (_documentedNpcIDsList == null && !setInfo) SetInfo(); return _documentedNpcIDsList; } }
         static void SetNpcDifficulty()
         {
             using (var sr = new StreamReader(@"C:\CODING\Souls Modding\ModdingTools\Docs\NPCLocations.txt"))
             {
+                _documentedNpcIDsList = new List<int>();
                 _npcsDocDifficultyDict = new Dictionary<int, float>();
                 _npcDocToLocationsDict = new Dictionary<int, List<Keyword>>();
 
@@ -1601,6 +1604,8 @@ namespace EldenRingCSVHelper
                     //if (difficulty == -1)
                     //continue;
                     //Util.println("no difficulty group found for: "+ locationName + "  enemy name: "+ NpcParam.GetFieldWithLineID(1,npcID.ToString()));
+                    if (!_documentedNpcIDsList.Contains(npcID))
+                        _documentedNpcIDsList.Add(npcID);
 
                     if (!_npcDocToLocationsDict.ContainsKey(npcID))
                         _npcDocToLocationsDict.Add(npcID, new List<Keyword>());
