@@ -2095,7 +2095,7 @@ namespace EldenRingCSVHelper
 
                 //starlight shard, nox, glintsone sorcerer
                 {
-                    string[] names = new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden", "Glintstone Sorcerer" };
+                    string[] names = new string[] { "Nox Swordstress", "Nox Monk", "Nox Nightmaiden", "Glintstone Sorcerer", "Gravenmass" };
                     for (int i = 0; i < names.Length; i++)
                     {
                         var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
@@ -2117,6 +2117,11 @@ namespace EldenRingCSVHelper
                         }
                         if(i == 3)
                             lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 70, true), ids);
+                        if(i == 4)
+                        {
+                            //lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 70, true), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 3, 1000, false, -1), ids);
+                        }
                     }
                     materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 4).addKW("Nox"));
                     materials_to_set_max.Add(new LotItem(good, "Starlight Shards", 2).addKW(" Glintstone Sorcerer"));//non generic glintstone sorcerer
@@ -2317,9 +2322,9 @@ namespace EldenRingCSVHelper
                             .GetIDs()
                             ;
                         if (names[i] == "Runebear")
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 4, 150), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 7, 150), ids);
                         else if(names[i] == "Bear")
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 1, 150), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 2, 150), ids);
                     }
                 }
                 //cave moss - demihumans (inside caves), highwayman?
@@ -3267,8 +3272,9 @@ namespace EldenRingCSVHelper
                 // %number is level mult.           -prioritized first
                 // - or +number is level modifier.  -prioritized second.
                 // xnumber is how many drop.
-                // xxxnumber is casscade for multiple. x3 is 3; xx3 is 3 or 2; xxx3 is 3, 2, or 1.
+                // numberxxx is casscade for multiple. x3 is 3; 3xx is 3 or 2; 3xxx is 3, 2, or 1.
                 // xv multiple chance mult (split). keeps overall chance of a drop the same. if "x3xxx xv0.5" then it has half the chance to drop a multiple.
+                // xvv multiple chance mult (split). keeps overall chance of a drop the same. if "x3xxx xvv0.5" then it has half the chance to drop a x2 and quarter chance to drop x1.
                 // ##number is the set level.
                 // #number is the max level clamp.
                 // |number is level cascade pooling mult. At 0 level 1 chance doesnt stack.
@@ -3298,7 +3304,7 @@ namespace EldenRingCSVHelper
                 //Only use is if 100% drop rate.
                 //MAYBE i should also make this so first item is 100% chance.
 
-                string x2Chance = " x2xx xvv0.3 ";
+                string x2Chance = " x2xx xvv0.3 xvv^30 ";
                 string x3Chance = " x3xxx xv0.65 xvv0.65 ";
                 string footSoldier = " -0.9 sp0.1 #4 }1.028 ";          //}0.965    //we changed them to drop more with higher levels.
                 string soldier = " %0.875 sp0.12 >2 #8 }1.035 {0.65 ";        //}0.985
@@ -3367,15 +3373,12 @@ namespace EldenRingCSVHelper
                     "100 ##500 x5 Placidusax", //level 500 allows for x5 ancient drops. 
                     //"100 & +22 xxx5 $$$$ Ancient Dragon",    //the ones that need to drop already drop ancient dragon smithing stone.
                     
-                
-
                     "0 Dragonfly",
                     "50 -0.5 > & x4xxx %0.7 sp0.5 Flying Dragon (Small)",
                     "100 & +1 x4xx $$$$ #8 sp0.15 Dragon",
                     "100 & x4xx $$$$ ##3 Glintstone Dragon Smarag",
                     "100 & x4xx $$$$ ##8 sss-0.8 Glintstone Dragon Adula",
                     "100 & x4xx $$$$ ##7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
-
 
                     "10 #4 Ancestral Follower",
 
@@ -3479,7 +3482,7 @@ namespace EldenRingCSVHelper
                     "45" + knight + x2Chance + "/20 Mausoleum Knight",
                     "4" + footSoldier + x2Chance + "/20 Mausoleum Foot Soldier",
                     "5.5" + soldier + x2Chance + "/20 Mausoleum Soldier",
-                    "45" + banishedK + x3Chance + "/20 Mausoleum Banished Knight",
+                    "60" + banishedK + x3Chance + "/20 Mausoleum Banished Knight",
 
                     "65 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 /12 x4xx xv0.65 xvv0.5 Fell Twin",
@@ -3665,7 +3668,7 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /20 ##3 " + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
                     keywordOverrideIDsDict.Add(45100572, "SSSSS 100 > +10 xxx5 & $$$$ Ancient Dragon (Droppers Override)");
                     keywordOverrideIDsDict.Add(46500265, "SS 100 x5 ##3 Dragonkin Soldier (Nokrom Override)");
-                    keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5 $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
+                    keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5x $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
 
                     keywordOverrideIDsDict.Add(30100172, "SSSSS 45" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
                     keywordOverrideIDsDict.Add(30101172, "SSSSS 45" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
