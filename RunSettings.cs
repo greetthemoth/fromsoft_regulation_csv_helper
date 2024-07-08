@@ -17,7 +17,7 @@
         public static bool PrintFile = true;    //do we even want to print or just run. Testing must be OFF   
         public static bool PrintFile_OnlyModifiedLines = true;
         public static bool PrintFile_ModificationSummary = true;
-        public static bool PrintFile_VerifyFieldCounts = false;
+        public static bool PrintFile_VerifyFieldCounts = true;
         public static bool PrintFile_VerifyFieldCounts_OnlyModifiedLines = false;
 
         //Run Overrides

@@ -539,6 +539,17 @@ namespace EldenRingCSVHelper
                 f += 0.5f;
             return (((int)f) / 1000f);
         }
+
+        public static float RoundToNearestInterval(float number, float divisor)
+        {
+            float remainder = number % divisor;
+            if (remainder == 0) return number;
+
+            float lowerBound = number - remainder;
+            float upperBound = lowerBound + divisor;
+
+            return (number - lowerBound < upperBound - number) ? lowerBound : upperBound;
+        }
         public static int GetFirstIntInString(string s)
         {
             string pattern = @"\d+";

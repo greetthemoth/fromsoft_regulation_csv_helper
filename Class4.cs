@@ -1323,8 +1323,8 @@ namespace EldenRingCSVHelper
         static Dictionary<int, int> _npcsIdToSpLevelsDict;
         static Dictionary<int, float> _spLevelToDifficultyDict;
         static bool setInfo = false;
-        public static Dictionary<int, float> NpcsDocDifficultyDict { get { if (_npcsDocDifficultyDict == null && !setInfo) SetInfo(); return _npcsDocDifficultyDict; } }
-        public static Dictionary<int, int> NpcsIdToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null && !setInfo) SetInfo(); return _npcsIdToSpLevelsDict; } }
+        public static Dictionary<int, float> NpcIdsToDocDifficultyDict { get { if (_npcsDocDifficultyDict == null && !setInfo) SetInfo(); return _npcsDocDifficultyDict; } }
+        public static Dictionary<int, int> NpcIdsToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null && !setInfo) SetInfo(); return _npcsIdToSpLevelsDict; } }
         public static Dictionary<int, float> SpLevelToDifficultyDict { get { if (_spLevelToDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToDifficultyDict; } }
         public static List<int> DocumentedNpcIDsList { get { if (_documentedNpcIDsList == null && !setInfo) SetInfo(); return _documentedNpcIDsList; } }
         static void SetNpcDifficulty()

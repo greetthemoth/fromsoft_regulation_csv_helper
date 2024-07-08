@@ -1206,7 +1206,7 @@ namespace EldenRingCSVHelper
         /// <summary> 
         /// Prints a comparison of all line changes. Useful for debugging all changes in a csv.
         /// </summary>
-        public void PrintCompareLineChanges()
+        public void PrintCompareLineChanges(Line lineToCompare, List<int> fieldIndexesToExclude = null)
         {
             foreach (var line in lines)
             {
@@ -1214,13 +1214,32 @@ namespace EldenRingCSVHelper
                 {
                     string s = line.id +"; "+ Util.IndentedText(line.name, 50);
                     Util.println(s);
-                    foreach (int i in line.modifiedFieldIndexes)
+                    if (lineToCompare == null)
                     {
-                        s = Util.IndentedText("");
-                        s += Util.IndentedText(line.file.header[i] + ":", 30);
-                        if (!line.added)
-                            s += Util.IndentedText(Util.IndentedText(line.vanillaLine.GetField(i), 3) + "  -->  " + line.GetField(i), 20);
-                        Util.println(s);
+                        foreach (int i in line.modifiedFieldIndexes)
+                        {
+                            if (fieldIndexesToExclude != null && fieldIndexesToExclude.Contains(i))
+                                continue;
+                            s = Util.IndentedText("");
+                            s += Util.IndentedText(line.file.header[i] + ":", 30);
+                            if (!line.added)
+                                s += Util.IndentedText(Util.IndentedText(line.vanillaLine.GetField(i), 3) + "  -->  " + line.GetField(i), 20);
+                            Util.println(s);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < line.file.header.Length-1; i++)
+                        {
+                            if (fieldIndexesToExclude != null && fieldIndexesToExclude.Contains(i))
+                                continue;
+                            if (lineToCompare.GetField(i) == line.GetField(i))
+                                continue;
+                            s = Util.IndentedText("");
+                            s += Util.IndentedText(line.file.header[i] + ":", 30);
+                            s += Util.IndentedText(Util.IndentedText(lineToCompare.GetField(i), 3) + "  -->  " + line.GetField(i), 20);
+                            Util.println(s);
+                        }
                     }
                     Util.println();
                 }
@@ -1558,7 +1577,9 @@ namespace EldenRingCSVHelper
         {
             if (setTo == _data[fieldIndex])
                 return this;
-            //if (file.filename == "ItemLotParam_enemy.csv" && fieldIndex == Program.ItemLotParam_enemy.GetFieldIndex("lotItemNum01") && id_int == 407100103)
+            //if (file.filename == "ItemLotParam_enemy.csv" && fieldIndex == Program.ItemLotParam_enemy.GetFieldIndex("lotItemBasePoint01") && id_int == 407100103)
+            //    Util.p();
+            //if (file.filename == "NpcParam.csv" && fieldIndex == Program.NpcParam.GetFieldIndex("itemLotId_enemy") && id_int == 38500020)
             //    Util.p();
             if (fieldIndex == 0)
             {
