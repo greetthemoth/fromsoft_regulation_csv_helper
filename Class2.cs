@@ -1086,6 +1086,34 @@ namespace EldenRingCSVHelper
         {
             return GetNextFreeId(id, out int index, startIndex, inclusive);
         }
+
+        public int GetNextFreeIdIntreval(int startingId, bool inclusive, int searchInterval, int startIndex, out int lastLineIndex, List<int> IdsToExclude)
+        {
+            if (inclusive)
+                startingId -= searchInterval;
+            int newItemLotID = startingId;
+                
+            int newNextLineID = -1;
+            //if(newItemLotID == -1)
+            //Util.println("newItemLotID: " + newItemLotID + npcLine.id + ":" + npcLine.name + "  " + newItemLotID);
+            int nextLineIndex = 0;
+            int newLineIndex = Math.Max(0,startIndex);
+            //find new line ID
+
+            while ((IdsToExclude != null && IdsToExclude.Contains(newItemLotID)) || this.GetLineWithId(newItemLotID, out newLineIndex, newLineIndex) != null || newNextLineID < newItemLotID + searchInterval)
+            {
+                newItemLotID = this.GetNextFreeId(newItemLotID, out newLineIndex);
+                newItemLotID += searchInterval - (newItemLotID % searchInterval);
+                newNextLineID = this.GetNextLine(newItemLotID, out nextLineIndex, nextLineIndex).id_int;
+                /*Console.WriteLine(npcLine._idName +
+                    Util.IndentedText("start:" + startingSearchForLocationItemLotID, 25) +
+                    Util.IndentedText("newItemLotID:" + newItemLotID, 25) +
+                    Util.IndentedText("   newNextLineID:" + newNextLineID, 25));
+                    */
+            }
+            lastLineIndex = newLineIndex;
+            return newItemLotID;
+        }
         /// <summary> 
         /// Gets the next id available for a new line found after the given id. Useful for adding new lines to an itemLot, or adding a new line under anouther line.
         /// out nextLineIndex: the line index of the returned line. Inclusive: can return the line of the given id. StartIndex: the line index to start looking at.
@@ -1812,6 +1840,8 @@ namespace EldenRingCSVHelper
             ParamFile p = this.file;
             return p.GetNextFreeId(this.id_int, inclusive);
         }
+
+       
 
         /// <summary> 
         /// Splits the string into data using the given line string and delimiter.

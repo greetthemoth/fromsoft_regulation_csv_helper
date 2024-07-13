@@ -171,14 +171,14 @@ namespace EldenRingCSVHelper
         public LotItem Copy()
         {
             var ret = new LotItem(category, id, amount, chance, affectByLuck);
-            ret.hasLotItem_getItemFlagIdFIs = hasLotItem_getItemFlagIdFIs;
+            ret.hasLotItem_getItemFlagId = hasLotItem_getItemFlagId;
             ret.lotItem_getItemFlagId = lotItem_getItemFlagId;
             ret.SetKeywords(new List<Keyword>().Concat(keywords).ToList());
             return ret;
         }
-        public static Line newBaseItemLotLine(ParamFile param, int id = 0)
+        public static Line newBaseItemLotLine(ParamFile param, int id = 0, string name = "base item lot line")
         {
-            return Program.ItemLotParam_enemy.vanillaParamFile.GetLineWithId(215000000).Copy(param).SetField(0, id).Operate(new SetLotItem(newEmpty(), new int[] { 1, 2, 3, 4, 5, 6, 7, 8 })).SetField(1, "base item lot line");
+            return Program.ItemLotParam_enemy.vanillaParamFile.GetLineWithId(215000000).Copy(param).SetField(0, id).Operate(new SetLotItem(newEmpty(), new int[] { 2, 3, 4, 5, 6, 7, 8 })).SetField(1, name).Operate(new SetLotItem(newEmpty(1000),1)).SetField(1, name);
         }
         ParamFile CategoryParamFile
         {
@@ -205,7 +205,7 @@ namespace EldenRingCSVHelper
         public int chance;
         public bool affectByLuck = false;
 
-        public bool hasLotItem_getItemFlagIdFIs;
+        public bool hasLotItem_getItemFlagId;
         public int lotItem_getItemFlagId;
 
         public bool cumulateSet = false;
@@ -314,7 +314,7 @@ namespace EldenRingCSVHelper
             if (chance < 0)
                 Util.p();
             line.SetField(affectByLuckFIs[lotIndex - 1], affectByLuck);
-            if (hasLotItem_getItemFlagIdFIs)
+            if (hasLotItem_getItemFlagId)
                 line.SetField(lotItem_getItemFlagIdFIs[lotIndex - 1], lotItem_getItemFlagId);
 
             if (cumulateSet)
@@ -415,7 +415,7 @@ namespace EldenRingCSVHelper
 
         public void SetItemLot_getItemFlagId(int lotItem_getItemFlagId)
         {
-            hasLotItem_getItemFlagIdFIs = true;
+            hasLotItem_getItemFlagId = true;
             this.lotItem_getItemFlagId = lotItem_getItemFlagId;
         }
         public bool LotHasLotItem(Line line, int lotIndex, bool sharesLotInfo)
@@ -459,7 +459,7 @@ namespace EldenRingCSVHelper
             this.amount = amount;
             this.chance = chance;
             this.affectByLuck = affectByLuck;
-            this.hasLotItem_getItemFlagIdFIs = true;
+            this.hasLotItem_getItemFlagId = true;
             this.lotItem_getItemFlagId = lotItem_getItemFlagId;
 
             if (cumulateNumFlagId != 0) {
@@ -477,7 +477,7 @@ namespace EldenRingCSVHelper
             this.amount = amount;
             this.chance = chance;
             this.affectByLuck = affectByLuck;
-            this.hasLotItem_getItemFlagIdFIs = true;
+            this.hasLotItem_getItemFlagId = true;
             this.lotItem_getItemFlagId = lotItem_getItemFlagId;
 
             if (cumulateNumFlagId != 0)
@@ -512,7 +512,7 @@ namespace EldenRingCSVHelper
             this.amount = amount;
             this.chance = chance;
             this.affectByLuck = affectByLuck;
-            this.hasLotItem_getItemFlagIdFIs = true;
+            this.hasLotItem_getItemFlagId = true;
             this.lotItem_getItemFlagId = lotItem_getItemFlagId;
         }
         public LotItem(Line line, int lotIndex = 2, bool copyLotInfo = false)
@@ -732,9 +732,11 @@ namespace EldenRingCSVHelper
     {
         //Bosses vvvvvvvvvvvvvvvvvvvvvv
         static List<int> _bossOrMiniBossIds = new List<int>();
+        static List<int> _multiBoss = new List<int>();
         static Dictionary<int,int> _bossOrMiniBossToItemLotMapDict = new Dictionary<int, int>();
         static Dictionary<int,int> _bossOrMiniBossToItemLotMapDict2 = new Dictionary<int, int>();
         public static List<int> BossOrMiniBossIds { get { if (_bossOrMiniBossIds == null && !setInfo) SetInfo(); return _bossOrMiniBossIds; }}
+        public static List<int> MultiBoss { get { if (_multiBoss == null && !setInfo) SetInfo(); return _multiBoss; }}
         public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict { get { if (_bossOrMiniBossToItemLotMapDict == null && !setInfo) SetInfo(); return _bossOrMiniBossToItemLotMapDict; } }
         public static Dictionary<int, int> BossOrMiniBossToItemLotMapDict2 { get { if (_bossOrMiniBossToItemLotMapDict2 == null && !setInfo) SetInfo(); return _bossOrMiniBossToItemLotMapDict2; } }
         public static void CheckDataSet() { if (!setInfo) SetInfo(); }
@@ -944,6 +946,13 @@ namespace EldenRingCSVHelper
 526100052,  //Stray Mimic Tear (Hidden Path to Haligtree) (rare exception that isnt technically considered boss)
 49100038,   //Magma Wyrm (Volcano Manor) (rare exception that isnt technically considered boss) //since its not considered a boss, and drops a dragon heart (like many other enemies) im not going to make it map based drop.
             }.ToList();
+
+            _multiBoss = new List<int>();
+            _multiBoss = new int[] //unfinished list only used for one putpose
+            {
+43400940,// Mad Pumpkin Head (Flail)
+43401940,// Mad Pumpkin Head (Hammer)
+            }.ToList();
             if (_bossOrMiniBossIds.Count == 0)
             {   //only runs if list is empty, its not but if we want to upfdate the list, we leave it empty.
 
@@ -1129,6 +1138,12 @@ namespace EldenRingCSVHelper
                                 if (foundGroup)
                                     break;
                             }
+                        }
+                        foreach(int id in SharesIDsWithBosses)
+                        {
+                            if (ignoreIsInGroupIDs.Contains(id))
+                                continue;
+                            _multiBoss.Add(id);
                         }
                         //Util.println(3 + " " + isBossCondition.Pass(testline).ToString());
                         //Util.println(2);
