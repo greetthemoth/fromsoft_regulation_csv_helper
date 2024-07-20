@@ -337,6 +337,8 @@ namespace EldenRingCSVHelper
                 ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
                 ParamFile.RevertAll(true);
 
+                System.Media.SoundPlayer player = new System.Media.SoundPlayer(@"C:\CODING\Noftifications\chord.wav");
+                player.Play();
 
                 exportDirectory = @"C:\CODING OUTPUT\CSV\Choose Options";
                 {
@@ -365,17 +367,20 @@ namespace EldenRingCSVHelper
                             if (MatDrops)
                                 matDrops_string = "+MD";//" and OneTimeEquipmentDrops";
 
-                            string matDrops_DirString = @"\";
+                            string  matDrops_DirString = "";
+                            /*string matDrops_DirString = @"\";
                             if (MatDrops)
                                 matDrops_DirString += @"MatDrops";
                             else
-                                matDrops_DirString += @"No MatDrops";
+                                matDrops_DirString += @"No MatDrops";*/
+
+                            
 
                             for (bool WorldChanges = false; ; WorldChanges = true)
                             {
                                 string worldChanges_string = "";
                                 if (WorldChanges)
-                                    worldChanges_string = "+WC";//" and OneTimeEquipmentDrops";
+                                    worldChanges_string = "+LSPU";//" and OneTimeEquipmentDrops";
 
                                 lessSmithingStonePickups_DirString = @"\";
                                 if (WorldChanges)
@@ -393,19 +398,19 @@ namespace EldenRingCSVHelper
                                     else if (equipType == 2)
                                         FirstTimeEquipmentDrop = true;
 
-                                    string OTED_string = "";
+                                    string ED_string = "";
                                     if (OneTimeEquipmentDrop)
-                                        OTED_string = "+OTED";//" and OneTimeEquipmentDrops";
+                                        ED_string = "+OTED";//" and OneTimeEquipmentDrops";
                                     if (FirstTimeEquipmentDrop)
-                                        OTED_string = "+FTED";
+                                        ED_string = "+FTED";
 
-                                    var OTED_DirString = @"\";
+                                    var ED_DirString = @"\";
                                     if (OneTimeEquipmentDrop)
-                                        OTED_DirString += @"OneTime EquipDrops";
+                                        ED_DirString += @"OneTime EquipDrops";
                                     else if (FirstTimeEquipmentDrop)
-                                        OTED_DirString += @"FirstTime EquipDrops";
+                                        ED_DirString += @"FirstTime EquipDrops";
                                     else
-                                        OTED_DirString += @"Regular EquipDrops";
+                                        ED_DirString += @"Regular EquipDrops";
 
                                     for (bool DropRunes = false; ; DropRunes = true)
                                     {
@@ -416,14 +421,23 @@ namespace EldenRingCSVHelper
                                                                          //dropTypeString += "Only";
 
                                         var dropTypeDirString = @"\";
-                                        if (DropRunes)
-                                            dropTypeDirString += @"StoneDrops and RuneDrops";
+                                        if (MatDrops)
+                                        {
+                                            if (DropRunes)
+                                                dropTypeDirString += @"StoneDrops RuneDrops and MatDrops";
+                                            else
+                                                dropTypeDirString += @"StoneDrops and MatDrops";
+                                        }
                                         else
-                                            dropTypeDirString += @"StoneDrops ONLY";
+                                        {
+                                            if (DropRunes)
+                                                dropTypeDirString += @"StoneDrops and RuneDrops";
+                                            else
+                                                dropTypeDirString += @"StoneDrops ONLY";
+                                        }
 
-                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + OTED_DirString + matDrops_DirString + lessSmithingStonePickups_DirString;
+                                        RunSettings.Write_directory = exportDirectory + dropTypeDirString + multDirString + ED_DirString + matDrops_DirString + lessSmithingStonePickups_DirString;
 
-                                        var individual_exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)";
                                         ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[i]);//add the multiplier
                                         if (DropRunes)
                                             ParamFile.ImportCSVs(individual_RuneDropsDirectory);
@@ -452,7 +466,7 @@ namespace EldenRingCSVHelper
                                             ParamFile.ImportCSVs(individual_WorldChangesDirectory);
                                         }
                                         //AddedLineManager.CreateEmptyLines(emptyItemLot, "");
-                                        ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + OTED_string + matDrops_string + worldChanges_string);
+                                        ParamFile.WriteModifiedFiles("", "__" + multString + dropTypeString + matDrops_string + ED_string + worldChanges_string);
                                         ParamFile.RevertAll(true);
 
                                         if (DropRunes == true)
@@ -472,6 +486,7 @@ namespace EldenRingCSVHelper
 
                 }//old version
 
+                player.Play();
             }
 
         }
@@ -3286,6 +3301,7 @@ namespace EldenRingCSVHelper
             var npcsDocDifficultyDict = NpcData.NpcIdsToDocDifficultyDict;
             var npcsIdToSpLevelsDict = NpcData.NpcIdsToSpLevelsDict;
             var spLevelToDifficultyDict = NpcData.SpLevelToDifficultyDict;
+            var spLevelToStoneDifficultyDict = NpcData.SpLevelToStoneDifficultyDict;
 
             var BossOrMiniBossIds = NpcData.BossOrMiniBossIds;
             var BossOrMiniBossToItemLotMapDict = NpcData.BossOrMiniBossToItemLotMapDict;
@@ -3315,8 +3331,9 @@ namespace EldenRingCSVHelper
                 // numberxxx is casscade for multiple. x3 is 3; 3xx is 3 or 2; 3xxx is 3, 2, or 1.
                 // xv multiple chance mult (split). keeps overall chance of a drop the same. if "x3xxx xv0.5" then it has half the chance to drop a multiple.
                 // xvv multiple chance mult (split). keeps overall chance of a drop the same. if "x3xxx xvv0.5" then it has half the chance to drop a x2 and quarter chance to drop x1.
-                // ##number is the set level.
-                // #number is the max level clamp.
+                // #number is the set level.
+                // ##number is the min level clamp.
+                // ###number is the max level clamp.
                 // |number is level cascade pooling mult. At 0 level 1 chance doesnt stack.
                 // }number is chance mult per Level
                 // {number is chance mult per LevelCasscade
@@ -3352,13 +3369,13 @@ namespace EldenRingCSVHelper
                 string x1ChanceLevelSpread = " x1x2x2x3x xvv0.5 ";
                 string x2Chance = " x2xx xvv0.3 ";
                 string x3Chance = " x3xxx xv0.65 xvv0.65 ";
-                string footSoldier = " > -0.9 sp0.1 #4 }1.028 {0.65";          //}0.965    //we changed them to drop more with higher levels.
-                string soldier = " %0.875 sp0.12 >2 #8 }1.035 {0.65 ";        //}0.985
-                string knight = " +0.15 sp0.1 #8 }1.05 & $ @0.175 ";            //}0.985 
-                string banishedK = " #11 +0.2 sp0.15  }1.05 & $ @0.175" + knight;
-                string imp = " -1 #8 }1.035 %0.8 ";                   //}0.965
+                string footSoldier = " > -0.9 sp0.1 ###4 }1.028 {0.65";          //}0.965    //we changed them to drop more with higher levels.
+                string soldier = " %0.875 sp0.12 >2 ###8 }1.035 {0.65 ";        //}0.985
+                string knight = " +0.08 sp0.1 ###8 }1.05 $ @0.175 ";            //}0.985 
+                string banishedK = " ###11 +0.11 sp0.15 }1.05 $ @0.175 ";
+                string imp = " -1 ###8 }1.035 %0.8 ";                   //}0.965
 
-                string GiantCrab = " %0.5 +1.5 #13 }0.85 sp1 $0.5 ";
+                string GiantCrab = " %0.5 +1.5 ###13 }0.85 sp1 $0.5 ";
 
                 smithingKeywords = new string[]{
 
@@ -3373,9 +3390,9 @@ namespace EldenRingCSVHelper
                     "14 > {0.72 %0.9" + x2ChanceLevelSpread + "Large Exile Soldier",
                     "9 > {0.72 %0.9" + x2ChanceLevelSpread + "Exile Soldier",
 
-                    "2.75" + footSoldier + "sp0.5 " + x2Chance + "Radahn Foot Soldier",
-                    "5.5 #4" + soldier + "sp0.5 " + x2ChanceLevelSpread + "Radahn Soldier",
-                    "45 #4" + knight + x2Chance + "Redmane Knight",
+                    "2.75" + footSoldier + x2Chance + "Radahn Foot Soldier",
+                    "5.5 ##3.5 ###4" + soldier + x2ChanceLevelSpread + "Radahn Soldier",
+                    "45 ##4 ###5 sp0.5" + knight + x2Chance + "Redmane Knight",
 
                     "45 " + knight + x2Chance + "Cuckoo Knight",
 
@@ -3395,13 +3412,13 @@ namespace EldenRingCSVHelper
                     "2.5 >>"+x1ChanceLevelSpread+"-0.25 %0.75 {0.65 Marionette",
                     "2.5 >>"+x1ChanceLevelSpread+"-0.25 %0.75 {0.65 Avionette",
                     "10 Man-Serpent",
-                    "100 $1 ! #8 Alabaster Lord",
+                    "100 $1 ! ###8 Alabaster Lord",
                     "100 -1.3f x5 ! Onyx Lord",
                     "10 >>" +x2ChanceLevelSpread+ "Azula Beastman",
                     "10 >>" +x2Chance+ " Beastman of Farum Azula (Limgrave Cave Boss)",
                     "15 >> $"+x3ChanceLevelSpread+ "Armored Beastman of Farum Azula",
-                    "10 >> x6 ##4 Armored Beastman of Farum Azula (Boss)", //super high level for some reason
-                    "10 >> x4 ##4 Azula Beastman (Boss)",                   //super high levvel for some reason
+                    "10 >> x6 #4 Armored Beastman of Farum Azula (Boss)", //super high level for some reason
+                    "10 >> x4 #4 Azula Beastman (Boss)",                   //super high levvel for some reason
 
                     "27.5 #8 " + x2Chance + "Kaiden Sellsword",
                     "12 >> -1  x2x3x3xx $$ Demi-Human Chief",
@@ -3409,22 +3426,22 @@ namespace EldenRingCSVHelper
                     "2.5 >> -1 %0.6 x1x1x3 Demi-Human",
                     //"100 Erdtree Burial Watchdog (Limgrave Catacombs)",
                     //"100 Erdtree Burial Watchdog (Limgrave Catacombs)",
-                    //"100 +0.5 $$$$$ x1x2xx xv0.55 xvv0.55 #8 ! Elder Lion", //worse version of crucible knight drop
+                    //"100 +0.5 $$$$$ x1x2xx xv0.55 xvv0.55 ###8 ! Elder Lion", //worse version of crucible knight drop
                     "4.5 {0.85 >>> x1x1x2x3xx Stonedigger",
                     "100 & >> x3x4x5xxx $$$$$ Stonedigger Troll",
 
                     "100 x5 Magma Wyrm",
                     "100 x5 Dragonkin Soldier",
 
-                    "100 ##500 x5 Placidusax", //level 500 allows for x5 ancient drops. 
+                    "100 #500 x5 Placidusax", //level 500 allows for x5 ancient drops. 
                     //"100 & +22 xxx5 $$$$ Ancient Dragon",    //the ones that need to drop already drop ancient dragon smithing stone.
                     
                     "0 Dragonfly",
                     "50 -0.5 > & x4xxx %0.7 sp0.5 Flying Dragon (Small)",
-                    "100 & +1 x4xx $$$$ #8 sp0.15 Dragon",
-                    "100 & x4xx $$$$ ##3 Glintstone Dragon Smarag",
-                    "100 & x4xx $$$$ ##8 sss-0.8 Glintstone Dragon Adula",
-                    "100 & x4xx $$$$ ##7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
+                    "100 & +1 x4xx $$$$ ###8 sp0.15 Dragon",
+                    "100 & x4xx $$$$ #3 Glintstone Dragon Smarag",
+                    "100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula",
+                    "100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
 
                     "10 #4 Ancestral Follower",
 
@@ -3439,7 +3456,8 @@ namespace EldenRingCSVHelper
 
                     "1.75 >> %0.5 }0.85 sp1 & Starcaller",
 
-                    
+                    "100 x3 Commander Niall",
+                    "100 x3 Commander O'Neil"
                 };
 
                 somberKeywords = new string[]{
@@ -3447,22 +3465,22 @@ namespace EldenRingCSVHelper
                     //"100 Godskin Noble",
                     //"100 x3 #9 -2 Godskin Apostle",
 
-                    "35 +0.5 #8 ! Elder Lion", //somber drop just like existing ones.
+                    "35 +0.5 ###9 ! Elder Lion", //somber drop just like existing ones.
                     "100 & +22 xxx5 $$$$ Lichdragon Fortissax",
                     //"1 Lightning Ball",
-                    "100 x2 %0.9 #9 Night's Cavalry",
+                    "100 x2 %0.9 ###9 Night's Cavalry",
 
                     "7.5 -0.5f >>> Albinauric Archer",
                     "7.5 -0.5f >>> Elder Albinauric Sorcerer",
-                    "6 > x1x2 -1 %0.9 #9 Giant Albinauric Crab",
-                    "1.5 ##1 Albinauric Crab",
-                    "3.5 Large Albinauric",
-                    "2 Albinauric",
+                    "6 > x1x2 -1 %0.9 ###9 Giant Albinauric Crab",
+                    "1.5 #1 Albinauric Crab",
+                    "3.5 %0.6 Large Albinauric",
+                    "3 %0.6 -0.35 Albinauric",
 
                     "100 +0.5 ! Red Wolf of the Champion",
                     "100 +0.5 ! Red Wolf of Radagon Sword",
                     "100 -0.3 ! Red Wolf of Radagon",        //override for bosses to avoid from catching "Wolf" in runeKeywords.
-                    "0 $$$$ ##10 /100 Draconic Tree Sentinel",
+                    "0 $$$$ #10 /100 Draconic Tree Sentinel",
                     "45 > +1 $$$$$$ {2 Tree Sentinel",
 
                     "4 Nox",
@@ -3473,14 +3491,14 @@ namespace EldenRingCSVHelper
                     "10 Sanguine Noble",
                     "3 #1 Commoner",
                     "3 %0.5 -1 Putrid Corpse",
-                    "5 %0.75 Revenant Follower",
+                    "4 %0.75 -0.35 Revenant Follower", //slightly better drops than albinaurics because they dont drop much thats useful.
 
                     "3 %0.75 sp1 Clayman",
                     "8 -1 Kindred of Rot",
                     "100 & ! Demi-Human Queen",
                     "5 -0.5 %0.7 Basilisk",
                     "2 -1 %0.5 Small Fingercreeper",
-                    "100 >> x5xxx +1 & $$$5 Giant Fingercreeper",
+                    "100 >> x5 +1 & ###10 $$$$5 Giant Fingercreeper",
                     "5 > %0.85 Fingercreeper",
                     "0.22 >5 #9 {1.2 }0.85 Wandering Noble",
 
@@ -3490,14 +3508,14 @@ namespace EldenRingCSVHelper
                     "100 > x2xx & -1 $$$0.5 ! Death Rite Bird",               //set up just in case there is a respawner
                     "63 >" + x3Chance + "-2 $$$0.5 & ! Black Knife Assassin",   //set up just in case there is a respawner
                     "100 #10 $$$$ ! Black Knife Ringleader",    //Alecto
-                    "30 >> & $$0.5 #9 x1x1x2xx Zamor",
+                    "30 >> & $$0.5 ###9 x1x1x2xx Zamor",
                     
                     
 
                     "50 $$$$ +0.5 x4xxxx Misbegotten Crusader",
                     "2 -0.5 }0.9 >>>> x2x3xxx Perfumer",
 
-                    "100 & ##3 Carian Knight Bols",
+                    "100 & #3 Carian Knight Bols",
                     "15 %0.85 -1.35 > sp1 Snowfield Troll",
                     "12 %0.85"+x3Chance+"-1.35 > $$$$ sp1 @@@0.33 Frenzied Troll",
                     
@@ -3512,47 +3530,50 @@ namespace EldenRingCSVHelper
                     "15 -1 >>> x1x2x3xx sss-1 $$$$$$$1 /50 Crystalian", //force somber ftd
 
                     "8 >>" +x2ChanceLevelSpread+" sss-1.8 -0.1 /25 Glintstone Sorcerer",
-                    "22" +x3Chance+" sss-1.5 -0.1 $ /25 Karolos Glintstone Sorcerer",
-                    "22" +x3Chance+" sss-1.5 -0.1 $ /25 Lazuli Glintstone Sorcerer",
-                    "22" +x3Chance+" sss-1.5 -0.1 $ /25 Twinsage Glintstone Sorcerer",
+                    "22" +x3Chance+" sss-1.35 -0.1 $ /25 Karolos Glintstone Sorcerer",
+                    "22" +x3Chance+" sss-1.35 -0.1 $ /25 Lazuli Glintstone Sorcerer",
+                    "22" +x3Chance+" sss-1.35 -0.1 $ /25 Twinsage Glintstone Sorcerer",
      
                     //"0 x4 $$$$$$ #8 & Draconic Tree Sentinel",
 
                     "70 $$$$$$$ & x3xxx xvv0.5  /25 Troll Knight", // these are the raya lucaria ones.
                     "30 $ +0.75 {1.25 > x1x3xxx xvv0.65 /18 sss-2.2 sp1 Troll",
 
-                    "10 #4 /25 Ancestral Follower (Siofra River)",   //ghost ones.
+                    "10 #4 sss-0.5 /25 Ancestral Follower (Siofra River)",   //ghost ones.
 
-                    "14 > {0.72 /20 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
-                    "9 > {0.72 /20 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
+                    "14 > sss-0.22 {0.72 /20 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
+                    "9 > sss-0.22 {0.72 /20 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
 
-                    "45" + knight + x2Chance + "/20 Mausoleum Knight",
-                    "2.75" + footSoldier + x2Chance + "/20 Mausoleum Foot Soldier",
-                    "5.5" + soldier + x2ChanceLevelSpread + "/20 Mausoleum Soldier",
-                    "60" + banishedK + x3Chance + "/20 Mausoleum Banished Knight",
+                    "45 sss-0.5" + knight + x2Chance + "/20 Mausoleum Knight",
+                    "2.75 sss-0.5" + footSoldier + x2Chance + "/20 Mausoleum Foot Soldier",
+                    "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/20 Mausoleum Soldier",
+                    "60 sss-0.5" + banishedK + x3Chance + "/20 Mausoleum Banished Knight",
 
                     "65 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 /12 x4xx xv0.65 xvv0.5 Fell Twin",
-                    "55 > /15 +0.5 & #8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Crucible Knight", //the percent chance increase has to acount for casscade.
-                    "55 > /15 +0.5 & #8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Tanith's Knight", //the percent chance increase has to acount for casscade.
+                    "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Crucible Knight", //the percent chance increase has to acount for casscade.
+                    "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Tanith's Knight", //the percent chance increase has to acount for casscade.
 
 
-                    "45 -1> /20 $$ sss-1 -0.8 #8 Giant Beast Skeleton",
-                    "45 -1 /20 $$ sss-0.8 #8 Giant Skeleton",
-                    "4.5 -1 /20 sss-1.2 #8 Skeleton",
-                    "4.6 -1> /20 sss-1.2 #8 Beast Skeletal",
-                    "6 -1> /20 sss-1.2 #8 Beast Skeletal Knight",
-                    "9 -1 /20 sss-1.2 #8 Skeletal Soldier",
-                    "4.5 -1 /20 sss-1.2 #8 Skeletal",
+                    "45 -1> /20 $$ sss-1 -0.8 ###8 Giant Beast Skeleton",
+                    "45 -1 /20 $$ sss-0.8 ###8 Giant Skeleton",
+                    "4.5 -1 /20 sss-1.2 ###8 Skeleton",
+                    "4.6 -1> /20 sss-1.2 ###8 Beast Skeletal",
+                    "6 -1> /20 sss-1.2 ###8 Beast Skeletal Knight",
+                    "9 -1 /20 sss-1.2 ###8 Skeletal Soldier",
+                    "4.5 -1 /20 sss-1.2 ###8 Skeletal",
 
-                    "50 /30 x3 $$$$$$$ #8 Battlemage", //forced somber
+                    "50 sss-0.5 /30 x3 $$$$$$$ ###8 Battlemage", //forced somber
 
-                    "8 Guardian",
-                    "65 /10" + knight + x3Chance + "Cleanrot Knight",
+                    "25 sss-1.2 /15  x4xxx %0.85 $$ xv0.6 xvv0.75 Guardian Golem",    //none archer
+
+                    "8 sss-0.5 /12 Guardian",
+
+                    "65 sss-0.3 /10" + knight + x3Chance + "Cleanrot Knight",
                     "10 >> sss-1.5 Mad Pumpkin Head",
                     "3 Highwayman",
                     "4.5 {0.85 >>> x1x1x2x3xx Glintstone Digger",
-                    "25 /25 x4xxx %0.85 $$ xv0.6 xvv0.75 Guardian Golem",    //tweek to make archers kill.
+                    
                     "10 >2 x2 /8 Omenkiller",
 
                     "15 -1> x3x4xxx /20 $$ Depraved Perfumer",
@@ -3564,8 +3585,8 @@ namespace EldenRingCSVHelper
                 };
 
                 runeKeywords = new string[]{
-                    "100 ##13 Elite Runebear",
-                    "100 %0.5 +3 #13 {1.15  sp1 & $2 Runebear",//}0.85
+                    "100 ###13 Elite Runebear",
+                    "100 %0.5 +3 ###13 {1.15  sp1 & $2 Runebear",//}0.85
                     "60" + GiantCrab + "Giant Death Crab",
                     "10 %0.5 #1 }0.85 sp1 Death Crab",
                     "60" + GiantCrab + "Giant Black Crab",
@@ -3575,39 +3596,39 @@ namespace EldenRingCSVHelper
 
                     //"20 %0.5 #5 }0.85 +1.5 sp1 Warhawk",
 
-                    "15 > %0.65 #6 }0.85 +0.6 & sp1 & $$$$5 @@@0.2  $0.6 White Wolf",
-                    "5 > %0.65 #4 }0.85 -1 & sp1 Wolf",
-                    "8.5 %0.5 >> }0.825 #13 +1.85 & sp1 Large Azula Stray",
-                    "8.5 %0.5 >> }0.825 #13 +1.85 & sp1 Large Stray",
-                    "3.5 %0.5 >> }0.825 #5 -0.65 & sp1 Stray",
+                    "15 > %0.65 ###6 }0.85 +0.6 & sp1 & $$$$5 @@@0.2  $0.6 White Wolf",
+                    "5 > %0.65 ###4 }0.85 -1 & sp1 Wolf",
+                    "8.5 %0.5 >> }0.825 ###13 +1.85 & sp1 Large Azula Stray",
+                    "8.5 %0.5 >> }0.825 ###13 +1.85 & sp1 Large Stray",
+                    "3.5 %0.5 >> }0.825 ###5 -0.65 & sp1 Stray",
 
-                    "12 >> $1 %0.35 +2.5 }0.85 {1.2 #8 sp1 & $$ Giant Rat",
-                    "5 >> %0.35 }0.85 #3 sp1 & Rat",
+                    "12 >> $1 %0.35 +2.5 }0.85 {1.2 ###8 sp1 & $$ Giant Rat",
+                    "5 >> %0.35 }0.85 ###3 sp1 & Rat",
 
 
-                    "15 $4 ##5 Operatic Bat",   //uses flags that we want to keep.
-                    "12 >>> %0.85 +0.7 |0 }0.875 {1.125 #5 sp1 Man-Bat",
-                    "9 %0.5 > #6 }0.9 sp0.5 Dominula Celebrant", //already drops runes
-                    "30 $$$$6.5 %0.5 > #5 +0.5 }0.85 sp1 & Land Squirt",
-                    "65  $$$$8 @@@0.25  %0.5 > #13 +2 }0.85 sp1 & Giant Land Squirt",
-                    "65  $$$$10 @@@0.25  %0.5 > #13 +2 }0.85 sp1 & Giant Rotten Land Squirt",
+                    "45 #5 $4 sp1 Operatic Bat",   //uses flags that we want to keep.
+                    "12 >>> %0.85 +0.7 |0 }0.875 {1.125 ###5 sp1 Man-Bat",
+                    "9 %0.5 > ###6 }0.9 sp0.5 Dominula Celebrant", //already drops runes
+                    "30 $$$$6.5 %0.5 > ###5 +0.5 }0.85 sp1 & Land Squirt",
+                    "65  $$$$8 @@@0.25  %0.5 > ###13 +2 }0.85 sp1 & Giant Land Squirt",
+                    "65  $$$$10 @@@0.25  %0.5 > ###13 +2 }0.85 sp1 & Giant Rotten Land Squirt",
                     
 
 
                     "30 %0.5 > }0.85 +0.75 $$$4.2 @@@@@0.30 sp1 & Giant Land Octopus",
                     "8 #1 }0.85 sp1 & Land Octopus",
 
-                    //"10 %0.5 #5 }0.85 sp1 & Guilty",
-                    //"8 %0.75 $3 sp1 #10 Fire Monk", //lands between runes.
-                    //"12 %0.75 $3 sp1 #10 Blackflame Monk",
+                    //"10 %0.5 ###5 }0.85 sp1 & Guilty",
+                    //"8 %0.75 $3 sp1 ###10 Fire Monk", //lands between runes.
+                    //"12 %0.75 $3 sp1 ###10 Blackflame Monk",
 
                     "23 > $$$$4.3 @@@0.2 %0.5 +1 }0.85 #13 sp1 & Miranda Blossom",
                     "8 #2 %0.25 }0.55 sp1 &  Miranda Sprout",
 
-                    "15 >> $$$$10 @@@0.2 %0.5 +1.65 }0.85 #13 sp1 & Giant Dog",
-                    "15 >> $$$$10 @@@0.2 %0.5 +1.65 }0.85 #13 sp1 & Giant Crow",
+                    "15 >> $$$$10 @@@0.2 %0.5 +1.65 }0.85 ###13 sp1 & Giant Dog",
+                    "15 >> $$$$10 @@@0.2 %0.5 +1.65 }0.85 ###13 sp1 & Giant Crow",
 
-                    "12 > $$$$11 @@@0.05 }0.85 ##4.3 & Giant Ant",
+                    "12 > $$$$11 @@@0.05 }0.85 #4.3 & Giant Ant",
 
                     "65 $$$$12 @@@0.2 %0.65 +1.2 }0.85 sp1 & Giant Crayfish",
                     //"30  %0.5 +2 }0.85 sp1 Watcher Stones",
@@ -3684,9 +3705,13 @@ namespace EldenRingCSVHelper
 
                 keywordOverrideIDsDict = new Dictionary<int, string>();
                 {
-                    keywordOverrideIDsDict.Add(43530020, "SS 60 ##3 " + knight + " Leyndell Knight (Lurinia Override)");
-                    string altusLleyndelKnight = "SS 60 ##4.5 " + knight + " Leyndell Knight (Altus Override)";
-                    string altusLleyndelSoldier = "SS 4.5 ##4.5 " + soldier + " Leyndell Soldier (Altus Override)";
+                    foreach (int npcId in ((Lines)NpcParam.GetLinesOnCondition(new Condition.HasInName("Guardian Golem").AND(new Condition.FloatFieldCompare(NpcParam.GetFieldIndex("enableSoundObjDist"), Condition.EQUAL_TO, 500)))).GetIDs()) {
+                        keywordOverrideIDsDict.Add(npcId, "SSSSS 18 /15 sss-1.2 x2xx %0.85 $ xv0.6 xvv0.75 Guardian Golem (Archer Override)");    //tweek to make archers kill.
+                    }
+
+                    keywordOverrideIDsDict.Add(43530020, "SS 60 #3 " + knight + " Leyndell Knight (Lurinia Override)");
+                    string altusLleyndelKnight = "SS 60 #4.5 " + knight + " Leyndell Knight (Altus Override)";
+                    string altusLleyndelSoldier = "SS 4.5 #4.5 " + soldier + " Leyndell Soldier (Altus Override)";
                     keywordOverrideIDsDict.Add(43530032, altusLleyndelKnight);
                     keywordOverrideIDsDict.Add(43530030, altusLleyndelKnight);
                     keywordOverrideIDsDict.Add(43531130, altusLleyndelKnight);
@@ -3700,11 +3725,11 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(43130332, altusLleyndelSoldier);
                     keywordOverrideIDsDict.Add(43133030, altusLleyndelSoldier);
 
-                    keywordOverrideIDsDict.Add(43400940, "SS 10 $ >> ##3.3 sss-1.5 Mad Pumpkin Head (Flail duo boss)"); //special case where its both a duo boss and drops nothing. if we want to auto mate this we will need to add an "is duo" variable. Thats not tied to IsItemLotMap List. For now we will simply create overrides that add one time drop.
-                    keywordOverrideIDsDict.Add(43401940, "SS 10 $ >> ##3.3 sss-1.5 Mad Pumpkin Head (Hammer duo boss)");
+                    keywordOverrideIDsDict.Add(43400940, "SS 10 $ >> #3.3 sss-1.5 Mad Pumpkin Head (Flail duo boss)"); //special case where its both a duo boss and drops nothing. if we want to auto mate this we will need to add an "is duo" variable. Thats not tied to IsItemLotMap List. For now we will simply create overrides that add one time drop.
+                    keywordOverrideIDsDict.Add(43401940, "SS 10 $ >> #3.3 sss-1.5 Mad Pumpkin Head (Hammer duo boss)");
 
-                    keywordOverrideIDsDict.Add(21400930, "SSSSS 65 ##4.5 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Omen Override)");  //undocumented omen in altus - lleyndel outskirts
-                    keywordOverrideIDsDict.Add(21401930, "SSSSS 65 ##4.5 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Override)");  //undocumented omen in altus - lleyndel outskirts
+                    keywordOverrideIDsDict.Add(21400930, "SSSSS 65 #4.5 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Omen Override)");  //undocumented omen in altus - lleyndel outskirts
+                    keywordOverrideIDsDict.Add(21401930, "SSSSS 65 #4.5 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Override)");  //undocumented omen in altus - lleyndel outskirts
 
                     keywordOverrideIDsDict.Add(46003140, "SSS 8 %0.85 -1.35 > sp1 $$$$1 Troll (Pot Thrower Override)");//Pot Thrower? Troll override
                     keywordOverrideIDsDict.Add(46000040, "SSS 8 %0.85 -1.35 > sp1 $$$$1 Troll (Pot Thrower Override)");//Pot Thrower? Troll override
@@ -3713,23 +3738,23 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(46001010, "SSS 6 #1 x3xx Troll (Carriage Override)");//Carriage Troll override
                     keywordOverrideIDsDict.Add(46000065, "");//Mimic Troll override
 
-                    keywordOverrideIDsDict.Add(43520020, "SS 45 ##3.5 " + knight + " Cuckoo Knight (Four Belfries and Bellum Override)");
-                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /20 ##3 " + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
+                    keywordOverrideIDsDict.Add(43520020, "SS 45 #3.5 " + knight + " Cuckoo Knight (Four Belfries and Bellum Override)");
+                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /20 #3 " + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
                     keywordOverrideIDsDict.Add(45100572, "SSSSS 100 > +10 xxx5 & $$$$ Ancient Dragon (Droppers Override)");
-                    keywordOverrideIDsDict.Add(46500265, "SS 100 x5 ##3 Dragonkin Soldier (Nokrom Override)");
+                    keywordOverrideIDsDict.Add(46500265, "SS 100 x5 #3 Dragonkin Soldier (Nokrom Override)");
                     keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5x $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
 
-                    keywordOverrideIDsDict.Add(30100172, "SSSSS 45" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    keywordOverrideIDsDict.Add(30101172, "SSSSS 45" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    keywordOverrideIDsDict.Add(30102172, "SSSSS 45" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30100172, "SSSSS 45 " + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30101172, "SSSSS 45 " + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30102172, "SSSSS 45 " + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
                     
                     keywordOverrideIDsDict.Add(34510912, "SS 30 -0.33 x2 $$ Scaly Misbegotten (Morne Tunnel Boss Override)");
 
-                    keywordOverrideIDsDict.Add(31810022, "SSS 100 ##6.9 ! Red Wolf of Radagon (Moonlight Altar Override)");
-                    keywordOverrideIDsDict.Add(45021922, "SS 100 & x4xx $$$$ ##8 sss-0.8 Glintstone Dragon Adula (Moonlight Altar Override)");
-                    keywordOverrideIDsDict.Add(45020022, "SS 100 & x4xx $$$$ ##7 sss-0.7 Glintstone Dragon (Moonlight Plateau Override)");
+                    keywordOverrideIDsDict.Add(31810022, "SSS 100 #6.9 ! Red Wolf of Radagon (Moonlight Altar Override)");
+                    keywordOverrideIDsDict.Add(45021922, "SS 100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula (Moonlight Altar Override)");
+                    keywordOverrideIDsDict.Add(45020022, "SS 100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau Override)");
                     
-                    //keywordOverrideIDsDict.Add(35700028, "SSS 100 ##8 Godskin Noble (Liurnia Divine Tower Override)");
+                    //keywordOverrideIDsDict.Add(35700028, "SSS 100 #8 Godskin Noble (Liurnia Divine Tower Override)");
 
                     //keywordOverrideIDsDict.Add(32511030, "SSS 45 > +1 $$$$$$ Tree Sentinel (Lleyndel Outskirts Duo Override)");
                     //keywordOverrideIDsDict.Add(32510030, "SSS 45 > +1 $$$$$$ Tree Sentinel (Lleyndel Outskirts Duo Override)");
@@ -3761,7 +3786,8 @@ namespace EldenRingCSVHelper
             Dictionary<string, float> spLevelSplitDict = new Dictionary<string, float>();
             Dictionary<string, float> levelMultDict = new Dictionary<string, float>();
             Dictionary<string, float> levelAdjDict = new Dictionary<string, float>();
-            Dictionary<string, float> levelClampDict = new Dictionary<string, float>();
+            Dictionary<string, float> levelMaxDict = new Dictionary<string, float>();
+            Dictionary<string, float> levelMinDict = new Dictionary<string, float>();
             Dictionary<string, float> setLevelDict = new Dictionary<string, float>();
             Dictionary<string, float> levelToChanceMultDict = new Dictionary<string, float>();
             Dictionary<string, float> somberLevelAdjDict = new Dictionary<string, float>();
@@ -3781,7 +3807,7 @@ namespace EldenRingCSVHelper
             var cumulateReset01 = ItemLotParam_enemy.GetFieldIndex("cumulateReset01");*/
 
             Dictionary<string, string> descriptionDict = new Dictionary<string, string>();
-
+            const bool PrintOutDescriptions = false;
             for (int k = 0; k < 2; k++)
             {
                 string[] keywords = null;
@@ -3837,8 +3863,9 @@ namespace EldenRingCSVHelper
                     //"30 +1 knight" = +1 
                     //"30 -1 knight" = -1 
                     float spLevelSplit = 0;
-                    float setLevel = -1;    //##num
-                    float levelClamp = -1;    //#num
+                    float setLevel = -1;    //#num
+                    float levelMax = -1;    //###num
+                    float levelMin = -1;    //##num
                     float levelToChanceMult = 1; //}num
                     float casscadeLevelToChanceMult = 1; //{num
 
@@ -3961,28 +3988,34 @@ namespace EldenRingCSVHelper
                         }
 
                         {
-                            int xFound = 0;
-                            string xx = "#";
-                            while (keyword.IndexOf(xx) != -1)
+                            
                             {
-                                xFound++;
-                                xx += "#";
-                            }
-                            if (xFound > 0)
-                            {
-                                //get setLevel
-                                string pattern = @"#(\d+(\.\d+)?)";
-                                Match match = Regex.Match(keyword, pattern);
-                                if (match.Success)
                                 {
-                                    if(xFound == 2)
+                                    string pattern = @" #(\d+(\.\d+)?)";
+                                    Match match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
+                                    {
                                         setLevel = float.Parse(match.Groups[1].Value);
-                                    else if(xFound == 1)
-                                        levelClamp = float.Parse(match.Groups[1].Value);
+                                    }
                                 }
-                                //if (isOverride && keywordOverrideIDsDict[43530020] == keyword)
-                                //    Util.p();
+                                {
+                                    string pattern = @" ###(\d+(\.\d+)?)";
+                                    Match match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
+                                    {
+                                        levelMax = float.Parse(match.Groups[1].Value);
+                                    }
+                                }
+                                {
+                                    string pattern = @" ##(\d+(\.\d+)?)";
+                                    Match match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
+                                    {
+                                        levelMin = float.Parse(match.Groups[1].Value);
+                                    }
+                                }
                             }
+
                         }                        
                         {
                             //get level to chance mult
@@ -4214,64 +4247,69 @@ namespace EldenRingCSVHelper
 
                     //Debug.Assert(!simplifiedKeywordNameDict.ContainsKey(simplifiedKeywordName), "cant share same keyword phrase");
                     //Debug.Assert(!isSmithingDict.ContainsKey(keyword), "cant share same keyword");
-
-                    description += percentNum * (LevelCasscade + 1) + "% chance to drop ";
-                    string noun = "Stone";
-
-                    if (isSmithing)
-                        description += "Smithing Stones ";
-                    if (isSmithing && isSomber)
-                        description += "& ";
-                    if (isSomber)
-                        description += "Somber Smithing Stones ";
-                    if ((isSmithing || isSomber) && isRune)
-                        description += "& ";
-                    if (isRune) {
-                        description += "Runes ";
-                        noun = "Rune";
-                    }
-                    
-
-                    float hL = levelAdj;
-                    float lL = levelAdj - LevelCasscade;
-
+                    if (PrintOutDescriptions)
                     {
-                        string qualifier = "";
-                        if (Math.Abs(somberLevelAdj) < 1)
-                            qualifier = "can ";
-                        if (levelAdj > 0)
-                        {
-                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "can drop higher level " + noun + "s)";
-                        }
-                        else if (levelAdj < 0)
-                        {
-                            description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
-                        }
-                    }
-                    if (isSomber) {
-                        string qualifier = "";
-                        if(Math.Abs(somberLevelAdj) < 1)
-                            qualifier = "can ";
-                        if (somberLevelAdj+levelAdj > 0)
-                        {
-                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drop higher level " + noun + "s)";
-                        } else if (somberLevelAdj+levelAdj < 0)
-                        {
-                            description += "\n   level adjustment compared to area level specifically for Somber Stones:" + somberLevelAdj+levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
-                        }
-                    }
+                        description += percentNum * (LevelCasscade + 1) + "% chance to drop ";
+                        string noun = "Stone";
 
-                    if (LevelCasscade == 1)
-                        description += "\n   inludes " + noun + "s " + 1 + " level lower than adjusted level";
-                    else if(LevelCasscade > 1)
-                        description += "\n   inludes " + noun + "s up to "+LevelCasscade+ " levels lower than adjusted level";
+                        if (isSmithing)
+                            description += "Smithing Stones ";
+                        if (isSmithing && isSomber)
+                            description += "& ";
+                        if (isSomber)
+                            description += "Somber Smithing Stones ";
+                        if ((isSmithing || isSomber) && isRune)
+                            description += "& ";
+                        if (isRune)
+                        {
+                            description += "Runes ";
+                            noun = "Rune";
+                        }
 
-                    if (firstTimeDropSeverity != -1)
-                    {
-                        description += "\n   has a guarenteed drop on the first kill (varient based)";
+
+                        float hL = levelAdj;
+                        float lL = levelAdj - LevelCasscade;
+
+                        {
+                            string qualifier = "";
+                            if (Math.Abs(somberLevelAdj) < 1)
+                                qualifier = "can ";
+                            if (levelAdj > 0)
+                            {
+                                description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "can drop higher level " + noun + "s)";
+                            }
+                            else if (levelAdj < 0)
+                            {
+                                description += "\n   level adjustment compared to area level:" + levelAdj + " (" + qualifier + "drops lower level " + noun + "s)";
+                            }
+                        }
+                        if (isSomber)
+                        {
+                            string qualifier = "";
+                            if (Math.Abs(somberLevelAdj) < 1)
+                                qualifier = "can ";
+                            if (somberLevelAdj + levelAdj > 0)
+                            {
+                                description += "\n   level adjustment compared to area level specifically for Somber Stones:" + (somberLevelAdj + levelAdj) + " (" + qualifier + "drop higher level " + noun + "s)";
+                            }
+                            else if (somberLevelAdj + levelAdj < 0)
+                            {
+                                description += "\n   level adjustment compared to area level specifically for Somber Stones:" + (somberLevelAdj + levelAdj) + " (" + qualifier + "drops lower level " + noun + "s)";
+                            }
+                        }
+
+                        if (LevelCasscade == 1)
+                            description += "\n   inludes " + noun + "s " + 1 + " level lower than adjusted level";
+                        else if (LevelCasscade > 1)
+                            description += "\n   inludes " + noun + "s up to " + LevelCasscade + " levels lower than adjusted level";
+
+                        if (firstTimeDropSeverity != -1)
+                        {
+                            description += "\n   has a guarenteed drop on the first kill (varient based)";
+                        }
+
+                        descriptionDict.Add(keyword, description);
                     }
-
-                    descriptionDict.Add(keyword, description);
 
                     isSmithingDict.Add(keyword, isSmithing);
                     isSomberDict.Add(keyword, isSomber);
@@ -4293,7 +4331,8 @@ namespace EldenRingCSVHelper
                     levelMultDict.Add(keyword, levelMult);
                     levelAdjDict.Add(keyword, levelAdj);
                     setLevelDict.Add(keyword, setLevel);
-                    levelClampDict.Add(keyword, levelClamp);
+                    levelMaxDict.Add(keyword, levelMax);
+                    levelMinDict.Add(keyword, levelMin);
                     levelToChanceMultDict.Add(keyword, levelToChanceMult);
                     casscadeLevelToChanceMultDict.Add(keyword, casscadeLevelToChanceMult);
                     somberLevelAdjDict.Add(keyword, somberLevelAdj);
@@ -4304,6 +4343,16 @@ namespace EldenRingCSVHelper
                     percentNumDict.Add(keyword, percentNum);
                     oneLineDict.Add(keyword, oneLine);
                 }
+            }
+            
+            if (PrintOutDescriptions) {
+                foreach(string key in descriptionDict.Keys)
+                {
+                    Util.println("keyword: " + simplifiedKeywordNameDict[key]);
+                    Util.println(descriptionDict[key]);
+                    Util.println();
+                }
+                Util.p();
             }
 
             //check names in dictionary.
@@ -4512,7 +4561,7 @@ namespace EldenRingCSVHelper
 
                 //if(keywordOverrideIDsDict.ContainsKey(npcID))
                 // if(somberLevelAdjDict[keyword] != 0)\
-                //if(keyword == "15 x2xx xvv0.3  sss-1.6 -0.1 /25 Glintstone Sorcerer")
+                if(keyword == "100 >> x5 +1 & ###10 $$$$5 Giant Fingercreeper")
                 //SET TEST
                 //if (npcID == 21000052)
                 //if( 
@@ -4521,10 +4570,9 @@ namespace EldenRingCSVHelper
                 //  npcLine.name.Contains("Godrick Soldier") )
                 //if     (npcLine.name.Contains("igger"))
 
-                //testId = npcID;
+                testId = npcID;
 
                 bool test = testId == npcID;
-
 
                 bool isBoss = BossOrMiniBossIds.Contains(npcID);
                 bool isMultiBoss = NpcData.MultiBoss.Contains(npcID);
@@ -4543,6 +4591,7 @@ namespace EldenRingCSVHelper
 
                 int mySpLevelNum = -1;
                 float spLevel = -1;
+                float stoneSpLevel = -1;
                 {
 
                     if (npcsIdToSpLevelsDict.ContainsKey(npcID))
@@ -4550,6 +4599,8 @@ namespace EldenRingCSVHelper
                         mySpLevelNum = npcsIdToSpLevelsDict[npcID];
                         if (spLevelToDifficultyDict.ContainsKey(mySpLevelNum))
                             spLevel = spLevelToDifficultyDict[mySpLevelNum];
+                        if (spLevelToStoneDifficultyDict.ContainsKey(mySpLevelNum))
+                            stoneSpLevel = spLevelToDifficultyDict[mySpLevelNum];
                     }
                 }
 
@@ -4571,12 +4622,12 @@ namespace EldenRingCSVHelper
                     }
                     else
                     {
-                        if (spLevel == -1)
+                        if (stoneSpLevel == -1)
                             continue;
 
                         //var idName = npcLine._idName;
                         //Console.WriteLine(idName);
-                        level = spLevel;
+                        level = stoneSpLevel;
 
 
                         if (level == -1)
@@ -4772,6 +4823,8 @@ namespace EldenRingCSVHelper
                     float preSplitLevel = level;
                     if (spLevelSplit != 0 && spLevel != -1 && level != spLevel)
                         level = (spLevelSplit * spLevel) + (level * (1 - spLevelSplit));
+                    //if (npcID == 30100172)
+                    //    Util.p();
                     if (test)//|| (spLevelSplit != 0 && preSplitLevel != level))
                         Util.println(npcLine._idName + " documented " + documented + " preSplitlevel " + preSplitLevel + "  spLevelSplit " + spLevelSplit + "  level " + level);
                 }
@@ -5493,7 +5546,8 @@ namespace EldenRingCSVHelper
                     }
                     if (!IsItemLotMapDrop && (isBoss || isForceBossDisplay))
                         npcLine.SetField("dropType", 1);
-                    npcLine.SetField("itemLotId_enemy", itemLotID);
+                    if(!IsItemLotMapDrop)
+                        npcLine.SetField("itemLotId_enemy", itemLotID);
                     //create smithing stone line.
 
                     if (test)
@@ -5532,12 +5586,12 @@ namespace EldenRingCSVHelper
                     int levelCasscade = levelCasscadeDict[keyword];
 
 
-                    float DROPMULTamountMult = DROPMULT; useSingleLine:
+                    float DROPMULTamountMult = DROPMULT; 
                     float DROPMULTpercentMult = DROPMULT;
 
                     {
                         float effectivePercent = percentChance * (levelCasscade + 1);
-                        DROPMULTpercentMult = Math.Min(1000 / effectivePercent, DROPMULTpercentMult);
+                        DROPMULTpercentMult = Math.Min(Math.Max(1f,1000 / effectivePercent), DROPMULTpercentMult);
                         float MaxPercent = (effectivePercent * 1.5f) + (effectivePercent * 0.25f * DROPMULT);
                         float MaxPercentMult = MaxPercent / effectivePercent;
                         DROPMULTpercentMult = Math.Min(MaxPercentMult, DROPMULTpercentMult);
@@ -5679,16 +5733,20 @@ namespace EldenRingCSVHelper
                         else if (currentlyFirstDropGuarentee)
                             curGiveUniqueItemFlagID = true;
 
-                        {   //level max clamp
-                            float levelClamp = levelClampDict[keyword];
-                            if (levelClamp != -1 && curAdjustedLevel > levelClamp)
-                                curAdjustedLevel = levelClamp;
+                           //level max clamp
+                            float levelMax = levelMaxDict[keyword];
+                            float levelMin = levelMinDict[keyword];
+                            if (levelMax != -1 && curAdjustedLevel > levelMax)
+                                curAdjustedLevel = levelMax;
+                            if (levelMin != -1 && curAdjustedLevel < levelMin)
+                                curAdjustedLevel = levelMin;
                             if (curAdjustedLevel < 1)
                                 curAdjustedLevel = 1; //makes foot soldiers and imps still useful in the beginning.
-
+                            //if (npcID == 30100172)
+                            //    Util.p();
                             //if (isBoss) //bosses cant be decimal levels.
                             //    curAdjustedLevel = (int)(curAdjustedLevel + 0.7f);
-                        }
+                        
 
                         if (treatAsBoss || currentlyFirstDropGuarentee)
                         {
@@ -5830,6 +5888,9 @@ namespace EldenRingCSVHelper
 
                             float startLevelPercentMult = 1;
                             float lastLevelPercentMult = 1;
+
+                            int typeLevelCount = dropTypesIDsDictionaries[typeIndex].Count;
+
                             if (isDecimalLevel)
                             {
                                 startLevelPercentMult = Math.Abs(curTypeAdjustedLevel) % 1;    // level 1.96 -> 0.96
@@ -5839,7 +5900,7 @@ namespace EldenRingCSVHelper
                                     createNewLineforThisType = true; // has to create a singleLine Tis type.
                                     useSingleLineOnce = true;   //so you still can only get one level of drop per kill.
                                 }
-                                if (levelCasscade != -1)
+                                if (levelCasscade != -1 && !(typeIndex < 2 && startLevel >= typeLevelCount))
                                     levelCasscade++;
                                 lastLevelPercentMult *= 1 - startLevelPercentMult;    //level 0.04
                             }
@@ -5890,7 +5951,7 @@ namespace EldenRingCSVHelper
                                 Util.p();
 
                             float startLevelPercent = curTypePercentChance;
-                            int typeLevelCount = dropTypesIDsDictionaries[typeIndex].Count;
+                            
 
                             bool canDropAncient = false;
 
@@ -6035,8 +6096,8 @@ namespace EldenRingCSVHelper
 
                                 int curCasscadeXAmount = 1;
                                 if (!FTD_Dropx1 || !(treatAsBoss || currentlyFirstDropGuarentee)) {
-                                    if (targetSmithingStoneLineID == 431200307)
-                                        Util.p();
+                                    //if (targetSmithingStoneLineID == 431200307)
+                                    //    Util.p();
                                     int xAmountCasscadeIndex = casscadeIndex;
                                     if (canDropAncient)
                                         xAmountCasscadeIndex--;
@@ -6993,7 +7054,21 @@ namespace EldenRingCSVHelper
             //reduce level of sombers that are not LD by 2.
             var stoneLines = ItemLotParam_map.GetLinesOnCondition(isStone);
 
-            Random rand = new Random(0);    //seed is 0 for consistency.
+            //Random rand = new Random(0);    //seed is 0 for consistency.
+
+            //somber lines to not transform?
+            //liurnia gazebo smithing stones
+            int[] luirniaGazeboIDs = new int[] {
+                1035440110,
+                1035470010,
+                1037430010,
+                1037450100,
+                1038420000,
+                1036430000,
+            };
+
+            var isLuirniaGazeboCond = new Condition.IDCheck(luirniaGazeboIDs);
+            
 
             foreach (var stoneLine in stoneLines)
             {
@@ -7049,6 +7124,12 @@ namespace EldenRingCSVHelper
                     if (isAncient)
                         continue;
 
+                    bool forceTransformToSmithingStone = false;
+                    if (isLuirniaGazeboCond.Pass(stoneLine))
+                    {
+                        forceTransformToSmithingStone = true;
+                    }
+
                     //Open World Changes
                     const float SSchanceToReduceLevel = 0f;
                     const float SSLevelMult = 1f;
@@ -7080,12 +7161,16 @@ namespace EldenRingCSVHelper
                     const float LD_SomberSSchanceToChangeIntoSmithing = 0.35f;
                     const float LD_SomberSSChangeIntoSmithing_LevelMult = 0.93f; //reduces it to be relative to other.
 
+                    
 
 
 
 
                     int runeLevel = -1;
                     bool turnToSmithing = false;
+
+                    Random rand = new Random(stoneLine.id_int);    //seed is line id for consistency.
+
                     if (canTransformItem)
                     {
                         if (!isSomber)
@@ -7103,11 +7188,11 @@ namespace EldenRingCSVHelper
                         {
                             if (legacyDungeon)
                             {
-                                if (rand.NextDouble() < LD_SomberSSchanceToChangeIntoSmithing)
+                                if (forceTransformToSmithingStone || rand.NextDouble() < LD_SomberSSchanceToChangeIntoSmithing)
                                     turnToSmithing = true;
                             }
                             else
-                            if (rand.NextDouble() < SomberSSchanceToChangeIntoSmithing)
+                            if (forceTransformToSmithingStone || rand.NextDouble() < SomberSSchanceToChangeIntoSmithing)
                                 turnToSmithing = true;
 
                             if (!turnToSmithing)

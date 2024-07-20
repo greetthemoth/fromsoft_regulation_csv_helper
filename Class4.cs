@@ -1337,10 +1337,12 @@ namespace EldenRingCSVHelper
         static Dictionary<int, List<Keyword>> _npcDocToLocationsDict;
         static Dictionary<int, int> _npcsIdToSpLevelsDict;
         static Dictionary<int, float> _spLevelToDifficultyDict;
+        static Dictionary<int, float> _spLevelToStoneDifficultyDict;
         static bool setInfo = false;
         public static Dictionary<int, float> NpcIdsToDocDifficultyDict { get { if (_npcsDocDifficultyDict == null && !setInfo) SetInfo(); return _npcsDocDifficultyDict; } }
         public static Dictionary<int, int> NpcIdsToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null && !setInfo) SetInfo(); return _npcsIdToSpLevelsDict; } }
         public static Dictionary<int, float> SpLevelToDifficultyDict { get { if (_spLevelToDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToDifficultyDict; } }
+        public static Dictionary<int, float> SpLevelToStoneDifficultyDict { get { if (_spLevelToStoneDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToStoneDifficultyDict; } }
         public static List<int> DocumentedNpcIDsList { get { if (_documentedNpcIDsList == null && !setInfo) SetInfo(); return _documentedNpcIDsList; } }
         static void SetNpcDifficulty()
         {
@@ -1439,12 +1441,11 @@ namespace EldenRingCSVHelper
                     difficultyOfLocationDict.Add(moonlightAltarLocations, 7.2f);
 
 
-                    /*string[] caelidLocations =
+                    string[] caelidLocations =
                     "Caelid\nCaelem Ruins\nCaelid Catacombs\nCaelid Colosseum\nCaelid Waypoint Ruins\nCathedral of Dragon Communion\nChurch of the Plague\nDivine Tower of Caelid\nForsaken Ruins\nFort Gael\nGael Tunnel\nGaol Cave\nGowry's Shack\nMinor Erdtree (Caelid)\nMinor Erdtree Catacombs\nSellia Crystal Tunnel\nSellia Gateway\nSellia, Town of Sorcery\nShack of the Rotting\nSmoldering Church\nStreet of Sages Ruins\nSwamp Lookout Tower\nSwamp of Aeonia\nWailing Dunes\nWar-Dead Catacombs"
-
                         .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
                     allLocationGroups.Add(caelidLocations);
-                    difficultyOfLocationDict.Add(caelidLocations, 4);*/
+                    difficultyOfLocationDict.Add(caelidLocations, 4);
 
                     string[] caelidLvl5Locations =
                     "Redmane Castle"
@@ -1932,37 +1933,52 @@ namespace EldenRingCSVHelper
                 _spLevelToDifficultyDict = new Dictionary<int, float>();
                 //set spLevelToDifficyltyDict
                 {
-                    _spLevelToDifficultyDict.Add(1, 1);
-                    _spLevelToDifficultyDict.Add(2, 1);
-                    _spLevelToDifficultyDict.Add(3, 1.3f);
-                    _spLevelToDifficultyDict.Add(4, 1.15f);
-                    _spLevelToDifficultyDict.Add(5, 2f);
-                    _spLevelToDifficultyDict.Add(6, 3.85f);
-                    _spLevelToDifficultyDict.Add(7, 2.85f);
-                    _spLevelToDifficultyDict.Add(8, 3f);
-                    _spLevelToDifficultyDict.Add(9, 3.15f);
-                    _spLevelToDifficultyDict.Add(10, 4f);
-                    _spLevelToDifficultyDict.Add(11, 5);
-                    _spLevelToDifficultyDict.Add(12, 6);
-                    _spLevelToDifficultyDict.Add(13, 6f);
-                    {
-                        _spLevelToDifficultyDict.Add(14, 3);
-                        _spLevelToDifficultyDict.Add(15, 3);
-                        _spLevelToDifficultyDict.Add(16, 3);
-                        _spLevelToDifficultyDict.Add(17, 3);
-                        _spLevelToDifficultyDict.Add(18, 3);
-                        _spLevelToDifficultyDict.Add(19, 3);
-                        _spLevelToDifficultyDict.Add(20, 3);
-                        _spLevelToDifficultyDict.Add(21, 3);
-                    }//unused
-                    _spLevelToDifficultyDict.Add(22, 6.85f);
-                    _spLevelToDifficultyDict.Add(23, 7.2f);
-                    _spLevelToDifficultyDict.Add(24, 8.15f);
-                    _spLevelToDifficultyDict.Add(25, 8.25f);
-                    _spLevelToDifficultyDict.Add(26, 8);
-                    _spLevelToDifficultyDict.Add(27, 7.85f);
-                    _spLevelToDifficultyDict.Add(28, 7.85f);
-                    _spLevelToDifficultyDict.Add(29, 7.85f);
+                    _spLevelToDifficultyDict.Add(1, 1); //stranded graveyard
+                    _spLevelToDifficultyDict.Add(2, 1); //limgrave
+                    _spLevelToDifficultyDict.Add(3, 1.3f); //weeping pennisula
+                    _spLevelToDifficultyDict.Add(4, 2.15f); //stormveil castle
+                    _spLevelToDifficultyDict.Add(5, 2.3f); //misc. limgrave
+                    _spLevelToDifficultyDict.Add(6, 2.5f); //ainsel river
+                    _spLevelToDifficultyDict.Add(7, 2.85f); //liurnia / caria manor / acadamy
+                    _spLevelToDifficultyDict.Add(8, 3.2f); //caelid
+                    _spLevelToDifficultyDict.Add(9, 3.5f); //altus
+                    _spLevelToDifficultyDict.Add(10, 4.7f); //mt.gelmir / capital coutskirts
+                    _spLevelToDifficultyDict.Add(11, 5.7f); //lleyndel / se caelid
+                    _spLevelToDifficultyDict.Add(12, 6.5f); // volcano manor / deeproot depths / nokstella
+                    _spLevelToDifficultyDict.Add(13, 7f); //mountaintops
+                    _spLevelToDifficultyDict.Add(14, 7.5f); //moonlight altar / lleyndel sewer
+                    _spLevelToDifficultyDict.Add(15, 8.6f); //farum azula
+                    _spLevelToDifficultyDict.Add(16, 8.7f); //dragonbarrow /ashen capital
+                    _spLevelToDifficultyDict.Add(17, 8.75f); //Concentrated Snowfields
+                    _spLevelToDifficultyDict.Add(18, 8.8f); //Mohgwyn Palavce
+                    _spLevelToDifficultyDict.Add(19, 8.85f); //Haligtree Roots
+                    _spLevelToDifficultyDict.Add(20, 8.9f); //Elphael
+                    _spLevelToDifficultyDict.Add(21, 9); //Malenia
+                }
+                _spLevelToStoneDifficultyDict = new Dictionary<int, float>();
+                //set spLevelToDifficyltyDict
+                {
+                    _spLevelToStoneDifficultyDict.Add(1, 1); //stranded graveyard
+                    _spLevelToStoneDifficultyDict.Add(2, 1); //limgrave
+                    _spLevelToStoneDifficultyDict.Add(3, 1.3f); //weeping pennisula
+                    _spLevelToStoneDifficultyDict.Add(4, 1.9f); //stormveil castle
+                    _spLevelToStoneDifficultyDict.Add(5, 2f); //misc. limgrave
+                    _spLevelToStoneDifficultyDict.Add(6, 3f); //ainsel river
+                    _spLevelToStoneDifficultyDict.Add(7, 3f); //liurnia / caria manor / acadamy
+                    _spLevelToStoneDifficultyDict.Add(8, 4f); //caelid
+                    _spLevelToStoneDifficultyDict.Add(9, 4.75f); //altus
+                    _spLevelToStoneDifficultyDict.Add(10, 4.3f); //mt.gelmir / capital coutskirts
+                    _spLevelToStoneDifficultyDict.Add(11, 5f); //lleyndel / se caelid
+                    _spLevelToStoneDifficultyDict.Add(12, 6f); // volcano manor / deeproot depths / nokstella
+                    _spLevelToStoneDifficultyDict.Add(13, 7f); //mountaintops
+                    _spLevelToStoneDifficultyDict.Add(14, 6f); //moonlight altar / lleyndel sewer
+                    _spLevelToStoneDifficultyDict.Add(15, 11f); //farum azula
+                    _spLevelToStoneDifficultyDict.Add(16, 6f); //dragonbarrow / ashen capital
+                    _spLevelToStoneDifficultyDict.Add(17, 7.25f); //Concentrated Snowfields
+                    _spLevelToStoneDifficultyDict.Add(18, 8f); //Mohgwyn Palavce
+                    _spLevelToStoneDifficultyDict.Add(19, 9f); //Haligtree Roots
+                    _spLevelToStoneDifficultyDict.Add(20, 9.2f); //Elphael
+                    _spLevelToStoneDifficultyDict.Add(21, 9.2f); //Malenia
                 }
                 int agreers = 0;
                 int disagreers = 0;
