@@ -5939,7 +5939,7 @@ namespace EldenRingCSVHelper
                                     createNewLineforThisType = true; // has to create a singleLine Tis type.
                                     useSingleLineOnce = true;   //so you still can only get one level of drop per kill.
                                 }
-                                if (levelCasscade != -1 && !(typeIndex < 2 && curTypeAdjustedLevel >= typeLevelCount))
+                                if (levelCasscade != -1 && !(typeIndex < 2 && startLevel >= typeLevelCount))
                                     levelCasscade++;
                                 lastLevelPercentMult *= 1 - startLevelPercentMult;    //level 0.04
                             }
