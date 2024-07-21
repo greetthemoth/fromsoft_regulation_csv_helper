@@ -3341,6 +3341,7 @@ namespace EldenRingCSVHelper
                 // {number is chance mult per LevelCasscade
                 // /number is the percent split for somberstones if drops both.
                 // spnumber is the decimal from 0 - 1 that represents the percent of spLevel that goes into the level (if applicable)
+                // sspnumber is the decimal from 0 - 1 that represents the percent of stoneSpLevel that goes into the level (if applicable)
                 // & is single line. one item type per drop.
 
                 // $ is first time guarendteed drop
@@ -3446,13 +3447,13 @@ namespace EldenRingCSVHelper
                     "100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula",
                     "100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
 
-                    "10 #4 Ancestral Follower",
+                    "15 #4 Ancestral Follower",
 
                     "25 " + x3Chance + " Flame Chariot",
                     "100 > & $$$ x3x4xxx xvv0.85 Fire Prelate",
 
                     "50 $$$$  x3xxx Leonine Misbegotten",    
-                    "50 $$$$$$$ +0.5 x3xxx Misbegotten Warrior", //forced somber - wont drop SS
+                    "50 $$$$$$$ @@@@ +0.5 x3xxx Misbegotten Warrior", //forced somber - wont drop SS
                     
                     "65 > -0.8 x5x7xxx sp0.5 $$$$ Valiant Gargoyle",
                     "65 > -0.8 x5x7xxx sp0.5 $$$$ Black Blade Kindred",
@@ -3463,7 +3464,7 @@ namespace EldenRingCSVHelper
                     "100 x3 Commander O'Neil"
                 };
 
-                somberKeywords = new string[]{
+                somberKeywords = new string[]{//302b
 
                     //"100 Godskin Noble",
                     //"100 x3 #9 -2 Godskin Apostle",
@@ -3475,10 +3476,10 @@ namespace EldenRingCSVHelper
 
                     "7.5 -0.5f >>> $$$$ Albinauric Archer",
                     "2.5 %0.6 -0.35 Elder Albinauric Sorcerer",
-                    "3 > -1 %0.9 $$$$ @@@@@@0.15 ###9 Giant Albinauric Crab",
+                    "3 > -1 %0.9 $$$$-1 @@@@@@0.15 ###9 Giant Albinauric Crab",
                     "1.5 #1 Albinauric Crab",
                     "3.5 %0.6 $ @@@0.25 Large Albinauric",
-                    "2.5 %0.6 $ @@@0.12 -0.35 Albinauric",
+                    "2.5 %0.6 $0.35 @@@0.12 -0.35 Albinauric",
 
                     "100 +0.5 ! Red Wolf of the Champion",
                     "100 +0.5 ! Red Wolf of Radagon Sword",
@@ -3489,29 +3490,30 @@ namespace EldenRingCSVHelper
                     "4 @@@@@0.2 Nox",
                     "4 @@@@@0.3 Nightmaiden",
 
-                    "5 #4 Ancestral Follower Shaman",  //ghost ones.
+                    "5 #4 $ Ancestral Follower Shaman",
 
                     "10 $ @@@@@@ Sanguine Noble",
-                    "3 #1 Commoner",
-                    "3 %0.5 -1 Putrid Corpse",
-                    "4 %0.75 -0.35 Revenant Follower", //slightly better drops than albinaurics because they dont drop much thats useful.
 
-                    "3 %0.75 sp1 Clayman",
-                    "8 -1 Kindred of Rot",
-                    "100 & ! Demi-Human Queen",
-                    "5 -0.5 %0.7 Basilisk",
-                    "2 -1 %0.5 Small Fingercreeper",
+                    "0.22 >5 ###9 {1.2 }0.85 Wandering Noble",
+                    "2.5 #1 Commoner",
+
+                    "3 %0.5 -1 Putrid Corpse",
+                    "4 %0.75 -0.35 sp1 Revenant Follower", //slightly better drops than albinaurics because they dont drop much thats useful.
+
+                    "3 %0.75 sp1 sp1 Clayman",
+                    "6 -1 ###9 Kindred of Rot",
+                    "100 & ! -0.5 Demi-Human Queen",
+                    "5 -0.5 %0.7 sp1 Basilisk",
+                    "2 -1.5 %0.4 sp1 Small Fingercreeper",
                     "100 >> x5 +1 & ###10 $$$$5 Giant Fingercreeper",
                     "5 > %0.85 Fingercreeper",
-                    "0.22 >5 #9 {1.2 }0.85 Wandering Noble",
 
-
-                    "15 >> x1x2x3xxx $$$$$$ -0.75 %0.9 xv0.5 sp1 Grafted Scion",
-                    "35 x2 $$ -1 &1 Death Bird",
+                    "15 >> $$$$ %0.9 xv0.5 sp1 Grafted Scion",
+                    "35 x2 $$ &1 Death Bird",
                     "100 > x2xx & -1 $$$0.5 ! Death Rite Bird",               //set up just in case there is a respawner
                     "63 >" + x3Chance + "-2 $$$0.5 & ! Black Knife Assassin",   //set up just in case there is a respawner
                     "100 #10 $$$$ ! Black Knife Ringleader",    //Alecto
-                    "30 >> & $$0.5 ###9 x1x1x2xx Zamor",
+                    "30 >> & $$$$ ###9 @@@@ x1x1x2xx Zamor",
                     
                     
 
@@ -3524,13 +3526,13 @@ namespace EldenRingCSVHelper
                     
                     "5 -2.2 sp1 Skeletal Grave Warden",
 
-                    "15  %0.85 }0.85 #13 & Giant Wormface",
-                    "7  %0.85 }0.85 #13 & Wormface",
+                    "15  %0.85 }0.85 ###13 & Giant Wormface",
+                    "7  %0.85 }0.85 ###13 & Wormface",
 
                 };
                 bothKeywords = new string[]{
 
-                    "15 -1 >>> x1x2x3xx sss-1 $$$$$$$1 /50 Crystalian", //force somber ftd
+                    "15 -1 >>> x2x3x4xx sss-2.5 @@@ $$$$$$$2.5 /25 Crystalian", //force somber ftd
 
                     "8 >>" +x2ChanceLevelSpread+" sss-1.8 -0.1 /25 Glintstone Sorcerer",
                     "22" +x3Chance+" sss-1.35 -0.1 $ /25 Karolos Glintstone Sorcerer",
@@ -3539,18 +3541,18 @@ namespace EldenRingCSVHelper
      
                     //"0 x4 $$$$$$ #8 & Draconic Tree Sentinel",
 
-                    "70 $$$$$$$ & x3xxx xvv0.5  /25 Troll Knight", // these are the raya lucaria ones.
+                    "70 $$$$$$$ @@@ & x3xxx xvv0.5  /15 Troll Knight", // these are the raya lucaria ones.
                     "30 $ +0.75 {1.25 > x1x3xxx xvv0.65 /18 sss-2.2 sp1 Troll",
 
-                    "10 #4 sss-0.5 /25 Ancestral Follower (Siofra River)",   //ghost ones.
+                    "15 #3 sss-0.5 /15 Ancestral Follower (Siofra River)",   //ghost ones.
 
-                    "14 > sss-0.22 {0.72 /20 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
-                    "9 > sss-0.22 {0.72 /20 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
+                    "14 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
+                    "9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
 
-                    "45 sss-0.5" + knight + x2Chance + "/20 Mausoleum Knight",
-                    "2.75 sss-0.5" + footSoldier + x2Chance + "/20 Mausoleum Foot Soldier",
-                    "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/20 Mausoleum Soldier",
-                    "60 sss-0.5" + banishedK + x3Chance + "/20 Mausoleum Banished Knight",
+                    "45 sss-0.5" + knight + x2Chance + "/15 Mausoleum Knight",
+                    "2.75 sss-0.5" + footSoldier + x2Chance + "/15 Mausoleum Foot Soldier",
+                    "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
+                    "60 sss-0.5" + banishedK + x3Chance + "/15 Mausoleum Banished Knight",
 
                     "65 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 /12 x4xx xv0.65 xvv0.5 Fell Twin",
@@ -3566,7 +3568,7 @@ namespace EldenRingCSVHelper
                     "9 -1 /20 sss-1.2 ###8 Skeletal Soldier",
                     "4.5 -1 /20 sss-1.2 ###8 Skeletal",
 
-                    "50 sss-0.5 /30 x3 $$$$$$$ ###8 Battlemage", //forced somber
+                    "50 sss-0.5 /15 x3 $$$$$$$ @@@ ###8 Battlemage", //forced somber
 
                     "25 sss-1.2 /15  x4xxx %0.85 $$ xv0.6 xvv0.75 Guardian Golem",    //none archer
 
@@ -3574,12 +3576,12 @@ namespace EldenRingCSVHelper
 
                     "65 sss-0.3 /10" + knight + x3Chance + "Cleanrot Knight",
                     "10 >> sss-1.5 Mad Pumpkin Head",
-                    "3 Highwayman",
+                    "3 sss-0.5 Highwayman",
                     "4.5 {0.85 >>> x1x1x2x3xx Glintstone Digger",
                     
                     "10 >2 x2 /8 Omenkiller",
 
-                    "15 -1> x3x4xxx /20 $$ Depraved Perfumer",
+                    "15 -1> x3x4xxx /15 $$ Depraved Perfumer",
                     
                     "100 +1 sss-1 /20 $$$ Erdtree Burial Watchdog",
 
@@ -3787,6 +3789,7 @@ namespace EldenRingCSVHelper
             Dictionary<string, float> XasscadePowToXDict = new Dictionary<string, float>();
 
             Dictionary<string, float> spLevelSplitDict = new Dictionary<string, float>();
+            Dictionary<string, float> stoneSpLevelSplitDict = new Dictionary<string, float>();
             Dictionary<string, float> levelMultDict = new Dictionary<string, float>();
             Dictionary<string, float> levelAdjDict = new Dictionary<string, float>();
             Dictionary<string, float> levelMaxUniqueDict = new Dictionary<string, float>();
@@ -3868,6 +3871,7 @@ namespace EldenRingCSVHelper
                     //"30 +1 knight" = +1 
                     //"30 -1 knight" = -1 
                     float spLevelSplit = 0;
+                    float stoneSpLevelSplit = 0;
                     float setLevel = -1;    //#num
                     float levelMaxUnique = -1;    //#####num
                     float levelMinUnique = -1;    //####num
@@ -3988,10 +3992,17 @@ namespace EldenRingCSVHelper
 
                         {
                             //get spLevelSplit
-                            string pattern = @"sp(\d+(\.\d+)?)";
+                            string pattern = @" sp(\d+(\.\d+)?)";
                             Match match = Regex.Match(keyword, pattern);
                             if (match.Success)
                                 spLevelSplit = float.Parse(match.Groups[1].Value);
+                        }
+                        {
+                            //get stoneSpLevelSplit
+                            string pattern = @" ssp(\d+(\.\d+)?)";
+                            Match match = Regex.Match(keyword, pattern);
+                            if (match.Success)
+                                stoneSpLevelSplit = float.Parse(match.Groups[1].Value);
                         }
 
                         {
@@ -4351,6 +4362,7 @@ namespace EldenRingCSVHelper
                     bothPercentSplitForSomberDict.Add(keyword, bothPercentSplitForSomber);
 
                     spLevelSplitDict.Add(keyword, spLevelSplit);
+                    stoneSpLevelSplitDict.Add(keyword, stoneSpLevelSplit);
                     levelMultDict.Add(keyword, levelMult);
                     levelAdjDict.Add(keyword, levelAdj);
                     setLevelDict.Add(keyword, setLevel);
@@ -4848,10 +4860,18 @@ namespace EldenRingCSVHelper
                     float preSplitLevel = level;
                     if (spLevelSplit != 0 && spLevel != -1 && level != spLevel)
                         level = (spLevelSplit * spLevel) + (level * (1 - spLevelSplit));
-                    //if (npcID == 30100172)
-                    //    Util.p();
                     if (test)//|| (spLevelSplit != 0 && preSplitLevel != level))
                         Util.println(npcLine._idName + " documented " + documented + " preSplitlevel " + preSplitLevel + "  spLevelSplit " + spLevelSplit + "  level " + level);
+
+                    spLevelSplit = stoneSpLevelSplitDict[keyword];
+                    float preSplitLevel = level;
+                    if (spLevelSplit != 0 && stoneSpLevel != -1 && level != spLevel)
+                        level = (spLevelSplit * stoneSpLevel) + (level * (1 - spLevelSplit));
+                    if (test)//|| (spLevelSplit != 0 && preSplitLevel != level))
+                        Util.println(npcLine._idName + " documented " + documented + " preStoneSplitlevel " + preSplitLevel + "  spStoneLevelSplit " + spLevelSplit + "  level " + level);
+                    //if (npcID == 30100172)
+                    //    Util.p();
+
                 }
                 else if (test || debugAssignedLevels)
                     Util.println(npcLine._idName + " KEY WORD ASSIGNED LEVEL: " + level);
