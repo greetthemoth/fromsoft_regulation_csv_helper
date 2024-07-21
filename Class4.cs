@@ -1325,7 +1325,6 @@ namespace EldenRingCSVHelper
                 _bossOrMiniBossToItemLotMapDict.Add(37040940, 1049390850);  //Battlemage Hughes (Battlemage Hughes Ashes Drop)(Evergoal) (weirdly, the name and doc location points to diffrent things, just trust)
                 _bossOrMiniBossToItemLotMapDict.Add(40200920, 1034480100);  //Royal Revenant (Frozen Needle Drop)
 
-
                 _bossOrMiniBossToItemLotMapDict.Add(35500930, 1040530010);  //Sanguine Noble (Bloody Helice Drop)
 
             }

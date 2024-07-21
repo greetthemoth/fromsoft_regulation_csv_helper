@@ -2635,7 +2635,7 @@ namespace EldenRingCSVHelper
 
                 foreach (Line curLine in materialLines)
                 {
-                    bool test = curLine.id == "355000000";
+                    bool test = false;//curLine.id == "355000000";
                     string debugName = curLine._idName;
                     
                     int lotIndex = 1;
@@ -3334,6 +3334,8 @@ namespace EldenRingCSVHelper
                 // #number is the set level.
                 // ##number is the min level clamp.
                 // ###number is the max level clamp.
+                // ####number is the min level clamp for ftd and treasure drops.
+                // #####number is the max level clamp for ftd and treasure drops.
                 // |number is level cascade pooling mult. At 0 level 1 chance doesnt stack.
                 // }number is chance mult per Level
                 // {number is chance mult per LevelCasscade
@@ -3352,11 +3354,12 @@ namespace EldenRingCSVHelper
                 // $$$$$$$$$ is FTD drops x1, only highest level
                 // $number is to set the level adj the Guarrentee first Drop.
 
-                //@number is first drop x1 chance mult. 
-                //@@number is first drop x1 chance mult, excess chance is given to an empty lot
-                //@@@number is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1)
-                //@@@@number is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword
-                //@@@@@ is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1), dont drop regular drops until treasure is found
+                //@number       is first drop x1 chance mult. 
+                //@@number      is first drop x1 chance mult, excess chance is given to an empty lot
+                //@@@number     is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1)
+                //@@@@number    is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword
+                //@@@@@number   is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops until treasure is found
+                //@@@@@@number  is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops until treasure is found
 
                 // ! is Force Boss Display. the item displays on screen, rather than on corpse.
                 // sss+number or sss-number adds and adjust to Somber Smithing Stones
@@ -3470,12 +3473,12 @@ namespace EldenRingCSVHelper
                     //"1 Lightning Ball",
                     "100 x2 %0.9 ###9 Night's Cavalry",
 
-                    "7.5 -0.5f >>> Albinauric Archer",
-                    "7.5 -0.5f >>> Elder Albinauric Sorcerer",
-                    "6 > x1x2 -1 %0.9 ###9 Giant Albinauric Crab",
+                    "7.5 -0.5f >>> $$$$ Albinauric Archer",
+                    "2.5 %0.6 -0.35 Elder Albinauric Sorcerer",
+                    "3 > -1 %0.9 $$$$ @@@@@@0.15 ###9 Giant Albinauric Crab",
                     "1.5 #1 Albinauric Crab",
-                    "3.5 %0.6 Large Albinauric",
-                    "3 %0.6 -0.35 Albinauric",
+                    "3.5 %0.6 $ @@@0.25 Large Albinauric",
+                    "2.5 %0.6 $ @@@0.12 -0.35 Albinauric",
 
                     "100 +0.5 ! Red Wolf of the Champion",
                     "100 +0.5 ! Red Wolf of Radagon Sword",
@@ -3483,12 +3486,12 @@ namespace EldenRingCSVHelper
                     "0 $$$$ #10 /100 Draconic Tree Sentinel",
                     "45 > +1 $$$$$$ {2 Tree Sentinel",
 
-                    "4 Nox",
-                    "4 Nightmaiden",
+                    "4 @@@@@0.2 Nox",
+                    "4 @@@@@0.3 Nightmaiden",
 
-                    "13 #4 Ancestral Follower Shaman",  //ghost ones.
+                    "5 #4 Ancestral Follower Shaman",  //ghost ones.
 
-                    "10 Sanguine Noble",
+                    "10 $ @@@@@@ Sanguine Noble",
                     "3 #1 Commoner",
                     "3 %0.5 -1 Putrid Corpse",
                     "4 %0.75 -0.35 Revenant Follower", //slightly better drops than albinaurics because they dont drop much thats useful.
@@ -3517,7 +3520,7 @@ namespace EldenRingCSVHelper
 
                     "100 & #3 Carian Knight Bols",
                     "15 %0.85 -1.35 > sp1 Snowfield Troll",
-                    "12 %0.85"+x3Chance+"-1.35 > $$$$ sp1 @@@0.33 Frenzied Troll",
+                    "12 %0.85"+x3Chance+"-1.35 > $$$$ sp1 @@@@@0.33 Frenzied Troll",
                     
                     "5 -2.2 sp1 Skeletal Grave Warden",
 
@@ -3596,7 +3599,7 @@ namespace EldenRingCSVHelper
 
                     //"20 %0.5 #5 }0.85 +1.5 sp1 Warhawk",
 
-                    "15 > %0.65 ###6 }0.85 +0.6 & sp1 & $$$$5 @@@0.2  $0.6 White Wolf",
+                    "15 > %0.65 ###6 #####13 }0.85 +0.6 & sp1 & $$$$5 @@@0.2 $0.6 White Wolf",
                     "5 > %0.65 ###4 }0.85 -1 & sp1 Wolf",
                     "8.5 %0.5 >> }0.825 ###13 +1.85 & sp1 Large Azula Stray",
                     "8.5 %0.5 >> }0.825 ###13 +1.85 & sp1 Large Stray",
@@ -3606,40 +3609,40 @@ namespace EldenRingCSVHelper
                     "5 >> %0.35 }0.85 ###3 sp1 & Rat",
 
 
-                    "45 #5 $4 sp1 Operatic Bat",   //uses flags that we want to keep.
+                    "45 +0.7 %0.85 ####9 Operatic Bat",   //uses flags that we want to keep.
                     "12 >>> %0.85 +0.7 |0 }0.875 {1.125 ###5 sp1 Man-Bat",
-                    "9 %0.5 > ###6 }0.9 sp0.5 Dominula Celebrant", //already drops runes
-                    "30 $$$$6.5 %0.5 > ###5 +0.5 }0.85 sp1 & Land Squirt",
-                    "65  $$$$8 @@@0.25  %0.5 > ###13 +2 }0.85 sp1 & Giant Land Squirt",
-                    "65  $$$$10 @@@0.25  %0.5 > ###13 +2 }0.85 sp1 & Giant Rotten Land Squirt",
+                    "9 %0.5 >> ###6 }0.9 sp0.5 Dominula Celebrant", //already drops runes
+                    "10 $$$$6.5 @@@@0.08 %0.5 > ###1 #####13 +0.5 }0.85 sp1 & Land Squirt",
+                    "65 x4xx $$$$$$$$$8 @@@@@0.25  %0.5 > ###1 #####13 +2 }0.85 sp1 & Giant Land Squirt",
+                    "65 x6xxx $$$$$$$$$10 @@@@@0.25  %0.5 > ###1 #####13 +2 }0.85 sp1 & Giant Rotten Land Squirt",
                     
 
 
-                    "30 %0.5 > }0.85 +0.75 $$$4.2 @@@@@0.30 sp1 & Giant Land Octopus",
+                    "30 %0.5 > }0.85 +0.75 $$$$4.2 @@@@@0.30 sp1 & Giant Land Octopus",
                     "8 #1 }0.85 sp1 & Land Octopus",
 
                     //"10 %0.5 ###5 }0.85 sp1 & Guilty",
                     //"8 %0.75 $3 sp1 ###10 Fire Monk", //lands between runes.
                     //"12 %0.75 $3 sp1 ###10 Blackflame Monk",
 
-                    "23 > $$$$4.3 @@@0.2 %0.5 +1 }0.85 #13 sp1 & Miranda Blossom",
+                    "23 > $$$$4.3 @@@0.2 %0.5 +1 }0.87 #13 sp1 & Miranda Blossom",
                     "8 #2 %0.25 }0.55 sp1 &  Miranda Sprout",
 
-                    "15 >> $$$$10 @@@0.2 %0.5 +1.65 }0.85 ###13 sp1 & Giant Dog",
-                    "15 >> $$$$10 @@@0.2 %0.5 +1.65 }0.85 ###13 sp1 & Giant Crow",
+                    "15 >> $$$$6 @@@0.08 %0.5 +1.65 }0.92 ###13 sp1 & Giant Dog",
+                    "20 > $$$$6 @@@0.15 %0.5 +1.65 }0.92 ###13 sp1 & Giant Crow",
 
-                    "12 > $$$$11 @@@0.05 }0.85 #4.3 & Giant Ant",
+                    "12 > $$$$ ####14 #####14 @@@0.03 }0.9 sp1 %0.65 +1 & Giant Ant", //drops numen runes
 
-                    "65 $$$$12 @@@0.2 %0.65 +1.2 }0.85 sp1 & Giant Crayfish",
+                    "5 $$$$12 ####14 #####18 @@@0.2 %0.65 +1.2 }1.1 sp1 & Giant Crayfish",
                     //"30  %0.5 +2 }0.85 sp1 Watcher Stones",
-                    "100 -13 >> x6xxxxx $$$$$$$$$26 @@@@@0.1 %0.85 sp1 Abductor Virgin",
+                    "100 ###1 ####14 #####18 x6xxxxx $$$$$$$$$14 @@@@@0.1 %0.85 sp1 Abductor Virgin",
                     //"30  %0.65 +2 }0.85 sp1 & Snowfield Troll",
                 };
 
                 string[] uncertain = {};    //unused
 
                 exceptions = new string[]{
-
+                    "Elder Dragon Greyoll",
                     "Dragonfly",
                     "Dragonkin Soldier (Ice Lightning)",
 
@@ -3786,6 +3789,8 @@ namespace EldenRingCSVHelper
             Dictionary<string, float> spLevelSplitDict = new Dictionary<string, float>();
             Dictionary<string, float> levelMultDict = new Dictionary<string, float>();
             Dictionary<string, float> levelAdjDict = new Dictionary<string, float>();
+            Dictionary<string, float> levelMaxUniqueDict = new Dictionary<string, float>();
+            Dictionary<string, float> levelMinUniqueDict = new Dictionary<string, float>();
             Dictionary<string, float> levelMaxDict = new Dictionary<string, float>();
             Dictionary<string, float> levelMinDict = new Dictionary<string, float>();
             Dictionary<string, float> setLevelDict = new Dictionary<string, float>();
@@ -3864,6 +3869,8 @@ namespace EldenRingCSVHelper
                     //"30 -1 knight" = -1 
                     float spLevelSplit = 0;
                     float setLevel = -1;    //#num
+                    float levelMaxUnique = -1;    //#####num
+                    float levelMinUnique = -1;    //####num
                     float levelMax = -1;    //###num
                     float levelMin = -1;    //##num
                     float levelToChanceMult = 1; //}num
@@ -4012,6 +4019,22 @@ namespace EldenRingCSVHelper
                                     if (match.Success)
                                     {
                                         levelMin = float.Parse(match.Groups[1].Value);
+                                    }
+                                }
+                                {
+                                    string pattern = @" #####(\d+(\.\d+)?)";
+                                    Match match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
+                                    {
+                                        levelMaxUnique = float.Parse(match.Groups[1].Value);
+                                    }
+                                }
+                                {
+                                    string pattern = @" ####(\d+(\.\d+)?)";
+                                    Match match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
+                                    {
+                                        levelMinUnique = float.Parse(match.Groups[1].Value);
                                     }
                                 }
                             }
@@ -4331,6 +4354,8 @@ namespace EldenRingCSVHelper
                     levelMultDict.Add(keyword, levelMult);
                     levelAdjDict.Add(keyword, levelAdj);
                     setLevelDict.Add(keyword, setLevel);
+                    levelMaxUniqueDict.Add(keyword, levelMaxUnique);
+                    levelMinUniqueDict.Add(keyword, levelMinUnique);
                     levelMaxDict.Add(keyword, levelMax);
                     levelMinDict.Add(keyword, levelMin);
                     levelToChanceMultDict.Add(keyword, levelToChanceMult);
@@ -4561,7 +4586,7 @@ namespace EldenRingCSVHelper
 
                 //if(keywordOverrideIDsDict.ContainsKey(npcID))
                 // if(somberLevelAdjDict[keyword] != 0)\
-                if(keyword == "100 >> x5 +1 & ###10 $$$$5 Giant Fingercreeper")
+                //if(keyword.Contains("Giant Dog"))
                 //SET TEST
                 //if (npcID == 21000052)
                 //if( 
@@ -4570,7 +4595,7 @@ namespace EldenRingCSVHelper
                 //  npcLine.name.Contains("Godrick Soldier") )
                 //if     (npcLine.name.Contains("igger"))
 
-                testId = npcID;
+                //testId = npcID;
 
                 bool test = testId == npcID;
 
@@ -4963,9 +4988,10 @@ namespace EldenRingCSVHelper
                     float ftdx1ChanceMult = ftdx1ChanceMultDict[keyword];
                     bool ftdx1ExcessToEmpty = ftdx1ExcessToEmptyDict[keyword];
                     bool isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
-                    bool Treasure_LevelsShareId = ftdx1TypeDict[keyword] == 3;
-                    bool Treasure_KeywordShardsId = ftdx1TypeDict[keyword] == 4;
-                    bool Treasure_BlockNormalDropsUntilFound = ftdx1TypeDict[keyword] == 5;
+                    int ftdx1Type = ftdx1TypeDict[keyword];
+                    bool FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5;
+                    bool FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6;
+                    bool Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
 
 
                     if (test)
@@ -5712,7 +5738,7 @@ namespace EldenRingCSVHelper
                         {
                             curAdjustedLevel = adjustedLevel + currentFirstTimeLevelAdj;
 
-                            if (isTreasure && Treasure_LevelsShareId)
+                            if (FTD_LevelsShareId)
                             {
                                 const int TreasureLevelInterval = 1;
                                 curAdjustedLevel = Util.RoundToNearestInterval(curAdjustedLevel, TreasureLevelInterval);
@@ -5733,19 +5759,32 @@ namespace EldenRingCSVHelper
                         else if (currentlyFirstDropGuarentee)
                             curGiveUniqueItemFlagID = true;
 
-                           //level max clamp
-                            float levelMax = levelMaxDict[keyword];
-                            float levelMin = levelMinDict[keyword];
-                            if (levelMax != -1 && curAdjustedLevel > levelMax)
-                                curAdjustedLevel = levelMax;
-                            if (levelMin != -1 && curAdjustedLevel < levelMin)
-                                curAdjustedLevel = levelMin;
-                            if (curAdjustedLevel < 1)
-                                curAdjustedLevel = 1; //makes foot soldiers and imps still useful in the beginning.
-                            //if (npcID == 30100172)
-                            //    Util.p();
-                            //if (isBoss) //bosses cant be decimal levels.
-                            //    curAdjustedLevel = (int)(curAdjustedLevel + 0.7f);
+                        
+                        //level max clamp
+                        float levelMax = levelMaxDict[keyword];
+                        float levelMin = levelMinDict[keyword];
+
+                        if(treatAsBoss || currentlyFirstDropGuarentee)
+                        {
+                            float levelMaxU = levelMaxUniqueDict[keyword];
+                            if (levelMaxU != -1)
+                                levelMax = levelMaxU;
+                            float levelMinU = levelMinUniqueDict[keyword];
+                            if (levelMinU != -1)
+                                levelMin = levelMinU;
+                        }
+
+
+                        if (levelMax != -1 && curAdjustedLevel > levelMax)
+                            curAdjustedLevel = levelMax;
+                        if (levelMin != -1 && curAdjustedLevel < levelMin)
+                            curAdjustedLevel = levelMin;
+                        if (curAdjustedLevel < 1)
+                            curAdjustedLevel = 1; //makes foot soldiers and imps still useful in the beginning.
+                        //if (npcID == 30100172)
+                        //    Util.p();
+                        //if (isBoss) //bosses cant be decimal levels.
+                        //    curAdjustedLevel = (int)(curAdjustedLevel + 0.7f);
                         
 
                         if (treatAsBoss || currentlyFirstDropGuarentee)
@@ -6082,7 +6121,8 @@ namespace EldenRingCSVHelper
                                     if (test && levelToChanceMult != 1)
                                         Util.p();
 
-                                    curLevelPercentChance += curLevelPercentChance * (levelToChanceMult - 1) * (curLevel - 1);    //-1 so it doesnt effect level 1 //multiplicative.
+                                    //curLevelPercentChance += curLevelPercentChance * (levelToChanceMult - 1) * (curLevel - 1);    //-1 so it doesnt effect level 1 //multiplicative.
+                                    curLevelPercentChance = curLevelPercentChance * (float)Math.Pow(levelToChanceMult, (curLevel - 1));
                                     if (canDropAncient)
                                         curLevelPercentChance *= (float)Math.Pow(casscadeLevelToChanceMult, Math.Max(casscadeIndex - 1, 0));   //if it can drop an ancient it wont effect other drop rates.
                                     else
@@ -6716,11 +6756,11 @@ namespace EldenRingCSVHelper
                                 if (typeIndex == 2)
                                     filter = IdFilters.RuneDrop_getItemFlagIDFilter;
                                 int currentGetItemFlagId;
-                                if (isTreasure && (Treasure_LevelsShareId || Treasure_KeywordShardsId))
+                                if (FTD_KeywordShardsId || FTD_LevelsShareId)
                                 {
                                     string treasureDropId = keyword;
-                                    if (Treasure_LevelsShareId)
-                                        treasureDropId += " " + (int)curAdjustedLevel;
+                                    if (FTD_LevelsShareId)
+                                        treasureDropId += " " + curAdjustedLevel;
                                     if (TreasureDrodIdToFlagId.ContainsKey(treasureDropId))
                                         currentGetItemFlagId = TreasureDrodIdToFlagId[treasureDropId];
                                     else
