@@ -3447,7 +3447,7 @@ namespace EldenRingCSVHelper
                     "100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula",
                     "100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
 
-                    "15 #4 Ancestral Follower",
+                    "15 %0.70 +1 ssp1 "+x2Chance+" Ancestral Follower",
 
                     "25 " + x3Chance + " Flame Chariot",
                     "100 > & $$$ x3x4xxx xvv0.85 Fire Prelate",
@@ -3490,7 +3490,7 @@ namespace EldenRingCSVHelper
                     "4 @@@@@0.2 Nox",
                     "4 @@@@@0.3 Nightmaiden",
 
-                    "5 #4 $ Ancestral Follower Shaman",
+                    "5 %0.70 +1 $ ssp1 Ancestral Follower Shaman",
 
                     "10 $ @@@@@@ Sanguine Noble",
 
@@ -3544,7 +3544,7 @@ namespace EldenRingCSVHelper
                     "70 $$$$$$$ @@@ & x3xxx xvv0.5  /15 Troll Knight", // these are the raya lucaria ones.
                     "30 $ +0.75 {1.25 > x1x3xxx xvv0.65 /18 sss-2.2 sp1 Troll",
 
-                    "15 #3 sss-0.5 /15 Ancestral Follower (Siofra River)",   //ghost ones.
+                    "15 %0.70 +1 $$$$$$$-0.5 sss-0.5 @@@0.25 /15 ssp1"+x2Chance+" Ancestral Follower (Siofra River)",   //ghost ones.
 
                     "14 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
                     "9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
@@ -3713,7 +3713,7 @@ namespace EldenRingCSVHelper
                     foreach (int npcId in ((Lines)NpcParam.GetLinesOnCondition(new Condition.HasInName("Guardian Golem").AND(new Condition.FloatFieldCompare(NpcParam.GetFieldIndex("enableSoundObjDist"), Condition.EQUAL_TO, 500)))).GetIDs()) {
                         keywordOverrideIDsDict.Add(npcId, "SSSSS 18 /15 sss-1.2 x2xx %0.85 $ xv0.6 xvv0.75 Guardian Golem (Archer Override)");    //tweek to make archers kill.
                     }
-
+                    
                     keywordOverrideIDsDict.Add(43530020, "SS 60 #3 " + knight + " Leyndell Knight (Lurinia Override)");
                     string altusLleyndelKnight = "SS 60 #4.5 " + knight + " Leyndell Knight (Altus Override)";
                     string altusLleyndelSoldier = "SS 4.5 #4.5 " + soldier + " Leyndell Soldier (Altus Override)";
@@ -3729,6 +3729,9 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(43132030, altusLleyndelSoldier);
                     keywordOverrideIDsDict.Add(43130332, altusLleyndelSoldier);
                     keywordOverrideIDsDict.Add(43133030, altusLleyndelSoldier);
+
+                    //keywordOverrideIDsDict.Add(33600020, "SS 15 #3 Ancestral Follower");
+                    //.Add(33600520, "SS 15 #3 Ancestral Follower");
 
                     keywordOverrideIDsDict.Add(43400940, "SS 10 $ >> #3.3 sss-1.5 Mad Pumpkin Head (Flail duo boss)"); //special case where its both a duo boss and drops nothing. if we want to auto mate this we will need to add an "is duo" variable. Thats not tied to IsItemLotMap List. For now we will simply create overrides that add one time drop.
                     keywordOverrideIDsDict.Add(43401940, "SS 10 $ >> #3.3 sss-1.5 Mad Pumpkin Head (Hammer duo boss)");
@@ -4864,7 +4867,7 @@ namespace EldenRingCSVHelper
                         Util.println(npcLine._idName + " documented " + documented + " preSplitlevel " + preSplitLevel + "  spLevelSplit " + spLevelSplit + "  level " + level);
 
                     spLevelSplit = stoneSpLevelSplitDict[keyword];
-                    float preSplitLevel = level;
+                    preSplitLevel = level;
                     if (spLevelSplit != 0 && stoneSpLevel != -1 && level != spLevel)
                         level = (spLevelSplit * stoneSpLevel) + (level * (1 - spLevelSplit));
                     if (test)//|| (spLevelSplit != 0 && preSplitLevel != level))
