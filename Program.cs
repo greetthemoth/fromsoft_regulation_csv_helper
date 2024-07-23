@@ -3355,12 +3355,14 @@ namespace EldenRingCSVHelper
                 // $$$$$$$$$ is FTD drops x1, only highest level
                 // $number is to set the level adj the Guarrentee first Drop.
 
-                //@number       is first drop x1 chance mult. 
-                //@@number      is first drop x1 chance mult, excess chance is given to an empty lot
-                //@@@number     is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1)
-                //@@@@number    is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword
-                //@@@@@number   is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops until treasure is found
-                //@@@@@@number  is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops until treasure is found
+                //@number           is first drop x1 chance mult. 
+                //@@number          is first drop x1 chance mult, excess chance is given to an empty lot
+                //@@@number         is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1)
+                //@@@@number        is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword
+                //@@@@@number       is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops until treasure is found
+                //@@@@@@number      is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops until treasure is found
+                //@@@@@@@number     is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops of type until treasure is found 
+                //@@@@@@@@number    is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops of type until treasure is found
 
                 // ! is Force Boss Display. the item displays on screen, rather than on corpse.
                 // sss+number or sss-number adds and adjust to Somber Smithing Stones
@@ -3554,34 +3556,34 @@ namespace EldenRingCSVHelper
                     "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
                     "60 sss-0.5" + banishedK + x3Chance + "/15 Mausoleum Banished Knight",
 
-                    "65 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
-                    "65 /12 x4xx xv0.65 xvv0.5 Fell Twin",
+                    "65 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
+                    "65 /8 x4xx xv0.65 xvv0.5 Fell Twin",
                     "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Crucible Knight", //the percent chance increase has to acount for casscade.
                     "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Tanith's Knight", //the percent chance increase has to acount for casscade.
 
 
-                    "45 -1> /20 $$ sss-1 -0.8 ###8 Giant Beast Skeleton",
-                    "45 -1 /20 $$ sss-0.8 ###8 Giant Skeleton",
-                    "4.5 -1 /20 sss-1.2 ###8 Skeleton",
-                    "4.6 -1> /20 sss-1.2 ###8 Beast Skeletal",
-                    "6 -1> /20 sss-1.2 ###8 Beast Skeletal Knight",
-                    "9 -1 /20 sss-1.2 ###8 Skeletal Soldier",
-                    "4.5 -1 /20 sss-1.2 ###8 Skeletal",
+                    "30 -1 > /4 $$$$$$$2 @@@@@@@0.30 sss-2.8 ###8 Giant Beast Skeleton",
+                    "45 -1 /4 $$$$$$$2 @@@@@@@0.45 sss-2.8 ###8 Giant Skeleton",
+                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@@0.045 sss-1.2 ###8 Skeleton",
+                    "4.6 -1 > /6 $$$$$$$0.6 @@@@@@@@0.046 sss-1.2 ###8 Beast Skeletal",
+                    "6 -1 > /6 $$$$$$$0.6 @@@@@@@@0.06 sss-1.2 ###8 Beast Skeletal Knight",
+                    "9 -1 /6 $$$$$$$0.6 @@@@@@@@0.09 sss-1.2 ###8 Skeletal Soldier",
+                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@@0.045 sss-1.2 ###8 Skeletal",
 
-                    "50 sss-0.5 /15 x3 $$$$$$$ @@@ ###8 Battlemage", //forced somber
+                    "40 sss-0.7 ssp0.5 /8 x3xx $$$$$$$ @@@ ###8 Battlemage", //forced somber
 
-                    "25 sss-1.2 /15  x4xxx %0.85 $$ xv0.6 xvv0.75 Guardian Golem",    //none archer
+                    "25 sss-1.2 /15  x4xxx %0.85 $$ @@@ xv0.6 xvv0.75 Guardian Golem",    //none archer
 
-                    "8 sss-0.5 /12 Guardian",
+                    "10 $$$$$$$$ @@@@@@0.3"+x2ChanceLevelSpread+"sss-0.5 /10 Guardian",
 
-                    "65 sss-0.3 /10" + knight + x3Chance + "Cleanrot Knight",
-                    "10 >> sss-1.5 Mad Pumpkin Head",
-                    "3 sss-0.5 Highwayman",
-                    "4.5 {0.85 >>> x1x1x2x3xx Glintstone Digger",
+                    "65 sss-0.3 /8" + knight + x3Chance + "Cleanrot Knight",
+                    "10 >> sss-1.5 /5 Mad Pumpkin Head",
+                    "3 %0.5 sss-1.3 /20 Highwayman",
+                    "4.5 {0.85 >>> x1x1x2x3xx /8 Glintstone Digger",
                     
                     "10 >2 x2 /8 Omenkiller",
 
-                    "15 -1> x3x4xxx /15 $$ Depraved Perfumer",
+                    "15 -1> x3x4xxx /8 $$ Depraved Perfumer",
                     
                     "100 +1 sss-1 /20 $$$ Erdtree Burial Watchdog",
 
@@ -5015,6 +5017,7 @@ namespace EldenRingCSVHelper
                     bool FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5;
                     bool FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6;
                     bool Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
+                    bool Treasure_Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
 
 
                     if (test)
@@ -5044,9 +5047,30 @@ namespace EldenRingCSVHelper
                         else if (isFirstTimeDrop)
                         {
                             backUpVariantId = variantID;
-                            variantID += "ftd" + specialDropUniqueIndex;
-                            specialDropUniqueIndex++;
-                            UniqueVariant = true;
+                            if (isTreasure)
+                            {
+                                variantID += "tre";
+                                
+                            }
+                            else
+                            {
+                                variantID += "ftd";
+                            }
+
+                            if (FTD_LevelsShareId)
+                            {
+                                variantID += "_flagLvl" + level;
+                            }
+                            else if (FTD_KeywordShardsId)
+                            {
+                                variantID += "_flagKw" + keywordIndex;
+                            }
+                            else //doesnt share id
+                            {
+                                variantID += specialDropUniqueIndex;
+                                specialDropUniqueIndex++;
+                                UniqueVariant = true;
+                            }
                         }
                         
 
@@ -5863,6 +5887,14 @@ namespace EldenRingCSVHelper
                         if ((treatAsBoss || currentlyFirstDropGuarentee) && FTD_OnlySomberType)
                             typeIndex = 1;
 
+                        int firstTypeIndex = -1;
+                        if (dropSmithing)
+                            firstTypeIndex = 0;
+                        if (dropSomber)
+                            firstTypeIndex = 1;
+                        if (dropRune)
+                            firstTypeIndex = 2;
+
 
                         for (; typeIndex <= 2; typeIndex++)
                         {
@@ -6202,7 +6234,7 @@ namespace EldenRingCSVHelper
                                     //    useSingleLineOnce = false; //createNewLineNextTime overrides and resets useSingleLineOnce
                                     if(stoneLine != null && createNewLineforThisType && useSingleLineOnce && useSingleLine)// for the niche senario where createNewLineforThisType leads to avoiding the ftd buffer from being added to stone line
                                     {
-                                        if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound)) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
+                                        if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound || (Treasure_Treasure_BlockNormalDropsUntilFound_TypeSpecific && ((FTD_OnlySomberType && typeIndex == 1) || (FTD_OnlyFirstType && typeIndex == firstTypeIndex)) ) )) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
                                         {
                                             //Dont allow regular drops on first fill
                                             if (lotIndex > maxLotIndex) //this shouldnt happen because of our curMaxLorIndex.
