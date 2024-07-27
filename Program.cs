@@ -3544,17 +3544,17 @@ namespace EldenRingCSVHelper
                     //"0 x4 $$$$$$ #8 & Draconic Tree Sentinel",
 
                     "70 $$$$$$$ @@@ & x3xxx xvv0.5  /15 Troll Knight", // these are the raya lucaria ones.
-                    "30 $ +0.75 {1.25 > x1x3xxx xvv0.65 /18 sss-2.2 sp1 Troll",
+                    "30 $$$$$$$ @@@@@0.25 +0.75 {1.25 > x1x3xxx xvv0.65 /5 sss-2.2 sp1 Troll",
 
-                    "15 %0.70 +1 $$$$$$$-0.5 sss-0.5 @@@0.25 /15 ssp1"+x2Chance+" Ancestral Follower (Siofra River)",   //ghost ones.
+                    "15 %0.70 +1 $$$$$$$-0.5 sss-0.5 @@@@@0.25 /12 ssp1"+x2Chance+" Ancestral Follower (Siofra River)",   //ghost ones.
 
                     "14 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
                     "9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
 
-                    "45 sss-0.5" + knight + x2Chance + "/15 Mausoleum Knight",
+                    "45 sss-0.5" + knight + x2Chance + "/9 Mausoleum Knight",
                     "2.75 sss-0.5" + footSoldier + x2Chance + "/15 Mausoleum Foot Soldier",
                     "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
-                    "60 sss-0.5" + banishedK + x3Chance + "/15 Mausoleum Banished Knight",
+                    "60 sss-0.5" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
 
                     "65 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 /8 x4xx xv0.65 xvv0.5 Fell Twin",
@@ -3587,7 +3587,7 @@ namespace EldenRingCSVHelper
                     
                     "100 +1 sss-1 /20 $$$ Erdtree Burial Watchdog",
 
-                    "20 > $$$$$$$$-0.7 /20"+x3ChanceLevelSpread+" High Page",
+                    "20 > $$$$$$$$-0.7 /10"+x3ChanceLevelSpread+" High Page",
 
                 };
 
@@ -3695,8 +3695,8 @@ namespace EldenRingCSVHelper
                     "Black Dumpling Elder Albinauric",
                     "Imprisoned Elder Albinauric",
 
-                    "Battlemage Hugues (Boss)",
-                    "Cleanrot Knight (Boss)",
+                    //"Battlemage Hugues (Boss)",
+                    //"Cleanrot Knight (Boss)",
 
                     "Exile Soldier (Boss)",     //they respawn in O'Neal fight..
                     "Banished Knight (Niall Boss)", //just for consitancy
@@ -3738,8 +3738,8 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(43400940, "SS 10 $ >> #3.3 sss-1.5 Mad Pumpkin Head (Flail duo boss)"); //special case where its both a duo boss and drops nothing. if we want to auto mate this we will need to add an "is duo" variable. Thats not tied to IsItemLotMap List. For now we will simply create overrides that add one time drop.
                     keywordOverrideIDsDict.Add(43401940, "SS 10 $ >> #3.3 sss-1.5 Mad Pumpkin Head (Hammer duo boss)");
 
-                    keywordOverrideIDsDict.Add(21400930, "SSSSS 65 #4.5 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Omen Override)");  //undocumented omen in altus - lleyndel outskirts
-                    keywordOverrideIDsDict.Add(21401930, "SSSSS 65 #4.5 /12 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Override)");  //undocumented omen in altus - lleyndel outskirts
+                    keywordOverrideIDsDict.Add(21400930, "SSSSS 65 #4.5 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Omen Override)");  //undocumented omen in altus - lleyndel outskirts
+                    keywordOverrideIDsDict.Add(21401930, "SSSSS 65 #4.5 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen (Undocumented Override)");  //undocumented omen in altus - lleyndel outskirts
 
                     keywordOverrideIDsDict.Add(46003140, "SSS 8 %0.85 -1.35 > sp1 $$$$1 Troll (Pot Thrower Override)");//Pot Thrower? Troll override
                     keywordOverrideIDsDict.Add(46000040, "SSS 8 %0.85 -1.35 > sp1 $$$$1 Troll (Pot Thrower Override)");//Pot Thrower? Troll override
@@ -3749,7 +3749,7 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(46000065, "");//Mimic Troll override
 
                     keywordOverrideIDsDict.Add(43520020, "SS 45 #3.5 " + knight + " Cuckoo Knight (Four Belfries and Bellum Override)");
-                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /20 #3 " + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
+                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /9 #3 " + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
                     keywordOverrideIDsDict.Add(45100572, "SSSSS 100 > +10 xxx5 & $$$$ Ancient Dragon (Droppers Override)");
                     keywordOverrideIDsDict.Add(46500265, "SS 100 x5 #3 Dragonkin Soldier (Nokrom Override)");
                     keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5x $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
@@ -5014,10 +5014,11 @@ namespace EldenRingCSVHelper
                     bool ftdx1ExcessToEmpty = ftdx1ExcessToEmptyDict[keyword];
                     bool isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
                     int ftdx1Type = ftdx1TypeDict[keyword];
-                    bool FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5;
-                    bool FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6;
+                    bool FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
+                    bool FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
+                    bool treasureSomberFTDMadeSeperate = false;
                     bool Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
-                    bool Treasure_Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
+                    bool Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
 
 
                     if (test)
@@ -6234,12 +6235,12 @@ namespace EldenRingCSVHelper
                                     //    useSingleLineOnce = false; //createNewLineNextTime overrides and resets useSingleLineOnce
                                     if(stoneLine != null && createNewLineforThisType && useSingleLineOnce && useSingleLine)// for the niche senario where createNewLineforThisType leads to avoiding the ftd buffer from being added to stone line
                                     {
-                                        if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound || (Treasure_Treasure_BlockNormalDropsUntilFound_TypeSpecific && ((FTD_OnlySomberType && typeIndex == 1) || (FTD_OnlyFirstType && typeIndex == firstTypeIndex)) ) )) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
+                                        if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound || (Treasure_BlockNormalDropsUntilFound_TypeSpecific && ((FTD_OnlySomberType && typeIndex == 1) || (FTD_OnlyFirstType && typeIndex == firstTypeIndex)) ) )) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
                                         {
                                             //Dont allow regular drops on first fill
                                             if (lotIndex > maxLotIndex) //this shouldnt happen because of our curMaxLorIndex.
                                             {
-                                                //this shu=ouldnt happen at all.
+                                                //this shouldnt happen at all.
                                                 Util.println(//stoneLine._idName + 
                                                     " out of itemlot slots!!!! " + keyword + "       npcID:" + npcID);
                                                 break;
