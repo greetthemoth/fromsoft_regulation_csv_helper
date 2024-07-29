@@ -3349,7 +3349,7 @@ namespace EldenRingCSVHelper
                 // $$$ is FTD drops only highest xAmount .
                 // $$$$ is FTD drops only highest xAmount & highestLevel.
                 // $$$$$ is FTD drops only firstType(normal -> somber) highest xAmount & notSingleLine
-                // $$$$$$ is FTD drops only highest xAmount & highestLevel & notSingleLine
+                // $$$$$$ is FTD drops only highest xAmount & notSingleLine
                 // $$$$$$$ is FTD drops only forcedSomber & highestLevel
                 // $$$$$$$$ is FTD drops only firstType(normal -> somber) highest xAmount & highestLevel
                 // $$$$$$$$$ is FTD drops x1, only highest level
@@ -3359,10 +3359,8 @@ namespace EldenRingCSVHelper
                 //@@number          is first drop x1 chance mult, excess chance is given to an empty lot
                 //@@@number         is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1)
                 //@@@@number        is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword
-                //@@@@@number       is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops until treasure is found
-                //@@@@@@number      is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops until treasure is found
-                //@@@@@@@number     is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops of type until treasure is found 
-                //@@@@@@@@number    is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops of type until treasure is found
+                //...@#             dont drop regular drops until treasure is found
+                //...@#*            dont drop regular drops of type until treasure is found 
                 //sss@...           assigns a somber specific ftd chance,  will use a unique id. also add more "@" to assign the type as denoted above.
 
 
@@ -3372,7 +3370,7 @@ namespace EldenRingCSVHelper
                 //Only use is if 100% drop rate.
                 //MAYBE i should also make this so first item is 100% chance.
 
-                string x3ChanceLevelSpread = " x3x4x5xx xv0.65 xvv0.65 ";
+                string x3ChanceLevelSpread = " x3x4x5xxx xv0.65 xvv0.65 ";
                 string x2ChanceLevelSpread = " x2x3x4xx xv0.3 ";
                 string x1ChanceLevelSpread = " x1x2x2x3x xvv0.5 ";
                 string x2Chance = " x2xx xvv0.3 ";
@@ -3380,7 +3378,7 @@ namespace EldenRingCSVHelper
                 string footSoldier = " > -0.9 sp0.1 ###4 }1.028 {0.65";          //}0.965    //we changed them to drop more with higher levels.
                 string soldier = " %0.875 sp0.12 >2 ###8 }1.035 {0.65 ";        //}0.985
                 string knight = " +0.08 sp0.1 ###8 }1.05 $ @0.175 ";            //}0.985 
-                string banishedK = " ###11 +0.11 sp0.15 }1.05 $ @0.175 ";
+                string banishedK = " ###11 +0.11 sp0.15 }1.05 $ @0.125 ";
                 string imp = " -1 ###8 }1.035 %0.8 ";                   //}0.965
 
                 string GiantCrab = " %0.5 +1.5 ###13 }0.85 sp1 $0.5 ";
@@ -3402,13 +3400,18 @@ namespace EldenRingCSVHelper
                     "5.5 ##3.5 ###4" + soldier + x2ChanceLevelSpread + "Radahn Soldier",
                     "45 ##4 ###5 sp0.5" + knight + x2Chance + "Redmane Knight",
 
-                    "45 " + knight + x2Chance + "Cuckoo Knight",
+
+                    "1.5 >7" + soldier + " x1x1x2x3x4x5x5x6xxx v0.65 xvv0.65 " + "Messmer Soldier", //DLC
+                    "1.2 -3 >>>>" + footSoldier + " x1x1x2x3x3x4x4x4xxx v0.65 xvv0.65 " + "Messmer Foot Soldier", //DLC
 
                     "2.75" + footSoldier + x2Chance + "Foot Soldier",
                     "5.5 " + soldier + x2ChanceLevelSpread + "Soldier",
                     "45" + knight + x2Chance + "Knight",
 
+
+                    "1.2 -2 >5 " + imp + " x2x2x3x3x4x4x5xxx xv0.65 xvv0.65 " + "Bigmouth Imp", //DLC
                     "7" + imp + x2Chance + "Imp",
+                    "2,50 >>> x3x4x5x6xxx %0.5 Shadow Militia", //DLC
                     "1.75 >>> x1x2x3x4xxx %0.5 Vulgar Militia",
 
                     "45 +1 x2xx $$ ! Duelist",
@@ -3429,7 +3432,9 @@ namespace EldenRingCSVHelper
                     "10 >> x4 #4 Azula Beastman (Boss)",                   //super high levvel for some reason
 
                     "27.5 #8 " + x2Chance + "Kaiden Sellsword",
-                    "12 >> -1  x2x3x3xx $$ Demi-Human Chief",
+
+                    "12 >3 -3.5  x6xxx $ Bloodfiend",//DLC
+                    "12 >> -1  x2x3x3xx $$ xv0.5 Demi-Human Chief",
                     "4.2 >> -1 %0.75 x1x2x3 Large Demi-Human",
                     "2.5 >> -1 %0.6 x1x1x3 Demi-Human",
                     //"100 Erdtree Burial Watchdog (Limgrave Catacombs)",
@@ -3470,6 +3475,11 @@ namespace EldenRingCSVHelper
 
                 somberKeywords = new string[]{//302b
 
+                    "5 -1 ##9 >2 ###9 $$$$$$ @@@@0.4 x1x1x1 xv0.65 xvv0.65 ! Horned Shaman", //DLC //real name is Tower Priest
+                    "5 ##9 >2 ###9 $$$$$$ @@@@0.4 x1x1x1 xv0.65 xvv0.65 !  Fat Inquisitor", //DLC
+                    "0.6 ##9 >8 ###9 x1x1x1x1x1x2x2x2x2xx xv0.65 xvv0.65 ! Candle Inquisitor", //DLC
+                    "8 ##9 >8 ###9 @@0.2 $$$$$$ x1x1x1x1x2x2x2x2x3xx xv0.65 xvv0.65 ! Curseblade", //DLC
+
                     //"100 Godskin Noble",
                     //"100 x3 #9 -2 Godskin Apostle",
 
@@ -3480,7 +3490,7 @@ namespace EldenRingCSVHelper
 
                     "7.5 -0.5f >>> $$$$ Albinauric Archer",
                     "2.5 %0.6 -0.35 Elder Albinauric Sorcerer",
-                    "3 > -1 %0.9 $$$$-1 @@@@@@0.15 ###9 Giant Albinauric Crab",
+                    "3 > -1 %0.9 $$$$-1 @@@@0.15 @# ###9 Giant Albinauric Crab",
                     "1.5 #1 Albinauric Crab",
                     "3.5 %0.6 $ @@@0.25 Large Albinauric",
                     "2.5 %0.6 $0.35 @@@0.12 -0.35 Albinauric",
@@ -3491,13 +3501,19 @@ namespace EldenRingCSVHelper
                     "0 $$$$ #10 /100 Draconic Tree Sentinel",
                     "45 > +1 $$$$$$ {2 Tree Sentinel",
 
-                    "4 @@@@@0.2 Nox",
-                    "4 @@@@@0.3 Nightmaiden",
+                    "4 @@@0.2 @# Nox",
+                    "4 @@@0.3 @# Nightmaiden",
 
                     "5 %0.70 +1 $ ssp1 Ancestral Follower Shaman",
 
-                    "10 $ @@@@@@ Sanguine Noble",
+                    "10 $ @@@@ @# Sanguine Noble",
 
+                    "0.18 >9 ###9 {1.08 Man-fly", //DLC
+                    "0.18 >9 ###9 {1.08 Spider Scorpion", //DLC
+                    "0.18 >9 ###9 {1.0.8 Shadowpot", //DLC
+                    "0.85 >9 ###9 {1.05 Putrescence Sorcerer", //DLC
+                    "0.18 >9 ###9 {1.08 Shadow Undead", //DLC
+                    "0.4 %0.5 >4 ###9 {1.05 Shadow Commoner", //DLC
                     "0.22 >5 ###9 {1.2 }0.85 Wandering Noble",
                     "2.5 #1 Commoner",
 
@@ -3526,7 +3542,7 @@ namespace EldenRingCSVHelper
 
                     "100 & #3 Carian Knight Bols",
                     "15 %0.85 -1.35 > sp1 Snowfield Troll",
-                    "12 %0.85"+x3Chance+"-1.35 > $$$$ sp1 @@@@@0.33 Frenzied Troll",
+                    "12 %0.85"+x3Chance+"-1.35 > $$$$ sp1 @@@0.33 @# Frenzied Troll",
                     
                     "5 -2.2 sp1 Skeletal Grave Warden",
 
@@ -3535,6 +3551,14 @@ namespace EldenRingCSVHelper
 
                 };
                 bothKeywords = new string[]{
+
+
+                    "10 >7 $$$$$$$$ /10" + knight + " x6x6x6x6x6x6x6x6x v0.65 xvv0.65 " + "Fire Knight", //DLC
+                    "10 >7 $$$$$$ @@0.22 /10" + knight + " x3x3x4x4x5x5x6x6xxxx v0.65 xvv0.65 " + "Black Knight", //DLC
+
+                    "15 -4 >>> x2x4x4xx /12 Gravebird",//DLC
+
+                    "20 -1.5 >>> x3x4x4x5xxx xvv0.75 $$$$$ @@0.30 /20 Golem Smith", //DLC
 
                     "15 -1 >>> x2x3x4xx sss-2.5 @@@ $$$$$$$2.5 /25 Crystalian", //force somber ftd
 
@@ -3546,37 +3570,43 @@ namespace EldenRingCSVHelper
                     //"0 x4 $$$$$$ #8 & Draconic Tree Sentinel",
 
                     "70 $$$$$$$ @@@ & x3xxx xvv0.5  /15 Troll Knight", // these are the raya lucaria ones.
-                    "30 $$$$$$$ @@@@@0.25 +0.75 {1.25 > x1x3xxx xvv0.65 /5 sss-2.2 sp1 Troll",
+                    "30 $$$$$$$ @@@0.25 @# +0.75 {1.25 > x1x3xxx xvv0.65 /5 sss-2.2 sp1 Troll",
 
-                    "15 %0.70 +1 $$$$$$$-0.5 sss-0.5 @@@@@0.25 /12 ssp1"+x2Chance+" Ancestral Follower (Siofra River)",   //ghost ones.
+                    "15 %0.70 +1 $$$$$$$-0.5 sss-0.5 @@@0.25 @# /12 ssp1"+x2Chance+" Ancestral Follower (Siofra River)",   //ghost ones.
 
                     "14 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
                     "9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
 
-                    "45 sss-0.5 sss@@@@@@@0.3" + knight + x2Chance + "/9 Mausoleum Knight",
+                    "45 sss-0.5 sss@@@0.3 sss@#*" + knight + x2Chance + "/9 Mausoleum Knight",
                     "2.75 sss-0.5" + footSoldier + x2Chance + "/15 Mausoleum Foot Soldier",
                     "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
-                    "60 sss-0.5 sss@@@@@@@0.25" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
+                    "60 sss-0.5 sss@@@0.25 sss@#*" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
 
                     "65 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 /8 x4xx xv0.65 xvv0.5 Fell Twin",
-                    "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Crucible Knight", //the percent chance increase has to acount for casscade.
-                    "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Tanith's Knight", //the percent chance increase has to acount for casscade.
+
+                    "30 >4 /15 +0.5 & ###8 $$$$$$ ! " + "x2x3x4x5xxxx xv0.75 xvv0.75" + " Horned Warrior", //DLC
+                    "30 >4 /30 +0.5 & ###8 $$$$$$$ ! " + "x2x3x4x5xxxx xv0.75 xvv0.75" + " Divine Bird Warrior", //DLC
+             
+                    "55 > /15 +0.5 & ###8 $$$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Crucible Knight", //the percent chance increase has to acount for casscade.
+                    "55 > /15 +0.5 & ###8 $$$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Tanith's Knight", //the percent chance increase has to acount for casscade.
 
                     
-                    "30 -1 > /4"+x2Chance+"@0.3 $$$$$$$ sss@@@@@@@0.3 sss-0.8 ###8 Giant Beast Skeleton",
-                    "45 -1 /4"+x2Chance+"@0.3  $$$$$$$ sss@@@@@@@0.45 sss-0.8 ###8 Giant Skeleton",
-                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@0.045 ftdgroup:skelly sss-1.2 ###8 Skeleton",
-                    "4.6 -1 > /6 $$$$$$$0.6 @@@@@@@0.046 ftdgroup:skelly sss-1.2 ###8 Beast Skeletal",
-                    "6 -1 > /6 $$$$$$$0.6 @@@@@@@0.06 ftdgroup:skelly sss-1.2 ###8 Beast Skeletal Knight",
-                    "9 -1 /6 $$$$$$$0.6 @@@@@@@0.09 ftdgroup:skelly sss-1.2 ###8 Skeletal Soldier",
-                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@0.045 ftdgroup:skelly sss-1.2 ###8 Skeletal",
+                    "30 -1 > /4"+x3Chance+"@0.125 $ sss@@@0.3 sss@#* sss-0.8 ###8 Giant Beast Skeleton",
+                    "45 -1 /4"+x3Chance+"@0.125  $ sss@@@0.45  sss@#* sss-0.8 ###8 Giant Skeleton",
+                    "0.64 -1 >6 /8 $$$$$$$0.6 @@@0.045 @#* ftdgroup:skellydlc sss-1.2 ###8 Catacomb Skeleton",//DLC
+                    "4.5 -1 /8 $$$$$$$0.6 @@@0.045 @#* ftdgroup:skelly sss-1.2 ###8 Skeleton",
+                    "4.6 -1 > /6 $$$$$$$0.6 @@@0.046 @#* ftdgroup:skelly sss-1.2 ###8 Beast Skeletal",
+                    "6 -1 > /6 $$$$$$$0.6 @@@0.06 @#* ftdgroup:skelly sss-1.2 ###8 Beast Skeletal Knight",
+                    "9 -1 /6 $$$$$$$0.6 @@@0.09 @#* ftdgroup:skelly sss-1.2 ###8 Skeletal Soldier",
+                    "4.5 -1 /8 $$$$$$$0.6 @@@0.045 @#* ftdgroup:skelly sss-1.2 ###8 Skeletal",
+
 
                     "40 sss-0.7 ssp0.5 /8 x3xx $$$$$$$ @@@ ###8 Battlemage", //forced somber
 
                     "25 sss-1.2 /15  x4xxx %0.85 $$ @@@ xv0.6 xvv0.75 Guardian Golem",    //none archer
 
-                    "10 $$$$$$$$ @@@@@@0.2"+x2ChanceLevelSpread+"sss-0.5 /10 Guardian",
+                    "10 $$$$$$$$ @@@@0.2 @#"+x2ChanceLevelSpread+"sss-0.5 /10 Guardian",
 
                     "65 sss-0.3 /8" + knight + x3Chance + "Cleanrot Knight",
                     "10 >> sss-1.5 /5 Mad Pumpkin Head",
@@ -3594,6 +3624,10 @@ namespace EldenRingCSVHelper
                 };
 
                 runeKeywords = new string[]{
+
+                    "30 #13 Hippopotamus",//DLC
+                    "25 #14 Jar Innards", //DLC //numen rune
+
                     "100 ###13 Elite Runebear",
                     "100 %0.5 +3 ###13 {1.15  sp1 & $2 Runebear",//}0.85
                     "60" + GiantCrab + "Giant Death Crab",
@@ -3619,12 +3653,12 @@ namespace EldenRingCSVHelper
                     "12 >>> %0.85 +0.7 |0 }0.875 {1.125 ###5 sp1 Man-Bat",
                     "9 %0.5 >> ###6 }0.9 sp0.5 Dominula Celebrant", //already drops runes
                     "10 $$$$6.5 @@@@0.08 %0.5 > ###1 #####13 +0.5 }0.85 sp1 & Land Squirt",
-                    "65 x4xx $$$$$$$$$8 @@@@@0.25  %0.5 > ###1 #####13 +2 }0.85 sp1 & Giant Land Squirt",
-                    "65 x6xxx $$$$$$$$$10 @@@@@0.25  %0.5 > ###1 #####13 +2 }0.85 sp1 & Giant Rotten Land Squirt",
-                    
+                    "65 x4xx $$$$$$$$$8 @@@0.25 @#  %0.5 > ###1 #####13 +2 }0.85 sp1 & Giant Land Squirt",
+                    "65 x6xxx $$$$$$$$$10 @@@0.25 @# %0.5 > ###1 #####13 +2 }0.85 sp1 & Giant Rotten Land Squirt",
 
 
-                    "30 %0.5 > }0.85 +0.75 $$$$4.2 @@@@@0.30 sp1 & Giant Land Octopus",
+
+                    "30 %0.5 > }0.85 +0.75 $$$$4.2 @@@0.30 @# sp1 & Giant Land Octopus",
                     "8 #1 }0.85 sp1 & Land Octopus",
 
                     //"10 %0.5 ###5 }0.85 sp1 & Guilty",
@@ -3641,13 +3675,15 @@ namespace EldenRingCSVHelper
 
                     "5 $$$$12 ####14 #####18 @@@0.2 %0.65 +1.2 }1.1 sp1 & Giant Crayfish",
                     //"30  %0.5 +2 }0.85 sp1 Watcher Stones",
-                    "100 ###1 ####14 #####18 x6xxxxx $$$$$$$$$14 @@@@@0.1 %0.85 sp1 Abductor Virgin",
+                    "100 ###1 ####14 #####18 x6xxxxx $$$$$$$$$14 @@@0.1 @# %0.85 sp1 Abductor Virgin",
                     //"30  %0.65 +2 }0.85 sp1 & Snowfield Troll",
                 };
 
                 string[] uncertain = {};    //unused
 
                 exceptions = new string[]{
+                    "Lamprey"//DLC finger ruins snake finger looking asslicker
+
                     "Elder Dragon Greyoll",
                     "Dragonfly",
                     "Dragonkin Soldier (Ice Lightning)",
@@ -3751,14 +3787,14 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(46000065, "");//Mimic Troll override
 
                     keywordOverrideIDsDict.Add(43520020, "SS 45 #3.5 " + knight + " Cuckoo Knight (Four Belfries and Bellum Override)");
-                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /9 #3 sss-0.5 sss@@@@@@@0.3" + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
+                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /9 #3 sss-0.5 sss@@@0.3 sss@#*" + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
                     keywordOverrideIDsDict.Add(45100572, "SSSSS 100 > +10 xxx5 & $$$$ Ancient Dragon (Droppers Override)");
                     keywordOverrideIDsDict.Add(46500265, "SS 100 x5 #3 Dragonkin Soldier (Nokrom Override)");
                     keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5x $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
 
-                    keywordOverrideIDsDict.Add(30100172, "SSSSS 45 sss@@@@@@@0.25" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    keywordOverrideIDsDict.Add(30101172, "SSSSS 45 sss@@@@@@@0.25" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    keywordOverrideIDsDict.Add(30102172, "SSSSS 45 sss@@@@@@@0.25" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30100172, "SSSSS 45 sss@@@0.25 sss@#*" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30101172, "SSSSS 45 sss@@@0.25 sss@#*" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30102172, "SSSSS 45 sss@@@0.25 sss@#*" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
                     
                     keywordOverrideIDsDict.Add(34510912, "SS 30 -0.33 x2 $$ Scaly Misbegotten (Morne Tunnel Boss Override)");
 
@@ -4235,6 +4271,13 @@ namespace EldenRingCSVHelper
                                     }
                                     ftdx1ExcessToEmpty = xFound >= 2 && ftdx1ChanceMult < 1;
                                     ftdx1Type = xFound;
+
+                                    if (keyword.Contains("@#"))
+                                    {
+                                        ftdx1Type += 100;
+                                        if (keyword.Contains("@#*"))
+                                            ftdx1Type += 1000;
+                                    }
                                 }
 
                                 xFound = 0;
@@ -4259,6 +4302,13 @@ namespace EldenRingCSVHelper
                                     }
                                     ftdx1ExcessToEmpty_somber = xFound >= 2 && ftdx1ChanceMult_somber < 1;
                                     ftdx1Type_somber = xFound;
+
+                                    if (keyword.Contains("sss@#"))
+                                    {
+                                        ftdx1Type_somber += 100;
+                                        if (keyword.Contains("sss@#*"))
+                                            ftdx1Type_somber += 1000;
+                                    }
                                 }
                             }
                         }
@@ -5063,14 +5113,12 @@ namespace EldenRingCSVHelper
                     bool ftdx1ExcessToEmpty = ftdx1ExcessToEmptyDict[keyword];
                     bool isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
                     int ftdx1Type = ftdx1TypeDict[keyword];
-                    bool FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
-                    bool FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
+                    bool FTD_LevelsShareId = ftdx1Type%10 == 3;
+                    bool FTD_KeywordShardsId = ftdx1Type%10 == 4;
                     bool FTD_groupId = ftdGroupIdDict[keyword];
                     bool FTD_KeywordGroupShardId = FTD_groupId != "";
-                    
-                    bool treasureSomberFTDMadeSeperate = false;
-                    bool Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
-                    bool Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
+                    bool Treasure_BlockNormalDropsUntilFound = ftdx1Type - (ftdx1Type % 10) == 100;
+                    bool Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type - (ftdx1Type % 10) == 1000;
 
 
                     if (test)
@@ -5986,12 +6034,13 @@ namespace EldenRingCSVHelper
                                     ftdx1ChanceMult = ftdx1ChanceMult_SomberDict[keyword];
                                     ftdx1ExcessToEmpty = ftdx1ExcessToEmpty_SomberDict[keyword];
                                     isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
+
                                     ftdx1Type = ftdx1Type_SomberDict[keyword];
-                                    FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
-                                    FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
-                                    treasureSomberFTDMadeSeperate = false;
-                                    Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
-                                    Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
+                                    FTD_LevelsShareId = ftdx1Type % 10 == 3;
+                                    FTD_KeywordShardsId = ftdx1Type % 10 == 4;
+                                    Treasure_BlockNormalDropsUntilFound = ftdx1Type - (ftdx1Type % 10) == 100;
+                                    Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type - (ftdx1Type % 10) == 1000;
+
                                 }
                             }
                             else
@@ -6000,12 +6049,13 @@ namespace EldenRingCSVHelper
                                 ftdx1ChanceMult = ftdx1ChanceMultDict[keyword];
                                 ftdx1ExcessToEmpty = ftdx1ExcessToEmptyDict[keyword];
                                 isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
+
                                 ftdx1Type = ftdx1TypeDict[keyword];
-                                FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
-                                FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
-                                treasureSomberFTDMadeSeperate = false;
-                                Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
-                                Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
+                                FTD_LevelsShareId = ftdx1Type % 10 == 3;
+                                FTD_KeywordShardsId = ftdx1Type % 10 == 4;
+                                Treasure_BlockNormalDropsUntilFound = ftdx1Type - (ftdx1Type % 10) == 100;
+                                Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type - (ftdx1Type % 10) == 1000;
+
                             }
 
                             if (curTypeAdjustedLevel % 1 != 0)
