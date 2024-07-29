@@ -3363,6 +3363,8 @@ namespace EldenRingCSVHelper
                 //@@@@@@number      is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops until treasure is found
                 //@@@@@@@number     is first drop x1 chance mult, excess chance is given to an empty lot, flagId shared with Level(level is round to 1),    dont drop regular drops of type until treasure is found 
                 //@@@@@@@@number    is first drop x1 chance mult, excess chance is given to an empty lot, flagId is shared by all with keyword,             dont drop regular drops of type until treasure is found
+                //sss@...           assigns a somber specific ftd chance,  will use a unique id. also add more "@" to assign the type as denoted above.
+
 
                 // ! is Force Boss Display. the item displays on screen, rather than on corpse.
                 // sss+number or sss-number adds and adjust to Somber Smithing Stones
@@ -3462,8 +3464,8 @@ namespace EldenRingCSVHelper
 
                     "1.75 >> %0.5 }0.85 sp1 & Starcaller",
 
-                    "100 x3 Commander Niall",
-                    "100 x3 Commander O'Neil"
+                    "100 x5 Commander Niall",
+                    "100 x6 Commander O'Neil"
                 };
 
                 somberKeywords = new string[]{//302b
@@ -3551,30 +3553,30 @@ namespace EldenRingCSVHelper
                     "14 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
                     "9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
 
-                    "45 sss-0.5" + knight + x2Chance + "/9 Mausoleum Knight",
+                    "45 sss-0.5 sss@@@@@@@0.3" + knight + x2Chance + "/9 Mausoleum Knight",
                     "2.75 sss-0.5" + footSoldier + x2Chance + "/15 Mausoleum Foot Soldier",
                     "5.5 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
-                    "60 sss-0.5" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
+                    "60 sss-0.5 sss@@@@@@@0.25" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
 
                     "65 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 /8 x4xx xv0.65 xvv0.5 Fell Twin",
                     "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Crucible Knight", //the percent chance increase has to acount for casscade.
                     "55 > /15 +0.5 & ###8 $$$$$ ! " + "x2x3xx xv0.55 xvv0.55" + " Tanith's Knight", //the percent chance increase has to acount for casscade.
 
-
-                    "30 -1 > /4 $$$$$$$2 @@@@@@@0.30 sss-2.8 ###8 Giant Beast Skeleton",
-                    "45 -1 /4 $$$$$$$2 @@@@@@@0.45 sss-2.8 ###8 Giant Skeleton",
-                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@@0.045 sss-1.2 ###8 Skeleton",
-                    "4.6 -1 > /6 $$$$$$$0.6 @@@@@@@@0.046 sss-1.2 ###8 Beast Skeletal",
-                    "6 -1 > /6 $$$$$$$0.6 @@@@@@@@0.06 sss-1.2 ###8 Beast Skeletal Knight",
-                    "9 -1 /6 $$$$$$$0.6 @@@@@@@@0.09 sss-1.2 ###8 Skeletal Soldier",
-                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@@0.045 sss-1.2 ###8 Skeletal",
+                    
+                    "30 -1 > /4"+x2Chance+"@0.3 $$$$$$$ sss@@@@@@@0.3 sss-0.8 ###8 Giant Beast Skeleton",
+                    "45 -1 /4"+x2Chance+"@0.3  $$$$$$$ sss@@@@@@@0.45 sss-0.8 ###8 Giant Skeleton",
+                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@0.045 ftdgroup:skelly sss-1.2 ###8 Skeleton",
+                    "4.6 -1 > /6 $$$$$$$0.6 @@@@@@@0.046 ftdgroup:skelly sss-1.2 ###8 Beast Skeletal",
+                    "6 -1 > /6 $$$$$$$0.6 @@@@@@@0.06 ftdgroup:skelly sss-1.2 ###8 Beast Skeletal Knight",
+                    "9 -1 /6 $$$$$$$0.6 @@@@@@@0.09 ftdgroup:skelly sss-1.2 ###8 Skeletal Soldier",
+                    "4.5 -1 /8 $$$$$$$0.6 @@@@@@@0.045 ftdgroup:skelly sss-1.2 ###8 Skeletal",
 
                     "40 sss-0.7 ssp0.5 /8 x3xx $$$$$$$ @@@ ###8 Battlemage", //forced somber
 
                     "25 sss-1.2 /15  x4xxx %0.85 $$ @@@ xv0.6 xvv0.75 Guardian Golem",    //none archer
 
-                    "10 $$$$$$$$ @@@@@@0.3"+x2ChanceLevelSpread+"sss-0.5 /10 Guardian",
+                    "10 $$$$$$$$ @@@@@@0.2"+x2ChanceLevelSpread+"sss-0.5 /10 Guardian",
 
                     "65 sss-0.3 /8" + knight + x3Chance + "Cleanrot Knight",
                     "10 >> sss-1.5 /5 Mad Pumpkin Head",
@@ -3749,14 +3751,14 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(46000065, "");//Mimic Troll override
 
                     keywordOverrideIDsDict.Add(43520020, "SS 45 #3.5 " + knight + " Cuckoo Knight (Four Belfries and Bellum Override)");
-                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /9 #3 " + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
+                    keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /9 #3 sss-0.5 sss@@@@@@@0.3" + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
                     keywordOverrideIDsDict.Add(45100572, "SSSSS 100 > +10 xxx5 & $$$$ Ancient Dragon (Droppers Override)");
                     keywordOverrideIDsDict.Add(46500265, "SS 100 x5 #3 Dragonkin Soldier (Nokrom Override)");
                     keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5x $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
 
-                    keywordOverrideIDsDict.Add(30100172, "SSSSS 45 " + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    keywordOverrideIDsDict.Add(30101172, "SSSSS 45 " + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    keywordOverrideIDsDict.Add(30102172, "SSSSS 45 " + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30100172, "SSSSS 45 sss@@@@@@@0.25" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30101172, "SSSSS 45 sss@@@@@@@0.25" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
+                    keywordOverrideIDsDict.Add(30102172, "SSSSS 45 sss@@@@@@@0.25" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
                     
                     keywordOverrideIDsDict.Add(34510912, "SS 30 -0.33 x2 $$ Scaly Misbegotten (Morne Tunnel Boss Override)");
 
@@ -3772,9 +3774,6 @@ namespace EldenRingCSVHelper
             }
             //
 
-
-
-
             //PRORITY GOES -BOTH KWs -> SOMBER KEYWORDS -> SMITHING KWs. from most specific to ease generic.
 
             Dictionary<string, bool> isSmithingDict = new Dictionary<string, bool>();
@@ -3782,11 +3781,17 @@ namespace EldenRingCSVHelper
             Dictionary<string, bool> isForceBossDisplayDict = new Dictionary<string, bool>();
             Dictionary<string, bool> isRuneDict = new Dictionary<string, bool>();
 
+
+            Dictionary<string, string> ftdGroupIdDict = new Dictionary<string, string>();
             Dictionary<string, int> firstTimeDropDict = new Dictionary<string, int>();
             Dictionary<string, float> firstTimeDropAdjDict = new Dictionary<string, float>();
             Dictionary<string, float> ftdx1ChanceMultDict = new Dictionary<string, float>();
             Dictionary<string, bool> ftdx1ExcessToEmptyDict = new Dictionary<string, bool>();
             Dictionary<string, int> ftdx1TypeDict = new Dictionary<string, int>();
+            Dictionary<string, bool> ftdx1_SomberDict = new Dictionary<string, bool>();
+            Dictionary<string, float> ftdx1ChanceMult_SomberDict = new Dictionary<string, float>();
+            Dictionary<string, bool> ftdx1ExcessToEmpty_SomberDict = new Dictionary<string, bool>();
+            Dictionary<string, int> ftdx1Type_SomberDict = new Dictionary<string, int>();
 
             Dictionary<string, int[]> amountMultsDict = new Dictionary<string, int[]>();
             Dictionary<string, int> XasscadeDict = new Dictionary<string, int>();
@@ -3846,7 +3851,7 @@ namespace EldenRingCSVHelper
                     bool isRune;
 
 
-
+                    string ftdgroudid = "";
 
                     float percentNum = 0;
                     //num at the beggining. 
@@ -3864,9 +3869,14 @@ namespace EldenRingCSVHelper
                     bool isForceBossDisplay = false;
                     int firstTimeDropSeverity = -1;
                     float firstTimeDropAdj = 0;
+
                     float ftdx1ChanceMult = 1;
                     bool ftdx1ExcessToEmpty = false;
                     int ftdx1Type = 0;
+                    bool ftdx1_Somber = false;
+                    float ftdx1ChanceMult_somber = 1;
+                    bool ftdx1ExcessToEmpty_somber = false;
+                    int ftdx1Type_somber = 0;
 
                     float somberLevelAdj = 0;
 
@@ -4205,33 +4215,67 @@ namespace EldenRingCSVHelper
                                 }
 
                                 xFound = 0;
-                                xx = "@";
+                                xx = " @";
+                                string foundxx = "";
                                 while (keyword.IndexOf(xx) != -1)
                                 {
+                                    foundxx = xx;
                                     xFound++;
                                     xx += "@";
                                 }
                                 if (xFound != 0)
                                 {
-                                    ftdx1ExcessToEmpty = xFound >= 2;
-                                    ftdx1ChanceMult = 1;
-                                    ftdx1Type = xFound;
                                     //fistTimeDropAdj
-                                    pattern = @"\@(\d+(\.\d+)?)";
+                                    ftdx1ChanceMult = 1;
+                                    pattern = @"\" + foundxx + @"(\d+(\.\d+)?)";
                                     match = Regex.Match(keyword, pattern);
                                     if (match.Success)
                                     {
                                         ftdx1ChanceMult = float.Parse(match.Groups[1].Value);
                                     }
-                                    else
+                                    ftdx1ExcessToEmpty = xFound >= 2 && ftdx1ChanceMult < 1;
+                                    ftdx1Type = xFound;
+                                }
+
+                                xFound = 0;
+                                xx = " sss@";
+                                foundxx = "";
+                                while (keyword.IndexOf(xx) != -1)
+                                {
+                                    foundxx = xx;
+                                    xFound++;
+                                    xx += "@";
+                                }
+                                if (xFound != 0)
+                                {
+                                    //fistTimeDropAdj
+                                    ftdx1_Somber = true;
+                                    ftdx1ChanceMult_somber = 1;
+                                    pattern = @"\"+foundxx+@"(\d+(\.\d+)?)";
+                                    match = Regex.Match(keyword, pattern);
+                                    if (match.Success)
                                     {
-                                        pattern = @"\@\+(\d+(\.\d+)?)";
-                                        match = Regex.Match(keyword, pattern);
-                                        if (match.Success)
-                                        {
-                                            ftdx1ChanceMult = float.Parse(match.Groups[1].Value);
-                                        }
+                                        ftdx1ChanceMult_somber = float.Parse(match.Groups[1].Value);
                                     }
+                                    ftdx1ExcessToEmpty_somber = xFound >= 2 && ftdx1ChanceMult_somber < 1;
+                                    ftdx1Type_somber = xFound;
+                                }
+                            }
+                        }
+
+                        {
+
+                            string prefix = "ftdgroup:";
+                            string prefixIndex = keyword.IndexOf(prefix);
+                            if(prefixIndex != -1)
+                            {
+                                int startIndex = prefixIndex + prefix.Length();
+                                if(startIndex < keyword.Length)
+                                {
+                                    int endIndex = keyword.IndexOf(' ', startIndex);
+                                    if (endIndex == -1)
+                                        endIndex = keyword.Length;
+                                    ftdgroudid = keyword.Substring(startIndex, endIndex - startIndex);
                                 }
                             }
                         }
@@ -4354,11 +4398,16 @@ namespace EldenRingCSVHelper
                     isSomberDict.Add(keyword, isSomber);
                     isRuneDict.Add(keyword, isRune);
                     isForceBossDisplayDict.Add(keyword, isForceBossDisplay);
+                    ftdGroupIdDict.Add(keyword, ftdgroudid);
                     firstTimeDropDict.Add(keyword, firstTimeDropSeverity);
                     firstTimeDropAdjDict.Add(keyword, firstTimeDropAdj);
                     ftdx1ChanceMultDict.Add(keyword, ftdx1ChanceMult);
                     ftdx1ExcessToEmptyDict.Add(keyword, ftdx1ExcessToEmpty);
                     ftdx1TypeDict.Add(keyword, ftdx1Type);
+                    ftdx1_SomberDict.Add(keyword, ftdx1_Somber); 
+                    ftdx1ChanceMult_SomberDict.Add(keyword, ftdx1ChanceMult_somber);
+                    ftdx1ExcessToEmpty_SomberDict.Add(keyword, ftdx1ExcessToEmpty_somber);
+                    ftdx1Type_SomberDict.Add(keyword, ftdx1Type_somber);
 
                     amountMultsDict.Add(keyword, amountMults.ToArray());
                     XasscadeDict.Add(keyword, xasscade);
@@ -5016,6 +5065,9 @@ namespace EldenRingCSVHelper
                     int ftdx1Type = ftdx1TypeDict[keyword];
                     bool FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
                     bool FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
+                    bool FTD_groupId = ftdGroupIdDict[keyword];
+                    bool FTD_KeywordGroupShardId = FTD_groupId != "";
+                    
                     bool treasureSomberFTDMadeSeperate = false;
                     bool Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
                     bool Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
@@ -5062,7 +5114,7 @@ namespace EldenRingCSVHelper
                             {
                                 variantID += "_flagLvl" + level;
                             }
-                            else if (FTD_KeywordShardsId)
+                            else if (FTD_KeywordShardsId || FTD_KeywordGroupShardId)
                             {
                                 variantID += "_flagKw" + keywordIndex;
                             }
@@ -5709,8 +5761,11 @@ namespace EldenRingCSVHelper
                     if (d == 0 && dmax == 1)
                         curMaxLotIndex--;//we need to save one slot for our first time empty.
 
-                    List<Line> curStoneLinesToAddGetItemFlagId = new List<Line>();
-                    List<int> curStoneLinesAddItemFlagIdLots = new List<int>();
+                    var curStoneLinesToAddGetItemFlagId = new List<Line>[3];
+                    var curStoneLinesAddItemFlagIdLots = new List<int>[3];
+                    int flagIdIndex = 0;
+                    curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<Line>();
+                    curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<int>();
 
                     bool treatAsBoss = isBoss;
 
@@ -5922,6 +5977,35 @@ namespace EldenRingCSVHelper
                                     Util.p();
                                 //if (30101451 == npcID)
                                     Util.p();
+                                if (currentlyFirstDropGuarentee && ftdx1_SomberDict[keyword])
+                                {
+                                    flagIdIndex = 1;
+                                    curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<Line>();
+                                    curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<int>();
+
+                                    ftdx1ChanceMult = ftdx1ChanceMult_SomberDict[keyword];
+                                    ftdx1ExcessToEmpty = ftdx1ExcessToEmpty_SomberDict[keyword];
+                                    isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
+                                    ftdx1Type = ftdx1Type_SomberDict[keyword];
+                                    FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
+                                    FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
+                                    treasureSomberFTDMadeSeperate = false;
+                                    Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
+                                    Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
+                                }
+                            }
+                            else
+                            {
+                                flagIdIndex = 0;
+                                ftdx1ChanceMult = ftdx1ChanceMultDict[keyword];
+                                ftdx1ExcessToEmpty = ftdx1ExcessToEmptyDict[keyword];
+                                isTreasure = (ftdx1ChanceMult < 1 && ftdx1ExcessToEmpty);
+                                ftdx1Type = ftdx1TypeDict[keyword];
+                                FTD_LevelsShareId = ftdx1Type == 3 || ftdx1Type == 5 || ftdx1Type == 7;
+                                FTD_KeywordShardsId = ftdx1Type == 4 || ftdx1Type == 6 || ftdx1Type == 8;
+                                treasureSomberFTDMadeSeperate = false;
+                                Treasure_BlockNormalDropsUntilFound = ftdx1Type == 5 || ftdx1Type == 6;
+                                Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type == 7 || ftdx1Type == 8;
                             }
 
                             if (curTypeAdjustedLevel % 1 != 0)
@@ -6235,7 +6319,10 @@ namespace EldenRingCSVHelper
                                     //    useSingleLineOnce = false; //createNewLineNextTime overrides and resets useSingleLineOnce
                                     if(stoneLine != null && createNewLineforThisType && useSingleLineOnce && useSingleLine)// for the niche senario where createNewLineforThisType leads to avoiding the ftd buffer from being added to stone line
                                     {
-                                        if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound || (Treasure_BlockNormalDropsUntilFound_TypeSpecific && ((FTD_OnlySomberType && typeIndex == 1) || (FTD_OnlyFirstType && typeIndex == firstTypeIndex)) ) )) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
+                                        bool typeSpecificPass = (Treasure_BlockNormalDropsUntilFound_TypeSpecific && ((FTD_OnlySomberType && typeIndex == 1) || (FTD_OnlyFirstType && typeIndex == firstTypeIndex)));
+                                        if (Treasure_BlockNormalDropsUntilFound_TypeSpecific)
+                                            Util.p();//test now
+                                        if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound || typeSpecificPass )) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
                                         {
                                             //Dont allow regular drops on first fill
                                             if (lotIndex > maxLotIndex) //this shouldnt happen because of our curMaxLorIndex.
@@ -6248,8 +6335,8 @@ namespace EldenRingCSVHelper
                                             stoneLine.SetField("lotItemBasePoint0" + lotIndex.ToString(), 34463);//
                                                                                                                  //if (npcID == 21400114)
                                                                                                                  //    Util.p();
-                                            curStoneLinesToAddGetItemFlagId.Add(stoneLine);
-                                            curStoneLinesAddItemFlagIdLots.Add(lotIndex);
+                                            curStoneLinesToAddGetItemFlagId[flagIdIndex].Add(stoneLine);
+                                            curStoneLinesAddItemFlagIdLots[flagIdIndex].Add(lotIndex);
                                             //lotIndex++;
                                         }
                                     }
@@ -6336,8 +6423,8 @@ namespace EldenRingCSVHelper
 
                                     if (curGiveUniqueItemFlagID)//&& createNewLineForSpecialDrop)
                                     {
-                                        curStoneLinesToAddGetItemFlagId.Add(stoneLine);
-                                        curStoneLinesAddItemFlagIdLots.Add(-1);
+                                        curStoneLinesToAddGetItemFlagId[flagIdIndex].Add(stoneLine);
+                                        curStoneLinesAddItemFlagIdLots[flagIdIndex].Add(-1);
                                     }
 
                                     if (!useSingleLine && !useSingleLineOnce) //for singleLines, name gets added at the end.
@@ -6560,8 +6647,8 @@ namespace EldenRingCSVHelper
                                         && !(FTD_DropMultiple == oneLineDict[keyword])  //checks if single line is mismatched.
                                         ) // if there is a level adjust on the ftd then we dont remove the ftd.
                                         {
-                                            curStoneLinesToAddGetItemFlagId.Clear();
-                                            curStoneLinesAddItemFlagIdLots.Clear();
+                                            curStoneLinesToAddGetItemFlagId[flagIdIndex].Clear();
+                                            curStoneLinesAddItemFlagIdLots[flagIdIndex].Clear();
                                             curGiveUniqueItemFlagID = false;
                                             currentlyFirstDropGuarentee = false;
                                             dmax = 0;
@@ -6663,8 +6750,8 @@ namespace EldenRingCSVHelper
                                         && !(FTD_DropMultiple == oneLineDict[keyword])  //checks if single line is mismatched.
                                         ) // if there is a level adjust on the ftd then we dont remove the ftd.
                                         {
-                                            curStoneLinesToAddGetItemFlagId.Clear();
-                                            curStoneLinesAddItemFlagIdLots.Clear();
+                                            curStoneLinesToAddGetItemFlagId[flagIdIndex].Clear();
+                                            curStoneLinesAddItemFlagIdLots[flagIdIndex].Clear();
                                             curGiveUniqueItemFlagID = false;
                                             currentlyFirstDropGuarentee = false;
                                             dmax = 0;
@@ -6735,8 +6822,8 @@ namespace EldenRingCSVHelper
                                         stoneLine.SetField("lotItemBasePoint0" + lotIndex.ToString(), 34463);//
                                         //if (npcID == 21400114)
                                         //    Util.p();
-                                        curStoneLinesToAddGetItemFlagId.Add(stoneLine);
-                                        curStoneLinesAddItemFlagIdLots.Add(lotIndex);
+                                        curStoneLinesToAddGetItemFlagId[flagIdIndex].Add(stoneLine);
+                                        curStoneLinesAddItemFlagIdLots[flagIdIndex].Add(lotIndex);
                                         //lotIndex++;
                                     }
                                 }
@@ -6793,8 +6880,8 @@ namespace EldenRingCSVHelper
                                         break;
                                     }
                                     stoneLine.SetField("lotItemBasePoint0" + lotIndex.ToString(), 34463);//
-                                    curStoneLinesToAddGetItemFlagId.Add(stoneLine);
-                                    curStoneLinesAddItemFlagIdLots.Add(lotIndex);
+                                    curStoneLinesToAddGetItemFlagId[flagIdIndex].Add(stoneLine);
+                                    curStoneLinesAddItemFlagIdLots[flagIdIndex].Add(lotIndex);
                                     //lotIndex++;
                                 }
                                 if (itemLotLine == null)
@@ -6806,41 +6893,49 @@ namespace EldenRingCSVHelper
                                     itemLotMainLines.lines.Add(itemLotLine);
                                 }
                             }
-                            if (curStoneLinesAddItemFlagIdLots.Count > 0 && curGiveUniqueItemFlagID)
+                            if (curGiveUniqueItemFlagID)
                             {
-                                IntFilter.Single filter = IdFilters.StoneDrop_getItemFlagIDFilter;
-                                if (typeIndex == 2)
-                                    filter = IdFilters.RuneDrop_getItemFlagIDFilter;
-                                int currentGetItemFlagId;
-                                if (FTD_KeywordShardsId || FTD_LevelsShareId)
+                                for (int curFlag_i = 0; curFlag_i < curStoneLinesAddItemFlagIdLots.Length; curFlag_i++)
                                 {
-                                    string treasureDropId = keyword;
-                                    if (FTD_LevelsShareId)
-                                        treasureDropId += " " + curAdjustedLevel;
-                                    if (TreasureDrodIdToFlagId.ContainsKey(treasureDropId))
-                                        currentGetItemFlagId = TreasureDrodIdToFlagId[treasureDropId];
-                                    else
+                                    if (curStoneLinesAddItemFlagIdLots[curFlag_i] != null && curStoneLinesAddItemFlagIdLots[curFlag_i].Count > 0)
                                     {
-                                        currentGetItemFlagId = IntFilter.GetRandomInt(npcID, filter, usedGetItemFlagId);
-                                        TreasureDrodIdToFlagId.Add(treasureDropId, currentGetItemFlagId);
+                                        IntFilter.Single filter = IdFilters.StoneDrop_getItemFlagIDFilter;
+                                        if (typeIndex == 2)
+                                            filter = IdFilters.RuneDrop_getItemFlagIDFilter;
+                                        int currentGetItemFlagId;
+                                        if (FTD_KeywordShardsId || FTD_LevelsShareId || FTD_KeywordGroupShardId)
+                                        {
+                                            string treasureDropId = keyword;
+                                            if (FTD_KeywordGroupShardId)
+                                                treasureDropId = FTD_groupId;
+                                            if (FTD_LevelsShareId)
+                                                treasureDropId += " " + curAdjustedLevel;
+                                            if (TreasureDrodIdToFlagId.ContainsKey(treasureDropId))
+                                                currentGetItemFlagId = TreasureDrodIdToFlagId[treasureDropId];
+                                            else
+                                            {
+                                                currentGetItemFlagId = IntFilter.GetRandomInt(npcID, filter, usedGetItemFlagId);
+                                                TreasureDrodIdToFlagId.Add(treasureDropId, currentGetItemFlagId);
+                                            }
+                                        }
+                                        else if (found_getItemFlagId != -1)
+                                            currentGetItemFlagId = found_getItemFlagId;
+                                        else
+                                            currentGetItemFlagId = IntFilter.GetRandomInt(npcID, filter, usedGetItemFlagId);
+                                        usedGetItemFlagId.Add(currentGetItemFlagId);
+                                        for (int i = 0; i < curStoneLinesToAddGetItemFlagId.Count; i++)
+                                        {
+                                            var line = curStoneLinesToAddGetItemFlagId[curFlag_i][i];
+                                            var lot = curStoneLinesAddItemFlagIdLots[curFlag_i][i];
+                                            if (lot == -1)
+                                            {
+                                                line.SetField("getItemFlagId", currentGetItemFlagId);
+                                                line.SetField("canExecByFriendlyGhost", "0");
+                                            }
+                                            else
+                                                line.SetField("getItemFlagId0" + lot, currentGetItemFlagId);
+                                        }
                                     }
-                                }
-                                else if (found_getItemFlagId != -1)
-                                    currentGetItemFlagId = found_getItemFlagId;
-                                else
-                                    currentGetItemFlagId = IntFilter.GetRandomInt(npcID, filter, usedGetItemFlagId);
-                                usedGetItemFlagId.Add(currentGetItemFlagId);
-                                for (int i = 0; i < curStoneLinesToAddGetItemFlagId.Count; i++)
-                                {
-                                    var line = curStoneLinesToAddGetItemFlagId[i];
-                                    var lot = curStoneLinesAddItemFlagIdLots[i];
-                                    if (lot == -1)
-                                    {
-                                        line.SetField("getItemFlagId", currentGetItemFlagId);
-                                        line.SetField("canExecByFriendlyGhost", "0");
-                                    }
-                                    else
-                                        line.SetField("getItemFlagId0" + lot, currentGetItemFlagId);
                                 }
                             }
                         }
