@@ -3682,7 +3682,7 @@ namespace EldenRingCSVHelper
                 string[] uncertain = {};    //unused
 
                 exceptions = new string[]{
-                    "Lamprey"//DLC finger ruins snake finger looking asslicker
+                    "Lamprey",//DLC finger ruins snake finger looking asslicker
 
                     "Elder Dragon Greyoll",
                     "Dragonfly",
@@ -4274,9 +4274,11 @@ namespace EldenRingCSVHelper
 
                                     if (keyword.Contains("@#"))
                                     {
-                                        ftdx1Type += 100;
+                                        
                                         if (keyword.Contains("@#*"))
                                             ftdx1Type += 1000;
+                                        else
+                                            ftdx1Type += 100;
                                     }
                                 }
 
@@ -4305,9 +4307,11 @@ namespace EldenRingCSVHelper
 
                                     if (keyword.Contains("sss@#"))
                                     {
-                                        ftdx1Type_somber += 100;
                                         if (keyword.Contains("sss@#*"))
                                             ftdx1Type_somber += 1000;
+                                        else
+                                            ftdx1Type_somber += 100;
+                                        
                                     }
                                 }
                             }
@@ -4316,10 +4320,10 @@ namespace EldenRingCSVHelper
                         {
 
                             string prefix = "ftdgroup:";
-                            string prefixIndex = keyword.IndexOf(prefix);
+                            int prefixIndex = keyword.IndexOf(prefix);
                             if(prefixIndex != -1)
                             {
-                                int startIndex = prefixIndex + prefix.Length();
+                                int startIndex = prefixIndex + prefix.Length;
                                 if(startIndex < keyword.Length)
                                 {
                                     int endIndex = keyword.IndexOf(' ', startIndex);
@@ -5115,12 +5119,13 @@ namespace EldenRingCSVHelper
                     int ftdx1Type = ftdx1TypeDict[keyword];
                     bool FTD_LevelsShareId = ftdx1Type%10 == 3;
                     bool FTD_KeywordShardsId = ftdx1Type%10 == 4;
-                    bool FTD_groupId = ftdGroupIdDict[keyword];
+                    string FTD_groupId = ftdGroupIdDict[keyword];
                     bool FTD_KeywordGroupShardId = FTD_groupId != "";
                     bool Treasure_BlockNormalDropsUntilFound = ftdx1Type - (ftdx1Type % 10) == 100;
                     bool Treasure_BlockNormalDropsUntilFound_TypeSpecific = ftdx1Type - (ftdx1Type % 10) == 1000;
 
-
+                    if (ftdx1Type > 1000)
+                        Util.p();
                     if (test)
                         Util.p();
 
@@ -5812,7 +5817,7 @@ namespace EldenRingCSVHelper
                     var curStoneLinesToAddGetItemFlagId = new List<Line>[3];
                     var curStoneLinesAddItemFlagIdLots = new List<int>[3];
                     int flagIdIndex = 0;
-                    curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<Line>();
+                    curStoneLinesToAddGetItemFlagId[flagIdIndex] = new List<Line>();
                     curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<int>();
 
                     bool treatAsBoss = isBoss;
@@ -6028,7 +6033,7 @@ namespace EldenRingCSVHelper
                                 if (currentlyFirstDropGuarentee && ftdx1_SomberDict[keyword])
                                 {
                                     flagIdIndex = 1;
-                                    curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<Line>();
+                                    curStoneLinesToAddGetItemFlagId[flagIdIndex] = new List<Line>();
                                     curStoneLinesAddItemFlagIdLots[flagIdIndex] = new List<int>();
 
                                     ftdx1ChanceMult = ftdx1ChanceMult_SomberDict[keyword];
@@ -6973,7 +6978,7 @@ namespace EldenRingCSVHelper
                                         else
                                             currentGetItemFlagId = IntFilter.GetRandomInt(npcID, filter, usedGetItemFlagId);
                                         usedGetItemFlagId.Add(currentGetItemFlagId);
-                                        for (int i = 0; i < curStoneLinesToAddGetItemFlagId.Count; i++)
+                                        for (int i = 0; i < curStoneLinesToAddGetItemFlagId[curFlag_i].Count; i++)
                                         {
                                             var line = curStoneLinesToAddGetItemFlagId[curFlag_i][i];
                                             var lot = curStoneLinesAddItemFlagIdLots[curFlag_i][i];
