@@ -4272,14 +4272,10 @@ namespace EldenRingCSVHelper
                                     ftdx1ExcessToEmpty = xFound >= 2 && ftdx1ChanceMult < 1;
                                     ftdx1Type = xFound;
 
-                                    if (keyword.Contains("@#"))
-                                    {
-                                        
-                                        if (keyword.Contains("@#*"))
-                                            ftdx1Type += 1000;
-                                        else
-                                            ftdx1Type += 100;
-                                    }
+                                    if (keyword.Contains("@#*"))
+                                        ftdx1Type += 1000;
+                                    else if (keyword.Contains("@#"))
+                                        ftdx1Type += 100;
                                 }
 
                                 xFound = 0;
@@ -6863,8 +6859,11 @@ namespace EldenRingCSVHelper
 
                                 if (!useSingleLine && !useSingleLineOnce) //reset for next line
                                 {
+                                    bool typeSpecificPass = (Treasure_BlockNormalDropsUntilFound_TypeSpecific && ((FTD_OnlySomberType && typeIndex == 1) || (FTD_OnlyFirstType && typeIndex == firstTypeIndex)));
+                                    if (Treasure_BlockNormalDropsUntilFound_TypeSpecific)
+                                        Util.p();//test now
                                     //if(giveUniqueItemFlagID && createNewLineForSpecialDrop)
-                                    if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound)) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
+                                    if (d == 0 && dmax == 1 && (!isTreasure || Treasure_BlockNormalDropsUntilFound || typeSpecificPass)) //if there will be a FTD will add a FIRST TIME NO DROP (near guarentee) for none FTD 
                                     {
                                         //Dont allow regular drops on first fill
                                         if (lotIndex > maxLotIndex) //this shouldnt happen because of our curMaxLorIndex.
