@@ -6,7 +6,110 @@ using System.Text.RegularExpressions;
 
 namespace EldenRingCSVHelper
 {
+    public static class SmithingStones
+    {
+         static bool init = false;
+        public const int maxLevel = 9;
+        static Dictionary<int, int> _somberSmithingStoneItemIDsDict = new Dictionary<int, int>();
+        static Dictionary<int, int> _somberSmithingStoneIDsDict = new Dictionary<int, int>();
+        static Dictionary<int, int> _smithingStoneItemIDsDict = new Dictionary<int, int>();
+         static Dictionary<int, int> _smithingStoneIDsDict = new Dictionary<int, int>();
 
+        static Dictionary<int, string> _smithingStonelevelToNameDict = new Dictionary<int, string>();
+        static Dictionary<int, string> _somberSmithingStonelevelToNameDict = new Dictionary<int, string>();
+        public static Dictionary<int, int> ItemIDsDict { get { Secure(); return _smithingStoneIDsDict; } }
+        public static Dictionary<int, int> IDsDict { get { Secure(); return _smithingStoneIDsDict; } }
+        public static Dictionary<int, string> LevelToNameDict { get { Secure(); return _smithingStonelevelToNameDict; } }
+        public static class Somber
+        {
+            public const int maxLevel = 10;
+            public static Dictionary<int, int> ItemIDsDict { get { Secure(); return _somberSmithingStoneItemIDsDict; } }
+            public static Dictionary<int, int> IDsDict { get { Secure(); return _somberSmithingStoneIDsDict; } }
+            public static Dictionary<int, string> LevelToNameDict { get { Secure(); return _somberSmithingStonelevelToNameDict; } }
+        }
+
+        
+
+        public static void Secure()
+        {
+            if (init)
+                return;
+            init = true;
+            CreateDicts();
+        }
+
+        static void CreateDicts() {
+            {
+                _smithingStoneItemIDsDict.Add(10100, 1);
+                _smithingStoneItemIDsDict.Add(10101, 2);
+                _smithingStoneItemIDsDict.Add(10102, 3);
+                _smithingStoneItemIDsDict.Add(10103, 4);
+                _smithingStoneItemIDsDict.Add(10104, 5);
+                _smithingStoneItemIDsDict.Add(10105, 6);
+                _smithingStoneItemIDsDict.Add(10106, 7);
+                _smithingStoneItemIDsDict.Add(10107, 8);
+                _smithingStoneItemIDsDict.Add(10140, 9);
+                _somberSmithingStoneItemIDsDict.Add(10160, 1);
+                _somberSmithingStoneItemIDsDict.Add(10161, 2);
+                _somberSmithingStoneItemIDsDict.Add(10162, 3);
+                _somberSmithingStoneItemIDsDict.Add(10163, 4);
+                _somberSmithingStoneItemIDsDict.Add(10164, 5);
+                _somberSmithingStoneItemIDsDict.Add(10165, 6);
+                _somberSmithingStoneItemIDsDict.Add(10166, 7);
+                _somberSmithingStoneItemIDsDict.Add(10167, 8);
+                _somberSmithingStoneItemIDsDict.Add(10200, 9);
+                _somberSmithingStoneItemIDsDict.Add(10168, 10);
+
+                
+            }
+            {
+                _smithingStoneIDsDict.Add(1, 10100);
+                _smithingStoneIDsDict.Add(2, 10101);
+                _smithingStoneIDsDict.Add(3, 10102);
+                _smithingStoneIDsDict.Add(4, 10103);
+                _smithingStoneIDsDict.Add(5, 10104);
+                _smithingStoneIDsDict.Add(6, 10105);
+                _smithingStoneIDsDict.Add(7, 10106);
+                _smithingStoneIDsDict.Add(8, 10107);
+                _smithingStoneIDsDict.Add(9, 10140);
+                _somberSmithingStoneIDsDict.Add(1, 10160);
+                _somberSmithingStoneIDsDict.Add(2, 10161);
+                _somberSmithingStoneIDsDict.Add(3, 10162);
+                _somberSmithingStoneIDsDict.Add(4, 10163);
+                _somberSmithingStoneIDsDict.Add(5, 10164);
+                _somberSmithingStoneIDsDict.Add(6, 10165);
+                _somberSmithingStoneIDsDict.Add(7, 10166);
+                _somberSmithingStoneIDsDict.Add(8, 10167);
+                _somberSmithingStoneIDsDict.Add(9, 10200);
+                _somberSmithingStoneIDsDict.Add(10, 10168);
+
+                foreach (int level in _smithingStoneIDsDict.Keys)
+                {
+                    _smithingStonelevelToNameDict.Add(level, Program.EquipParamGoods.GetLineWithId(_smithingStoneIDsDict[level]).name);
+                }
+                foreach (int level in _somberSmithingStoneIDsDict.Keys)
+                {
+                    _somberSmithingStonelevelToNameDict.Add(level, Program.EquipParamGoods.GetLineWithId(_somberSmithingStoneIDsDict[level]).name);
+                }
+            }
+        }
+
+            
+    }
+    public static class makeInfo
+    {
+        public static void Names()
+        {
+            foreach (Line line in Program.ItemLotParam_map.lines)
+            {
+                var n = LotItem.Get(line, 1).Name;
+                if (n == "invalid" || n == "")
+                    continue;
+                Util.println(line.id + ";" + n);
+            }
+            return;
+        }
+    }
     public struct Keyword
     {
         public string keyword;
@@ -153,7 +256,7 @@ namespace EldenRingCSVHelper
             public static int Armor = 3;
             public static int Accessory = 4;
             public static int AshOfWar = 5;
-            public static int CustomWeapon = 3;
+            public static int CustomWeapon = 6;
         }
 
 
@@ -165,7 +268,10 @@ namespace EldenRingCSVHelper
             {
                 if (category == 0)
                     return "";
-                return CategoryParamFile.GetLineWithId(id).name;
+                var l = CategoryParamFile.GetLineWithId(id);
+                if (l == null)
+                    return "invalid";
+                return l.name;
             }
         }
         public LotItem Copy()
@@ -198,7 +304,8 @@ namespace EldenRingCSVHelper
                     return Program.EquipParamCustomWeapon;
                 else if (category == Category.AshOfWar)
                     return Program.EquipParamGem;
-                return null;
+                else return null;
+
             }
         }
         public int amount = 1;
@@ -877,7 +984,6 @@ namespace EldenRingCSVHelper
 46400032,// Ulcerated Tree Spirit (Boss)
 46400942,// Ulcerated Tree Spirit (Boss)
 46400950,// Ulcerated Tree Spirit (Boss)
-
 46500262,// Dragonkin Soldier (Lake of Rot)
 46500265,// Dragonkin Soldier (Nokron)
 46500960,// Dragonkin Soldier of Nokstella Healthbar (Boss)
@@ -945,6 +1051,7 @@ namespace EldenRingCSVHelper
 
 526100052,  //Stray Mimic Tear (Hidden Path to Haligtree) (rare exception that isnt technically considered boss)
 49100038,   //Magma Wyrm (Volcano Manor) (rare exception that isnt technically considered boss) //since its not considered a boss, and drops a dragon heart (like many other enemies) im not going to make it map based drop.
+            
             }.ToList();
 
             _multiBoss = new List<int>();
@@ -1219,6 +1326,12 @@ namespace EldenRingCSVHelper
 
             //Preassign bosses to itemlotmap
             {
+                //DLC
+                //_bossOrMiniBossToItemLotMapDict.Add(21300534, 30820);    //Blackgoal Knight
+                //_bossOrMiniBossToItemLotMapDict.Add(21300534, 20800);    //Chied Bloodfiend
+                //_bossOrMiniBossToItemLotMapDict.Add(21300534, 20750);    //Demi-Human Swordmaster Onze
+                //
+
 
                 _bossOrMiniBossToItemLotMapDict.Add(21300534, 10040);    //Morgott
                 _bossOrMiniBossToItemLotMapDict.Add(47210070, 10070);    //Hoarah Loux
@@ -1335,11 +1448,16 @@ namespace EldenRingCSVHelper
         static Dictionary<int, float> _npcsDocDifficultyDict;
         static Dictionary<int, List<Keyword>> _npcDocToLocationsDict;
         static Dictionary<int, int> _npcsIdToSpLevelsDict;
+        static Dictionary<int, bool> _npcsIdToIsHumanspDict;
+        static Dictionary<int, bool> _npcsIdToIsDLCspDict;
         static Dictionary<int, float> _spLevelToDifficultyDict;
         static Dictionary<int, float> _spLevelToStoneDifficultyDict;
         static bool setInfo = false;
+        
         public static Dictionary<int, float> NpcIdsToDocDifficultyDict { get { if (_npcsDocDifficultyDict == null && !setInfo) SetInfo(); return _npcsDocDifficultyDict; } }
         public static Dictionary<int, int> NpcIdsToSpLevelsDict { get { if (_npcsIdToSpLevelsDict == null && !setInfo) SetInfo(); return _npcsIdToSpLevelsDict; } }
+        public static Dictionary<int, bool> NpcIdsToIsHumanspDict { get { if (_npcsIdToIsHumanspDict == null && !setInfo) SetInfo(); return _npcsIdToIsHumanspDict; } } 
+        public static Dictionary<int, bool> NpcIdsToIsDLCspDict { get { if (_npcsIdToIsDLCspDict == null && !setInfo) SetInfo(); return _npcsIdToIsDLCspDict; } }
         public static Dictionary<int, float> SpLevelToDifficultyDict { get { if (_spLevelToDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToDifficultyDict; } }
         public static Dictionary<int, float> SpLevelToStoneDifficultyDict { get { if (_spLevelToStoneDifficultyDict == null && !setInfo) SetInfo(); return _spLevelToStoneDifficultyDict; } }
         public static List<int> DocumentedNpcIDsList { get { if (_documentedNpcIDsList == null && !setInfo) SetInfo(); return _documentedNpcIDsList; } }
@@ -1930,6 +2048,8 @@ namespace EldenRingCSVHelper
             {
                 _npcsIdToSpLevelsDict = new Dictionary<int, int>();
                 _spLevelToDifficultyDict = new Dictionary<int, float>();
+                _npcsIdToIsHumanspDict = new Dictionary<int, bool>();
+                _npcsIdToIsDLCspDict = new Dictionary<int, bool>();
                 //set spLevelToDifficyltyDict
                 {
                     _spLevelToDifficultyDict.Add(1, 1); //stranded graveyard
@@ -1988,15 +2108,32 @@ namespace EldenRingCSVHelper
                     string locSpEffectID = npcLine.GetField("spEffectID3");
                     if (locSpEffectID == "0" || locSpEffectID == "-1")
                         continue;               //this seems to be npcs. we already excpetions.
-                    var spLine = Program.SpEffectParam.GetLineWithId(locSpEffectID);
-                    if (!spLine.name.Contains("Area Scaling"))
-                        continue;
                     bool isBoss = BossOrMiniBossIds.Contains(npcLine.id_int);
                     if (!isBoss && npcLine.GetField("getSoul") == "0")
                         continue;
-                    int mySpTier = Util.GetFirstIntInString(spLine.name);
-                    _npcsIdToSpLevelsDict.Add(npcLine.id_int, mySpTier);
-                    if (_npcsDocDifficultyDict.ContainsKey(npcLine.id_int))
+                    var spLine = Program.SpEffectParam.GetLineWithId(locSpEffectID);
+                    if (!spLine.name.Contains("Area Scaling"))
+                        continue;
+                    
+
+                    bool isDLCSp = spLine.name.Contains("SOTE") || (spLine.name.Contains("Malenia") && !npcLine.name.Contains("Malenia"));
+                    bool isHumanSp = false;
+                    int mySpTier = -1;
+                    isHumanSp = spLine.name.Contains("Human-NPC");
+                    if (isDLCSp)
+                        mySpTier = 21;
+                    else
+                    {
+                        
+                        if (!isHumanSp)
+                            mySpTier = Util.GetFirstIntInString(spLine.name);
+                    }
+                    _npcsIdToIsHumanspDict.Add(npcLine.id_int, isHumanSp);
+                    if(!isHumanSp)
+                        _npcsIdToIsDLCspDict.Add(npcLine.id_int, isDLCSp);
+                    if (mySpTier != -1)
+                        _npcsIdToSpLevelsDict.Add(npcLine.id_int, mySpTier);
+                    if (_npcsDocDifficultyDict.ContainsKey(npcLine.id_int) && mySpTier != -1)
                     {
                         if (_npcsDocDifficultyDict[npcLine.id_int] != _spLevelToDifficultyDict[mySpTier])
                         {

@@ -1086,6 +1086,10 @@ namespace EldenRingCSVHelper
         {
             return GetNextFreeId(id, out int index, startIndex, inclusive);
         }
+        public int GetNextFreeId(int id, bool inclusive, out int index, int startIndex = 0)
+        {
+            return GetNextFreeId(id, out index, startIndex, inclusive);
+        }
 
         public int GetNextFreeIdIntreval(int startingId, bool inclusive, int searchInterval, int startIndex, out int lastLineIndex, List<int> IdsToExclude)
         {
@@ -1124,9 +1128,14 @@ namespace EldenRingCSVHelper
                 id--;
             bool foundId = false;
             int nextValid = id + 1;
+            int count = lines.Count;
             for (int i = startIndex; true; i++)
             {
-
+                if(i == count)
+                {
+                    nextLineIndex = i;
+                    return nextValid;
+                }    
                 int iid = lines[i].id_int;
                 //if (!foundId && (iid == id || iid == nextValid))
                 //    foundId = true;
@@ -2311,7 +2320,7 @@ namespace EldenRingCSVHelper
             /// <summary> 
             /// Overrides the line the given lines with the given Overrideline. Replaces the first lines if it shares an id. Also adds the line if it doesnt share an id.
             /// </summary>
-            public static List<Line> OverrideOrAddLine(List<Line> lines, Line overrideLine, ParamFile fileInto, out int lineIndex, int startIndex = 0)
+        public static List<Line> OverrideOrAddLine(List<Line> lines, Line overrideLine, ParamFile fileInto, out int lineIndex, int startIndex = 0)
         {
             bool changingFile = fileInto != null;
             List<Line> newLines = new List<Line>();
@@ -2383,6 +2392,18 @@ namespace EldenRingCSVHelper
             {
                 newLines.Add(overrideLine);
                 lineIndex = lines.Count;
+                if (changingFile)
+                {
+                    overrideLine.inFile = true;
+                    overrideLine.added = true;
+                    overrideLine.vanillaLine = null;
+                    if (true || overrideLine.modified) //always true
+                    {
+                        fileInto.numberOfModifiedOrAddedLines++;
+                        fileInto.numberOfModifiedFields += overrideLine.modifiedFieldIndexes.Count;
+                    }
+                }
+                found = true;
             }
             return newLines;
         }

@@ -8,6 +8,17 @@ namespace EldenRingCSVHelper
 {
     public static class Util
     {
+
+
+        public static bool CharCheck(string str, int index, char[] chars)
+        {
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (str[index] == chars[i])
+                    return true;
+            }
+            return false;
+        }
         public static void PrintStrings(string[] outputLines)
         {
             foreach (string outputLine in outputLines)
