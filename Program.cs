@@ -2571,8 +2571,11 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Four-Toed Fowl Foot",0, 125),
                     new LotItem(good,"Trina's Lily",0,300),
                     new LotItem(good,"Miquella's Lily",0,300),
+                    new LotItem(good,"Nectarblood Burgeon",300),
                     new LotItem(good,"Beast Liver",0,200),
+                    new LotItem(good,"Scorpion Liver",0,200),
                     new LotItem(good,"Turtle Neck Meat",0,200),
+                    new LotItem(good,"Furnace Visage",0, 200),
 
                     new LotItem(good,"Stormhawk Feather",0,200).addKW("[Warhawk]"),
                     new LotItem(good,"Stormhawk Feather",0,250).addKW(""),
@@ -2580,7 +2583,6 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Flight Pinion",0,250).addKW("[Warhawk]"),
 
                     new LotItem(good,"Land Octopus Ovary",0, 200),
-
 
                     new LotItem(good,"Thin Beast Bones",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Wolf]"),
                     new LotItem(good,"Thin Beast Bones",0,150),
@@ -2607,9 +2609,13 @@ namespace EldenRingCSVHelper
                 materials_to_set_max = materials_to_set_max.Concat(new LotItem[] {
                     new LotItem(good,"Four-Toed Fowl Foot",2), //
                     new LotItem(good,"Trina's Lily",1), //maintain rarity
+                    new LotItem(good,"Nectarblood Burgeon",1),
+                    new LotItem(good,"Empyrean-Blood Burgeon",1),
                     new LotItem(good,"Beast Liver",1),
+                    new LotItem(good,"Scorpion Liver",1),
                     new LotItem(good,"Turtle Neck Meat",1),
                     new LotItem(good,"Great Dragonfly Head",1),
+                    new LotItem(good,"Furnace Visage",1),
                     new LotItem(good,"Yellow Ember",2),
 
                     //new LotItem(good,"Bloodrose",4).addKW("[Sanguine Noble]"),
@@ -2633,6 +2639,10 @@ namespace EldenRingCSVHelper
 
                 setLots = setLots.Concat(new LotItem[]
                 {
+                    new LotItem(good,"Slumbering Egg",1,70).addKW("[Owl]").addKW("%"),
+                    new LotItem(good,"Slumbering Egg",2,22).addKW("[Owl]").addKW("%"),
+                    new LotItem(good,"Slumbering Egg",3,8).addKW("[Owl]").addKW("%"),
+
                     new LotItem(good,"String",1,15).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
                     new LotItem(good,"String",2,40).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
                     new LotItem(good,"String",3,70).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
