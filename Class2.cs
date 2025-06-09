@@ -106,6 +106,7 @@ namespace EldenRingCSVHelper
                 while ((line = sr.ReadLine()) != null)
                 {
                     var vanillaLine = new Line(line, vanillaParamFile);
+                    vanillaLine.isVanillaLine = true;
                     vanillaLinesList.Add (vanillaLine);
                     Line myLine = vanillaLine.Copy(this, true);
                     lines.Add(myLine);
@@ -1127,16 +1128,15 @@ namespace EldenRingCSVHelper
             if (inclusive)
                 id--;
             bool foundId = false;
-            int nextValid = id + 1;
             int count = lines.Count;
-            for (int i = startIndex; true; i++)
-            {
-                if(i == count)
-                {
-                    nextLineIndex = i;
-                    return nextValid;
-                }    
-                int iid = lines[i].id_int;
+
+            id = Math.Max(id, lines[startIndex].id_int);
+            int nextValid = id + 1;
+            int i = startIndex;
+            int iid;
+            for (;i < count; i++)
+            {  
+                iid = lines[i].id_int;
                 //if (!foundId && (iid == id || iid == nextValid))
                 //    foundId = true;
 
@@ -1150,12 +1150,13 @@ namespace EldenRingCSVHelper
                         }
                         else if (iid > nextValid)
                         {
-                            nextLineIndex = i;
-                            return nextValid;
+                            break;
                         }
                     }
                 }
             }
+            nextLineIndex = i;
+            return nextValid;
         }
         
         /// <summary> 
@@ -1414,10 +1415,7 @@ namespace EldenRingCSVHelper
         } = false;
         public bool modified { get; private set; } = false;
 
-        public bool IsVannilaLine
-        {
-            get { return vanillaLine == null; }
-        }
+        public bool isVanillaLine = false;
 
         public void TurnFakeVanilla()
         {
@@ -1521,6 +1519,8 @@ namespace EldenRingCSVHelper
 
         bool queUpdateData;
         bool queUpdateLine;
+        
+
 
         /// <summary> 
         /// create a copy of this line.
@@ -1612,6 +1612,11 @@ namespace EldenRingCSVHelper
         /// 
         public Line SetField(int fieldIndex, string setTo )
         {
+            if (isVanillaLine)
+            {
+                Util.p(); //this should never happen
+                Debug.Fail("attempted to modify a vanilla line: "     + id + ":" + name);
+            }
             if (setTo == _data[fieldIndex])
                 return this;
             //if (file.filename == "ItemLotParam_enemy.csv" && fieldIndex == Program.ItemLotParam_enemy.GetFieldIndex("lotItemBasePoint01") && id_int == 407100103)

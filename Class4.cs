@@ -347,12 +347,14 @@ namespace EldenRingCSVHelper
         {
             return new LotItem(line, lotIndex, true);
         }
-        public static int GetChanceTotal(Line line)
+        public static int GetChanceTotal(Line line, bool excludeMaxChance = false)
         {
             int total = 0;
             for (int i = 0; i < chanceFIs.Length; i++)
             {
                 var li = Get(line, i + 1);
+                if (excludeMaxChance && li.chance == MAX_CHANCE)
+                    continue;
                 total += li.chance;
             }
             return total;
@@ -369,11 +371,11 @@ namespace EldenRingCSVHelper
             }
             return total;
         }
-        public static void RegulateLine(Line line)
+        public static void RegulateLine(Line line, bool excludeMaxChance = false)
         {
             if (line.id_int == 308000155)
                 Util.p();
-            int total = GetChanceTotal(line);
+            int total = GetChanceTotal(line, excludeMaxChance);
             if (total == 0)
                 return;
             float mult = 1000f / total;
@@ -381,6 +383,8 @@ namespace EldenRingCSVHelper
             {
                 int fi = chanceFIs[lotIndex - 1];
                 int chance = line.GetFieldAsInt(fi);
+                if (excludeMaxChance && chance == MAX_CHANCE)
+                    continue;
                 int newChance = (int)((chance * mult) + 0.5);
                 if (chance == 0)
                     continue;
@@ -1439,6 +1443,10 @@ namespace EldenRingCSVHelper
                 _bossOrMiniBossToItemLotMapDict.Add(40200920, 1034480100);  //Royal Revenant (Frozen Needle Drop)
 
                 _bossOrMiniBossToItemLotMapDict.Add(35500930, 1040530010);  //Sanguine Noble (Bloody Helice Drop)
+                
+                _bossOrMiniBossToItemLotMapDict.Add(46300912, 20310);  //Runebear (spelldrake talisman drop)
+
+
 
             }
         }

@@ -17,8 +17,8 @@ namespace EldenRingCSVHelper
             RunSettings.Write_OnlyModifiedLines = true;
             RunSettings.RunIfNull = true;
 
-            RunSettings.RunIfNull = false;  //dont re create files
-            RunSettings.ToRun = ShopLineupParam_Recipe;
+            //RunSettings.RunIfNull = false;  //dont re create files
+            //RunSettings.ToRun = ShopLineupParam_Recipe;
 
 
             //worldChangesPlus(false,true); //testing
@@ -33,7 +33,7 @@ namespace EldenRingCSVHelper
             var DropMultsToWrite = new float[]
             {
                 1,
-                //1.5f,2f,3f,5f
+                1.5f,2f,3f,5f
             };
 
             /*exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)\RuneDrops (import first)";
@@ -47,9 +47,10 @@ namespace EldenRingCSVHelper
                 //Condition WriteCond;
 
 
-                string individual_RuneDropsDirectory = "";
-
+                const bool STONE_DROP_MULT_OPTIONS = true;
                 const bool MATERIAL_DROP_MULT_OPTIONS = true;
+
+                string individual_RuneDropsDirectory = "";
                 var individual_MaterialDropsDirectory = "";
                 for (int i = 0; i < DropMultsToWrite.Length && (MATERIAL_DROP_MULT_OPTIONS || i == 0); i++)
                 {
@@ -127,7 +128,7 @@ namespace EldenRingCSVHelper
 
                 ParamFile.RevertAll(true);
 
-                const bool STONE_DROP_MULT_OPTIONS = true;
+                
                 //var individual_StoneDropsDirectory = "";
                 var individual_StoneDropMultsDirectory = new string[DropMultsToWrite.Length];
                 for (int i = 0; i < DropMultsToWrite.Length && (STONE_DROP_MULT_OPTIONS || i == 0); i++)
@@ -251,13 +252,13 @@ namespace EldenRingCSVHelper
                 //AddedLineManager.Catalog("SC_VSN");
                 ParamFile.RevertAll(true);
 
-                ShopChanges_DirString = @"\Expirimental\Limit TwinMaiden Stones to 60";
+                /*ShopChanges_DirString = @"\Expirimental\Limit TwinMaiden Stones to 60";
                 //ShopChanges_DirString = @"\Other Changes\Shop Changes\Limit TwinMaiden Stones (Experimental)";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
                 var individual_ShopChanges_LimitTwinMaidenStones = RunSettings.Write_directory;
                 ShopLineupChanges(false, false, false, false, true);
                 ParamFile.WriteModifiedFiles("", "__" + "exLTMS");
-                ParamFile.RevertAll(true);
+                ParamFile.RevertAll(true);*/
 
                 /*ShopChanges_DirString = @"\Other Changes\Shop Changes\TwinMaiden Stone Nerf";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
@@ -285,19 +286,18 @@ namespace EldenRingCSVHelper
                 //AddedLineManager.Catalog("SC_MB");
                 ParamFile.RevertAll(true);
 
-                ShopChanges_DirString = @"\Expirimental\Can Craft Stones";
+                /*ShopChanges_DirString = @"\Expirimental\Can Craft Stones";
                 //ShopChanges_DirString = @"\Other Changes\Can Craft Stones (Experiemntal)";
                 RunSettings.Write_directory = exportDirectory + ShopChanges_DirString;
                 var individual_ShopChanges_CanCraftStonesDirectory = RunSettings.Write_directory;
-                SmithingStoneCrafting();
+                //SmithingStoneCrafting();
                 ParamFile.WriteModifiedFiles("", "__" + "exCCS");
-                ParamFile.RevertAll(true);
+                ParamFile.RevertAll(true);*/
 
                 
 
 
-                exportDirectory = @"C:\CODING OUTPUT\CSV\All In One";
-                var ALLinOne_ExportDir = exportDirectory;
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\All In One";
                 RunSettings.Write_directory = exportDirectory;
                 ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
                 ParamFile.ImportCSVs(individual_RuneDropsDirectory);
@@ -307,7 +307,6 @@ namespace EldenRingCSVHelper
                 ParamFile.ImportCSVs(individual_ShopChanges_MaterialBuffDirectory);
                 ParamFile.ImportCSVs(individual_ShopChanges_MiscBalancingDirectory);
                 ParamFile.ImportCSVs(individual_ShopChanges_StoneNerfDirectory);
-                ParamFile.ImportCSVs(individual_ShopChanges_CanCraftStonesDirectory);
                 if (CREATE_SOFT_RANDOMIZER)
                 {
                     ParamFile.ImportCSVs(individual_WCP_AddRoundtableItemsDirectory);
@@ -315,19 +314,80 @@ namespace EldenRingCSVHelper
                 }
                 ParamFile.ImportCSVs(individual_WCP_UnupgradeNPCWeapDirectory);
                 ParamFile.WriteModifiedFiles("", "__" + "AllInOne");
+                ParamFile.RevertAll(true);
 
-                exportDirectory = @"C:\CODING OUTPUT\CSV\All In One (FTED)";
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\All In One (FTED)";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.ImportCSVs(individual_RuneDropsDirectory);
+                ParamFile.ImportCSVs(individual_FTEDDirectory);
+                ParamFile.ImportCSVs(individual_WorldChangesDirectory);
+                ParamFile.ImportCSVs(individual_MaterialDropsDirectory);
+                ParamFile.ImportCSVs(individual_ShopChanges_MaterialBuffDirectory);
+                ParamFile.ImportCSVs(individual_ShopChanges_MiscBalancingDirectory);
+                ParamFile.ImportCSVs(individual_ShopChanges_StoneNerfDirectory);
+                if (CREATE_SOFT_RANDOMIZER)
+                {
+                    ParamFile.ImportCSVs(individual_WCP_AddRoundtableItemsDirectory);
+                    ParamFile.ImportCSVs(individual_WCP_SoftItemRandomizerDirectory);
+                }
+                ParamFile.ImportCSVs(individual_WCP_UnupgradeNPCWeapDirectory);
+                ParamFile.WriteModifiedFiles("", "__" + "AllInOneFTED");
+                ParamFile.RevertAll(true);
+
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\StoneDrops ONLY";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.WriteModifiedFiles("", "__" + "StoneDropsOnly");
+                ParamFile.RevertAll(true);
+
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\StoneDrops OTED";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.ImportCSVs(individual_OTEDDirectory);
+                ParamFile.WriteModifiedFiles("", "__" + "StoneDropsOted");
+                ParamFile.RevertAll(true);
+
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\StoneDrops OTED LessStonePickups";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.ImportCSVs(individual_OTEDDirectory);
+                ParamFile.ImportCSVs(individual_WorldChangesDirectory);
+                ParamFile.WriteModifiedFiles("", "__" + "SdOtedLsp");
+                ParamFile.RevertAll(true);
+
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\StoneDrops RuneDrops MatDrops OTED";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.ImportCSVs(individual_RuneDropsDirectory);
+                ParamFile.ImportCSVs(individual_MaterialDropsDirectory);
+                ParamFile.ImportCSVs(individual_OTEDDirectory);
+                ParamFile.WriteModifiedFiles("", "__" + "SdRdMdOted");
+                ParamFile.RevertAll(true);
+
+                exportDirectory = @"C:\CODING OUTPUT\CSV\Presets (fast)\StoneDrops RuneDrops MatDrops OTED LessStonePickups";
+                RunSettings.Write_directory = exportDirectory;
+                ParamFile.ImportCSVs(individual_StoneDropMultsDirectory[0]);
+                ParamFile.ImportCSVs(individual_RuneDropsDirectory);
+                ParamFile.ImportCSVs(individual_MaterialDropsDirectory);
+                ParamFile.ImportCSVs(individual_OTEDDirectory);
+                ParamFile.ImportCSVs(individual_WorldChangesDirectory);
+                ParamFile.WriteModifiedFiles("", "__" + "SdRdMdOtedLsp");
+                ParamFile.RevertAll(true);
+
+                /*exportDirectory = @"C:\CODING OUTPUT\CSV\All In One (FTED)";
                 RunSettings.Write_directory = exportDirectory;
                 ParamFile.ImportCSVs(individual_FTEDDirectory);
-                ParamFile.WriteModifiedFiles("", "__" + "AIO_FTED");
+                ParamFile.WriteModifiedFiles("", "__" + "AIO_FTED");*/
 
-                exportDirectory = @"C:\CODING OUTPUT\CSV\All In One (Experimental)";
+                /*exportDirectory = @"C:\CODING OUTPUT\CSV\All In One (Experimental)";
                 RunSettings.Write_directory = exportDirectory;
                 ParamFile.ImportCSVs(individual_OTEDDirectory);
-                ParamFile.ImportCSVs(individual_ShopChanges_MiscBalancingDirectory);
                 ParamFile.ImportCSVs(individual_ShopChanges_LimitTwinMaidenStones);
+                ParamFile.ImportCSVs(individual_ShopChanges_CanCraftStonesDirectory);
                 ParamFile.WriteModifiedFiles("", "__" + "AIO_EX");
-                ParamFile.RevertAll(true);
+                */
+
 
 
 
@@ -511,7 +571,7 @@ namespace EldenRingCSVHelper
             public static IntFilter.Single RuneDrop_getItemFlagIDFilter =               IntFilter.Create(true, 1, 0, IntFilter.Digit(3, 5), 2, IntFilter.Digit(3, 5), -1, 7, -1, -1, 0);
         }
 
-        const string VanillaFilesPath = @"C:\CODING\Souls Modding\Elden Ring Modding\ModEngine-2.0.0\mod\Vanilla 1.12\CSV\";
+        const string VanillaFilesPath = @"C:\CODING\Souls Modding\Elden Ring Modding\ModEngine-2.0.0\mod\Vanilla 1.16\CSV\";
 
         const string DocsFilesPath = @"C:\CODING\Souls Modding\ModdingTools\Docs\";
         //update this periodically by updating the Vanilla project with the games regulation bin.
@@ -660,13 +720,42 @@ namespace EldenRingCSVHelper
                         Util.println();
                     }
                 }*/
-                
+
 
                 /*var flagIds = ItemLotParam_enemy.GetIntFields(LotItem.getItemFlagIdFI)
                     .Concat(ItemLotParam_map.GetIntFields(LotItem.getItemFlagIdFI))
                     .ToArray();
                 IntFilter.CreateFromAcceptableInts(flagIds, 10).Print();*/
 
+
+                /*var isWeaks =  NpcParam.GetFieldIndexesContains("isWeak");
+                var namesChecked = new List<string>();
+                foreach(Line l in NpcParam.lines)
+                {
+                    if (namesChecked.Contains(l.name))
+                        continue;
+                    bool found = false;
+                    var curIWs = new List<string>();
+                    foreach (int isWeak in isWeaks)
+                    {
+                       
+                        if (l.GetFieldAsInt(isWeak) == 1)
+                        {
+                            curIWs.Add(NpcParam.GetFieldName(isWeak));
+                            found = true;
+                        }
+                    }
+
+                    if(found)
+                    {
+                        namesChecked.Add(l.name);
+
+                        string t = Util.IndentedText(l.name, 50) + String.Join(", " , curIWs.ToArray());
+
+
+                        Util.println( t );
+                    }
+                }*/
                 RunOverride_CreateSmithingStoneMod();
             }
             else
@@ -2047,8 +2136,8 @@ namespace EldenRingCSVHelper
                                 var t = ItemLotFile.paramName;
                                 var y = line.file.paramName;
                                 var m = line.modified;
-                                var v = line.IsVannilaLine;
-                                var vv = line.vanillaLine.IsVannilaLine;
+                                var v = line.isVanillaLine;
+                                var vv = line.vanillaLine.isVanillaLine;
                                 var i = line.inFile;
                                 var test = 429000700;
                                 if (line.id_int == test)
@@ -2084,7 +2173,7 @@ namespace EldenRingCSVHelper
         }
         static void enemyDrops_IncreasedMaterialDrops(float DROPMULT = 1)
         {
-            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy }))
+            if (!IsRunningParamFile(new ParamFile[] { ItemLotParam_enemy , NpcParam, ItemLotParam_map}))
                 return;
             int good = LotItem.Category.Good;
             int itemLotId_enemy = NpcParam.GetFieldIndex("itemLotId_enemy");
@@ -2143,7 +2232,7 @@ namespace EldenRingCSVHelper
                 }
                 //starlight shard, Graven School
                 {
-                    var GravenSchoolLines = (Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(new Condition.NameIs(new string[] { "Graven School" }));
+                    var GravenSchoolLines = (Lines)NpcParam.GetLinesOnCondition(new Condition.NameIs(new string[] { "Graven School" }));
                     List<Line> itemLotLinesAdded = new List<Line>(); 
                     List<int> itemLotLinesAddedIds = new List<int>();
                     int lastlineIndex = -1;
@@ -2157,7 +2246,7 @@ namespace EldenRingCSVHelper
                         //create line.
                         Line newLine = LotItem.newBaseItemLotLine(ItemLotParam_enemy, newItemLotID,"["+npcLine.name+"] None");
                         ItemLotParam_enemy.OverrideOrAddLine(newLine);
-                        npcLine.SetField("itemLotId_enemy", newItemLotID);
+                        npcLine.SetField(itemLotId_enemy, newItemLotID);
                         int flagId = IntFilter.GetRandomInt(newItemLotID, IdFilters.MaterialOneTimeDrop_getItemFlagIDFilter, FlagIds.usedGetItemFlagId);
                         FlagIds.usedGetItemFlagId.Add(flagId);
                         lotItemToLineIDsDict.Add(new LotItem(good, "Starlight Shards", 1, 450, true, -flagId), new int[] { newItemLotID });
@@ -2177,9 +2266,9 @@ namespace EldenRingCSVHelper
                         ))).GetIntFields(itemLotId_enemy).Distinct().ToArray());
                     var ids = ((Lines)lines).GetIDs();
 
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 40,true), ids);
-                    materials_chance_percentMultipler.Add(new LotItem(good, "Raw Meat Dumpling", 0, 160).addKW("Scaly Misbegotten"));
-                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 60,true), ids);
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Raw Meat Dumpling", 1, 180).addKW("Scaly Misbegotten"));
+                   //NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //raw meat dumpling - Living Jar
                 {
@@ -2191,12 +2280,12 @@ namespace EldenRingCSVHelper
                                 new Condition.HasInName(names[i])))).GetIntFields(itemLotId_enemy).Distinct().ToArray());
                         var ids = ((Lines)lines).GetIDs();
                         if (names[i] == "Living Jar")
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 25,true), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 30,true), ids);
                         if (names[i] == "Great Jar")
-                            lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 100,true), ids);
+                            lotItemToLineIDsDict.Add(new LotItem(good, "Raw Meat Dumpling", 1, 150,true), ids);
 
                         //var debugCount = lines.Count();
-                        NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
+                        //NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList(); / will add to everything, not good
                     }
                 }
                 //Large Glintstone Scrap - increased chance from sorcerer miner, greater amount dropped
@@ -2232,8 +2321,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(LotItem.Category.Weapon, id, 200).addKW("%").addKW("!Param:ItemLotParam_enemy!").addKW(""));
                         setLots.Add(new LotItem(LotItem.Category.Weapon, id, 0).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!").addKW(""));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[0], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[1], Ids))).
+                       Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[0], Ids))));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff all throwing daggers type consumables drops
@@ -2247,8 +2336,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(good, id, 300).addKW("%").addKW("!Param:ItemLotParam_enemy!").addKW(""));
                         setLots.Add(new LotItem(good, id, 5).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!").addKW(""));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[0], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids).AND(new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good))).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[0], Ids).AND(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good))));
                     //var debugCount = lines.Count();
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
@@ -2263,8 +2352,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(good, id, 250).addKW("%").addKW("!Param:ItemLotParam_enemy!").addKW(""));
                         setLots.Add(new LotItem(good, id, 0).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!").addKW(""));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[0], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[1], Ids))).
+                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[0], Ids))));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff all gravity stone type items
@@ -2278,8 +2367,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(good, id, 250).addKW("%").addKW("!Param:ItemLotParam_enemy!").addKW(""));
                         setLots.Add(new LotItem(good, id, 0).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!").addKW(""));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[0], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[1], Ids))).
+                       Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[0], Ids))));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //Buff drawstring grease
@@ -2293,8 +2382,8 @@ namespace EldenRingCSVHelper
                         materials_to_set_max.Add(new LotItem(good, id, 250).addKW("%").addKW("!Param:ItemLotParam_map!").addKW(""));
                         setLots.Add(new LotItem(good, id, 2).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!").addKW(""));
                     }
-                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[1], Ids)).
-                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.idFIs[0], Ids)));
+                    var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[1], Ids))).
+                       Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[0], Ids))));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
                 //root resin - skeletons - erdtree guardan
@@ -2439,7 +2528,7 @@ namespace EldenRingCSVHelper
                         LotItem lastLotItem = LotItem.newEmpty();
                         if (lotItem.hasLotItem_getItemFlagId && flagId < -1)
                         {
-                            lotItem.lotItem_getItemFlagId = -flagId;
+                            lotItem.lotItem_getItemFlagId = 0;
                             lastLotItem = LotItem.newEmpty(LotItem.MAX_CHANCE, false, -flagId);
                         }
                         line.Operate(new SetLotItems(new LotItem[] { LotItem.newEmpty(Math.Max(0,1000 - lotItem.chance)), lotItem, lastLotItem }, 1));
@@ -3283,6 +3372,7 @@ namespace EldenRingCSVHelper
             Line recipe_baseline = ShopLineupParam_Recipe.GetLineWithId(1).Copy().SetField(0,95700).SetField("value",0);
             Line mtrl_baseline = EquipMtrlSetParam.GetLineWithId(0).Copy().SetField(0, 57900);
 
+
             for (bool combine = false;; combine = true)
             {
                 if ((combine && COMBINE) || (!combine && SHATTER))
@@ -3400,17 +3490,17 @@ namespace EldenRingCSVHelper
                                     methodName = " - Shatter";//["+inputLevel+"]";
                                 }
                             }
-
+                            var mtrl_id = EquipMtrlSetParam.GetNextFreeId(mtrl_baseline.id_int, true, out last_mtrl_index, last_mtrl_index);
                             var mtrl_copy = mtrl_baseline.Copy()
-                                .SetField(0, EquipMtrlSetParam.GetNextFreeId(mtrl_baseline.id_int, true, out last_mtrl_index, last_mtrl_index))
+                                .SetField(0, mtrl_id)
                                 .SetField(1, inputName +" * "+ inputAmount)
                                 .SetField("materialId01", IDsDict[inputLevel])
                                 .SetField("itemNum01", inputAmount);
 
 
-                            int id = ShopLineupParam_Recipe.GetNextFreeId(recipe_baseline.id_int, true, out last_recipe_index, last_recipe_index);
+                            int shop_id = ShopLineupParam_Recipe.GetNextFreeId(recipe_baseline.id_int, true, out last_recipe_index, last_recipe_index);
                             var recipe_copy = recipe_baseline.Copy()
-                                .SetField(0, id)
+                                .SetField(0, shop_id)
                                 .SetField(1, outputName + methodName)
                                 .SetField("equipId", IDsDict[outputLevel])
                                 .SetField("setNum", outputAmount)
@@ -3418,8 +3508,8 @@ namespace EldenRingCSVHelper
                                 .SetField("eventFlag_forRelease", flag);
 
 
-                            ShopLineupParam_Recipe.OverrideOrAddLine(recipe_copy, out last_recipe_index, last_recipe_index);
-                            EquipMtrlSetParam.OverrideOrAddLine(mtrl_copy, out last_mtrl_index, last_mtrl_index) ;
+                            ShopLineupParam_Recipe.OverrideOrAddLine(recipe_copy, out int i, last_recipe_index-1);
+                            EquipMtrlSetParam.OverrideOrAddLine(mtrl_copy, out i, last_mtrl_index-1) ;
                         }
                         if (IDsDict == SmithingStones.Somber.IDsDict)
                             break;
@@ -3580,7 +3670,7 @@ namespace EldenRingCSVHelper
                     "10 >> x6 #4 Armored Beastman of Farum Azula (Boss)", //super high level for some reason
                     "10 >> x4 #4 Azula Beastman (Boss)",                   //super high levvel for some reason
 
-                    "27.5 #8 " + x2Chance + "Kaiden Sellsword",
+                    "27.5 ###8 " + x2Chance + "Kaiden Sellsword",
 
                     "12 ###8 >3 -2.5 !DLC! ###8 x6xx $ Chief Bloodfiend",//DLC
                     "8 ###8 >3 -3.5 !DLC! ###8 x6xxx $ Bloodfiend",//DLC
@@ -3601,7 +3691,7 @@ namespace EldenRingCSVHelper
                     
                     "0 Dragonfly",
                     "50 ###8 -0.5 > & x4xxx %0.7 sp0.5 Flying Dragon (Small)",
-                    "100 & +1 x4xx $$$$ ###8 sp0.15 Dragon",
+                    "100 & +1 x4xx $$$$ ###8 sp0.15 sss-0.7 Dragon",
                     "100 & x4xx $$$$ #3 Glintstone Dragon Smarag",
                     "100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula",
                     "100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
@@ -3619,8 +3709,10 @@ namespace EldenRingCSVHelper
 
                     "1.75 ###8 >> %0.5 }0.85 sp1 & Starcaller",
 
-                    "100 ###8 x5 Commander Niall",
-                    "100 ###8 x6 Commander O'Neil"
+                    "100 ###8 x5 Commander Niall",  //no somber drop
+                    "100 ###8 x6 $$$$$$$$ Commander O'Neil", //no somber drop
+
+                    "100 x3 ###9 $$$$$$$$ Night's Cavalry", //no somber drop
                 };
 
                 somberKeywords = new string[]{//302b
@@ -3637,10 +3729,12 @@ namespace EldenRingCSVHelper
                     //"100 ###9 Godskin Noble",
                     //"100 x3 #9 -2 Godskin Apostle",
 
+                    //"100 x2 -1 ###9 Night's Cavalry", moved to smithing
+                    //"100 x2 %0.9 ###9 Night's Cavalry", moved to smithing
+
                     "35 +0.5 ###9 ! Elder Lion", //somber drop just like existing ones.
                     "100 ###9 & +22 xxx5 $$$$ Lichdragon Fortissax",
                     //"1 ###9 Lightning Ball",
-                    "100 x2 %0.9 ###9 Night's Cavalry",
 
                     "7.5 ###9 -0.5f >>> $$$$ Albinauric Archer",
                     "2.5 ###9 %0.6 -0.35 Elder Albinauric Sorcerer",
@@ -3655,8 +3749,8 @@ namespace EldenRingCSVHelper
                     "0 $$$$ #10 /100 Draconic Tree Sentinel",
                     "45 ###9 > +1 $$$$$$ {2 Tree Sentinel",
 
-                    "4 ###9 @@@0.2 @# Nox",
-                    "4 ###9 @@@0.3 @# Nightmaiden",
+                    "4 ###9 $ @@@0.2 ftdgroup:nox @# Nox",
+                    "4 ###9 $ @@@0.3 ftdgroup:nox @# Nightmaiden",
 
                     "5 ###9 %0.70 +1 $ ssp1 Ancestral Follower Shaman",
 
@@ -3685,9 +3779,11 @@ namespace EldenRingCSVHelper
                     "5 ###9 > %0.85 Fingercreeper",
 
                     "15 ###9 >> $$$$ %0.9 xv0.5 sp1 Grafted Scion",
-                    "35 ###9 x2 $$ &1 Death Bird",
-                    "100 ###9 > x2xx & -1 $$$0.5 ! Death Rite Bird",               //set up just in case there is a respawner
-                    "63 ###9 >" + x3Chance + "-2 $$$0.5 & ! Black Knife Assassin",   //set up just in case there is a respawner
+                    "35 ###9 x2 -1 $$ &1 Death Bird",
+                    //"100 ###9 > x2xx & -1.5 $$$0.5 ! Death Rite Bird",               //set up just in case there is a respawner
+                    //"100 ###9 > x2xx & -1 ! Death Rite Bird",               //set up just in case there is a respawner
+                    //"63 ###9 >" + x3Chance + "-2.6 $$$0.5 & ! Black Knife Assassin",   //set up just in case there is a respawner
+                    "63 ###9 >" + x3Chance + "-2.1 & ! Black Knife Assassin",   //set up just in case there is a respawner
                     "100 #10 $$$$ ! Black Knife Ringleader",    //Alecto
                     "30 >> & $$$$ ###9 @@@@ x1x1x2xx Zamor",
                     
@@ -3714,7 +3810,7 @@ namespace EldenRingCSVHelper
 
                     "15 ###9 -4 >>> x2x4x4xx /12 !DLC! Gravebird",//DLC
 
-                    "20 ###9 -1.5 >>> x3x4x4x5xxx xvv0.75 $$$$$ @@0.3 /20 !DLC! Golem Smith", //DLC
+                    "20 ###9 -1.5 >>> x3x4x4x5xxx xvv0.75 $$$$$ @@0.6 /20 !DLC! Golem Smith", //DLC
 
                     "15 ###9 -1 >>> x2x3x4xx sss-2.5 @@@ $$$$$$$2.5 /25 Crystalian", //force somber ftd
 
@@ -3723,20 +3819,20 @@ namespace EldenRingCSVHelper
                     "22 ###9 " +x3Chance+" sss-1.35 -0.1 $ /25 Lazuli Glintstone Sorcerer",
                     "22 ###9 " +x3Chance+" sss-1.35 -0.1 $ /25 Twinsage Glintstone Sorcerer",
      
-                    //"0 x4 $$$$$$ #8 & Draconic Tree Sentinel",
+                    //"0 x4 $$$$$$ ##8 & Draconic Tree Sentinel",
 
                     "70 $$$$$$$ ###9 @@@ & x3xxx xvv0.5  /15 Troll Knight", // these are the raya lucaria ones.
                     "30 $$$$$$$ ###9 @@@0.25 @# +0.75 {1.25 > x1x3xxx xvv0.65 /5 sss-2.2 sp1 Troll",
 
                     "15 ###9 %0.70 +1 $$$$$$$-0.5 sss-0.5 $ @@@0.25 @# /12 ssp1"+x2Chance+" Ancestral Follower (Siofra River)",   //ghost ones.
 
-                    "14 ###9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
-                    "9 ###9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
+                    "12 ###9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Large Exile Soldier",
+                    "8 ###9 > sss-0.22 {0.72 /15 %0.9" + x2ChanceLevelSpread + "Mausoleum Exile Soldier",
 
-                    "45 ###9 sss-0.5 sss@@@0.3 sss@#*" + knight + x2Chance + "/9 Mausoleum Knight",
-                    "2.75 ###9 sss-0.5" + footSoldier + x2Chance + "/15 Mausoleum Foot Soldier",
-                    "5.5 ###9 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
-                    "60 ###9 sss-0.5 sss@@@0.25 sss@#*" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
+                    "40 ###9 sss-0.5 sss@@@0.3 sss@#*" + knight + x2Chance + "/9 Mausoleum Knight",
+                    "2.35 ###9 sss-0.5" + footSoldier + x2Chance + "/15 Mausoleum Foot Soldier",
+                    "5.2 ###9 sss-0.5" + soldier + x2ChanceLevelSpread + "/15 Mausoleum Soldier",
+                    "54 ###9 sss-0.5 sss@@@0.25 sss@#*" + banishedK + x3Chance + "/10 Mausoleum Banished Knight",
 
                     "65 ###9 /8 x4xxxx xv0.65 xvv0.5 sss-0.5 $$ Omen",
                     "65 ###9 /8 x4xx xv0.65 xvv0.5 Fell Twin",
@@ -3764,12 +3860,13 @@ namespace EldenRingCSVHelper
 
                     "10 $$$$$$$$ @@@@0.2 @#"+x2ChanceLevelSpread+"sss-0.5 /10 Guardian",
 
-                    "65 ###9 sss-0.3 /8" + knight + x3Chance + "Cleanrot Knight",
+                    "58 ###9 sss-0.3 /17" + knight + x3Chance + "Mausoleum Cleanrot Knight", //forced drop smithing first
+                    "65 ###9 sss-0.3 /8" + knight + x3Chance + "Cleanrot Knight", //forced drop smithing first
                     "10 ###9 >> sss-1.5 /5 Mad Pumpkin Head",
                     "3 ###9 %0.5 sss-1.3 /20 Highwayman",
                     "4.5 ###9 {0.85 >>> x1x1x2x3xx /8 Glintstone Digger",
 
-                    "10 ###9 >2 x2 /8 Omenkiller",
+                    "10 ###9 >2 x2 /8 $$$$$$$$ Omenkiller", //no somber first drop
 
                     "15 ###9 -1> x3x4xxx /8 $$ Depraved Perfumer",
 
@@ -3912,10 +4009,11 @@ namespace EldenRingCSVHelper
 
                 keywordOverrideIDsDict = new Dictionary<int, string>();
                 {
-                    foreach (int npcId in ((Lines)NpcParam.GetLinesOnCondition(new Condition.HasInName("Guardian Golem").AND(new Condition.FloatFieldCompare(NpcParam.GetFieldIndex("enableSoundObjDist"), Condition.EQUAL_TO, 500)))).GetIDs()) {
+                    foreach (int npcId in ((Lines)NpcParam.GetLinesOnCondition(new Condition.HasInName("Guardian Golem").AND(new Condition.FloatFieldCompare(NpcParam.GetFieldIndex("enableSoundObjDist"), Condition.EQUAL_TO, 500)))).GetIDs())
+                    {
                         keywordOverrideIDsDict.Add(npcId, "SSSSS 18 /15 sss-1.2 x2xx %0.85 $ xv0.6 xvv0.75 Guardian Golem (Archer Override)");    //tweek to make archers kill.
                     }
-                    
+
                     keywordOverrideIDsDict.Add(43530020, "SS 60 #3 " + knight + " Leyndell Knight (Lurinia Override)");
                     string altusLleyndelKnight = "SS 60 #4.5 " + knight + " Leyndell Knight (Altus Override)";
                     string altusLleyndelSoldier = "SS 4.5 #4.5 " + soldier + " Leyndell Soldier (Altus Override)";
@@ -3950,20 +4048,22 @@ namespace EldenRingCSVHelper
 
                     keywordOverrideIDsDict.Add(43520020, "SS 45 #3.5 " + knight + " Cuckoo Knight (Four Belfries and Bellum Override)");
                     keywordOverrideIDsDict.Add(43550020, "SSSSS 25 /9 #3 sss-0.5 sss@@@0.3 sss@#*" + knight + " Mausoleum Knight (BK Catacombs Override)"); //too farmabale
-                    keywordOverrideIDsDict.Add(45100572, "SSSSS 100 > +10 x5 #10 & $$$$ Ancient Dragon (Droppers Override)");
+                    keywordOverrideIDsDict.Add(45100572, "SS 25 #9 & $ Ancient Dragon (Droppers Override)");
                     keywordOverrideIDsDict.Add(46500265, "SS 100 x5 #3 Dragonkin Soldier (Nokrom Override)");
                     keywordOverrideIDsDict.Add(45102030, "SS 100 & +22 xxx5x $$$$$$$$ Ancient Dragon Lansseax (Ancient Dragon Exception");
 
                     keywordOverrideIDsDict.Add(30100172, "SSSSS 45 sss@@@0.25 sss@#*" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
                     keywordOverrideIDsDict.Add(30101172, "SSSSS 45 sss@@@0.25 sss@#*" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
                     keywordOverrideIDsDict.Add(30102172, "SSSSS 45 sss@@@0.25 sss@#*" + banishedK + x3Chance + " /12  Banished Knight (Farum Azula Dragon Communion Override)");
-                    
-                    keywordOverrideIDsDict.Add(34510912, "SS 30 -0.33 x2 $$ Scaly Misbegotten (Morne Tunnel Boss Override)");
+
+                    keywordOverrideIDsDict.Add(34510912, "SS 30 -0.33 x2 $$$$$$$$ Scaly Misbegotten (Morne Tunnel Boss Override)"); // no somber
 
                     keywordOverrideIDsDict.Add(31810022, "SSS 100 #6.9 ! Red Wolf of Radagon (Moonlight Altar Override)");
                     keywordOverrideIDsDict.Add(45021922, "SS 100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula (Moonlight Altar Override)");
                     keywordOverrideIDsDict.Add(45020022, "SS 100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau Override)");
-                    
+
+                    keywordOverrideIDsDict.Add(46300912, "SS 100 & x4xx $$$$ #7 sss-0.7 Runebear (Moonlight Plateau Override)");
+
                     //keywordOverrideIDsDict.Add(35700028, "SSS 100 #8 Godskin Noble (Liurnia Divine Tower Override)");
 
                     //keywordOverrideIDsDict.Add(32511030, "SSS 45 > +1 $$$$$$ Tree Sentinel (Lleyndel Outskirts Duo Override)");
@@ -4833,6 +4933,8 @@ namespace EldenRingCSVHelper
                     bool isException = false;
                     foreach (string exception in exceptions)
                     {
+                        if (npcLine.name == "Elder Dragon Greyoll")
+                            Util.p();
                         if (npcLine.name.Contains(exception))
                         {
                             //Util.println("exception: " + '"' + exception + '"' + " found in" + npcLine.name);
@@ -6144,8 +6246,8 @@ namespace EldenRingCSVHelper
                             curAdjustedLevel = levelMax;
                         if (levelMin != -1 && curAdjustedLevel < levelMin)
                             curAdjustedLevel = levelMin;
-                        if (curAdjustedLevel < 1)
-                            curAdjustedLevel = 1; //makes foot soldiers and imps still useful in the beginning.
+                        //if (curAdjustedLevel < 1)
+                        //    curAdjustedLevel = 1; //makes foot soldiers and imps still useful in the beginning.  not yet!!!
                                                   //if (npcID == 30100172)
                                                   //    Util.p();
                                                   //if (isBoss) //bosses cant be decimal levels.
@@ -6249,8 +6351,8 @@ namespace EldenRingCSVHelper
 
                                 curTypeAdjustedLevel += somberLevelAdjDict[keyword];
 
-                                if (curTypeAdjustedLevel < 1)
-                                    curTypeAdjustedLevel = 1; //makes trolls still drop the chance.
+                                //if (curTypeAdjustedLevel < 1)
+                                //    curTypeAdjustedLevel = 1; //makes trolls still drop the chance. not ye!!!
 
                                 //if (30101172 == npcID)
                                     Util.p();
@@ -6331,7 +6433,6 @@ namespace EldenRingCSVHelper
                             //for consistant boss drops
                             if (treatAsBoss)
                                 Xasscade = 0; //we want boss drops to be consistent
-
                             else if (currentlyFirstDropGuarentee && FTD_OnlyHighestX)   //for FTD
                                 Xasscade = 0;
                             if (treatAsBoss && useSingleLine) //we want boss drops to be consistent
@@ -6382,6 +6483,8 @@ namespace EldenRingCSVHelper
                             if (test)
                                 Util.p();
 
+                            int maxXAmountsReduction = 0; //  a an xamount adjust so a 3x chance -2 boss in level 1 area  wont just drop 3 level ones, will instead drop 1.
+
                             if (startLevel <= 0)    // pushes up levels but reduces chance. 
                                                     //this shouldnt happen to regular smithing stones due to them being clamped to 1. 
                                                     //Maybe i sohould do the same clamping after somber adjust. Ok i did.
@@ -6389,6 +6492,9 @@ namespace EldenRingCSVHelper
                                 //string pre = "sl:" + startLevel + "  curPercentChance:" + curPercentChance;
                                 curTypePercentChance = curTypePercentChance / ((Math.Abs(startLevel) * 4f) + 6f);
                                 minLevel += 1 - startLevel;   //pushes up minLevel cascades stays the same.
+                                //if (targetSmithingStoneLineID == 210020000)
+                                //    Util.p();
+                                maxXAmountsReduction = startLevel - 1;
                                 startLevel = 1;
                                 //Util.println(Util.IndentedText( npcLine._idName+" |  ", 50)+pre+ " -> " + curPercentChance);
                             }
@@ -6584,8 +6690,8 @@ namespace EldenRingCSVHelper
 
                                 int curCasscadeXAmount = 1;
                                 if (!FTD_Dropx1 || !(treatAsBoss || currentlyFirstDropGuarentee)) {
-                                    //if (targetSmithingStoneLineID == 431200307)
-                                    //    Util.p();
+                                    //if (targetSmithingStoneLineID == 210020000 || maxXAmountsReduction != 0)
+                                    //   Util.p();
                                     int xAmountCasscadeIndex = casscadeIndex;
                                     if (canDropAncient)
                                         xAmountCasscadeIndex--;
@@ -6593,7 +6699,7 @@ namespace EldenRingCSVHelper
                                         xAmountCasscadeIndex = Math.Max(0, xAmountCasscadeIndex - 1);
                                     // if is decimal, the second casscade and use the first xAmount. (which is added for decimal system.)
                                     if (canDropXAmount && xAmounts.Length > xAmountCasscadeIndex)
-                                        curCasscadeXAmount = xAmounts[xAmountCasscadeIndex];
+                                        curCasscadeXAmount = Math.Max(1, xAmounts[xAmountCasscadeIndex] + maxXAmountsReduction);
                                     else if (lastCasscadeXAmount != -1)   //if not assigned it steals previous casscadeAmountMult
                                         curCasscadeXAmount = lastCasscadeXAmount;
                                     lastCasscadeXAmount = curCasscadeXAmount;
@@ -6767,7 +6873,7 @@ namespace EldenRingCSVHelper
                                     }
                                 }
 
-
+                                int chanceToGiveToEmpty = 0;
                                 int HighestAmount = 0;
                                 int lowestAmount = Math.Max(1, curCasscadeXAmount - Xasscade);
                                 //int chanceToGiveToEmpty = 0;
@@ -6785,6 +6891,8 @@ namespace EldenRingCSVHelper
                                         float curXasscadeFinalPercent = curXasscadeFinalPercentInt;
                                         if (curXasscadeNumToDrop == lowestAmount)
                                         {
+                                            //if (stoneLine.id_int == 447001102)
+                                            //    Util.p();
                                             curXasscadeFinalPercent += percentToAddToXasscadeNum1;
                                             if(!ftdxAll && ftdx1ChanceMult != 1 && curXasscadeNumToDrop ==1 && currentlyFirstDropGuarentee)
                                             {
@@ -6792,11 +6900,12 @@ namespace EldenRingCSVHelper
                                                 curXasscadeFinalPercent *= ftdx1ChanceMult;
                                                 //if (keyword == "15 > %0.65 #6 }0.85 +0.6 & sp1 & $$$$5 @@0.3  $0.6 White Wolf")
                                                 //    Util.p();
-                                                //if (stoneLine.id_int == 407100103)
-                                                //    Util.p();
+
+
+                                                
                                                 if (ftdx1ExcessToEmpty && !emptyLotReplaced)
                                                 {
-                                                    int chanceToGiveToEmpty = Math.Max(0,(int)((prevAmount - curXasscadeFinalPercent) + 0.5));
+                                                    chanceToGiveToEmpty = Math.Max(0,(int)((prevAmount - curXasscadeFinalPercent) + 0.5));
                                                     stoneLine.SetField("lotItemBasePoint01", chanceToGiveToEmpty).addKW("lotItemBasePoint01_Set");
                                                 }
                                             }
@@ -6840,7 +6949,7 @@ namespace EldenRingCSVHelper
                                     
                                     if (ftdx1ChanceMult != 1 && ftdx1ExcessToEmpty && !emptyLotReplaced && currentlyFirstDropGuarentee)
                                     {
-                                        int chanceToGiveToEmpty = Math.Max(0, (int)((totalChanceNow * (1/ftdx1ChanceMult)) + 0.5));
+                                        chanceToGiveToEmpty = Math.Max(0, (int)(((totalChanceNow * (1/ftdx1ChanceMult)) - totalChanceNow) + 0.5));
                                         stoneLine.SetField("lotItemBasePoint01", chanceToGiveToEmpty).addKW("lotItemBasePoint01_Set");
                                     }
 
@@ -6851,7 +6960,7 @@ namespace EldenRingCSVHelper
                                     }*/
 
                                     float curAmountMult = DROPMULTamountMult;
-                                    if (test)
+                                    if (stoneLine.id_int == 451072101)
                                         Util.p();
                                     if (currentlyFirstDropGuarentee || treatAsBoss)
                                     {
@@ -6952,7 +7061,7 @@ namespace EldenRingCSVHelper
                                     int curFinalPercentInt = curLineAmountsToChanceDict[curNumToDrop];
                                     int curLotIndex = lotIndex;
 
-                                    if (!emptyLotReplaced && curTotalPercent >= 1000)
+                                    if(chanceToGiveToEmpty == 0 && !emptyLotReplaced && curTotalPercent >= 1000)
                                     {
                                         curLotIndex = 1;
                                         emptyLotReplaced = true;
@@ -7274,6 +7383,7 @@ namespace EldenRingCSVHelper
 
                         foreach (Line line in newLines) {
                             ItemLotParam.OverrideOrAddLine(line);
+                            LotItem.RegulateLine(line, true);
                         }
                         //ItemLotParam.OverrideOrAddLines(newLines, true);
                         if (debugId != -1)

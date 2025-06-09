@@ -844,6 +844,8 @@ namespace EldenRingCSVHelper
                         if (targetEnd != -1)
                             importantPart = importantPart.Remove(targetEnd);
                     }
+                    if (importantPart == "")
+                        continue;
                     score = Util.WordMatchScore(target.Replace(importantPart, " "), targetWords, out matchCount, minMatchCount, null, deprioritizeExtraWords, prioritizeWordLength);
                     Debug_LastBestintersectTogether2Temp = Util.Debug_LastintersectTogether;
                     Debug_LastBestlWordsTogether2Temp = Util.Debug_LastlWordsTogether;
