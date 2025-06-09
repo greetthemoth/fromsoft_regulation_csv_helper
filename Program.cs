@@ -2667,10 +2667,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Thin Beast Bones",1,20).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",2,30).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",3,40).addKW("").addKW("%"),
-                    new LotItem(good,"Thin Beast Bones",4,10).addKW("").addKW("%"),
-
-                    
-
+                    new LotItem(good,"Thin Beast Bones",4,10).addKW("").addKW("%"), 
 
                     new LotItem(good,"Stormhawk Feather",1,10).addKW("[Warhawk]").addKW("%"),
                     new LotItem(good,"Stormhawk Feather",2,30).addKW("[Warhawk]").addKW("%"),
