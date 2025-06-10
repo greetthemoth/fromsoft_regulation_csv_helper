@@ -2292,7 +2292,7 @@ namespace EldenRingCSVHelper
                         //NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList(); / will add to everything, not good
                     }
                 }
-                //Large Glintstone Scrap - increased chance from sorcerer miner, greater amount dropped
+                //Large Glintstone Scrap/ Glintstone Scrap/ Explosive Stone/ Explosive Stone Clump - increased chance from sorcerer miner, greater amount dropped
                 {
                     /*    //check the lines 
                         var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.GetLinesOnCondition(
@@ -2304,12 +2304,24 @@ namespace EldenRingCSVHelper
                         lotItemToLineIDsDict.Add(new LotItem(good, "Large Glintstone Scrap"), ids);
                         */
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Large Glintstone Scrap"))).ToList();
-                    materials_chance_percentMultipler.Add(new LotItem(good, "Large Glintstone Scrap", 0, 220));
-                    materials_to_set_max.Add(new LotItem(good, "Large Glintstone Scrap", 4));
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Large Glintstone Scrap", 0, 800));
+                    materials_to_set_max.Add(new LotItem(good, "Large Glintstone Scrap", 2));
+
+                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Glintstone Scrap"))).ToList();
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Glintstone Scrap", 0, 400));
+                    materials_to_set_max.Add(new LotItem(good, "Glintstone Scrap", 4));
+
+                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Explosive Stone Clump"))).ToList();
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Explosive Stone Clump", 0, 800));
+                    materials_to_set_max.Add(new LotItem(good, "Explosive Stone Clump", 3));
+
+                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Explosive Stone"))).ToList();
+                    materials_chance_percentMultipler.Add(new LotItem(good, "Explosive Stone", 0, 400));
+                    materials_to_set_max.Add(new LotItem(good, "Explosive Stone", 5));
                 }
                 //Cuckoo Glintstone
                 {
-                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Large Glintstone Scrap"))).ToList();
+                    NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(ItemLotParam_enemy.GetLinesOnCondition(new Condition.HasInName("] Cuckoo Glintstone"))).ToList();
                     materials_chance_percentMultipler.Add(new LotItem(good, "Cuckoo Glintstone", 0, 150));
                     materials_to_set_max.Add(new LotItem(good, "Cuckoo Glintstone", 3));
                 }
@@ -2345,6 +2357,7 @@ namespace EldenRingCSVHelper
                     //var debugCount = lines.Count();
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
+                //Buff all fan daggers type consumables drops? no because i like the theme of 5.instead buff patches shop price.
                 //Buff all kukris
                 {
                     var Cond = new Condition.NameIs("Kukri");
@@ -2383,7 +2396,7 @@ namespace EldenRingCSVHelper
                     foreach (int id in Ids)
                     {
                         materials_chance_percentMultipler.Add(new LotItem(good, id, 0, 100));
-                        materials_to_set_max.Add(new LotItem(good, id, 250).addKW("%").addKW("!Param:ItemLotParam_map!").addKW(""));
+                        materials_to_set_max.Add(new LotItem(good, id, 285).addKW("%").addKW("!Param:ItemLotParam_map!").addKW(""));
                         setLots.Add(new LotItem(good, id, 2).addKW("!Unspecified Amount!").addKW("!Param:ItemLotParam_map!").addKW(""));
                     }
                     var lines = ItemLotParam_enemy.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[1], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[1], Ids))).
@@ -2392,17 +2405,28 @@ namespace EldenRingCSVHelper
                 }
                 //root resin - skeletons - erdtree guardan
                 {
-                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName(new string[] { "Skeleton", "Guardian" })
+                        .AND(new Condition.HasInName(new string[] { "Skeleton", "Guardian" }))
                         .AND(new Condition.HasInName(new string[] { "Giant Skeleton Torso", "Guardian Golem", "Flame Guardian", "Chief Guardian Arghanthy" }).IsFalse)
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
                             .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }),true)))
-                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
+                        ).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
                             ;
                     lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 70,true), ids);
+                }
+                //string - foot soldiers
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Foot Soldier"}))
+                        ).GetIntFields(itemLotId_enemy).Distinct().ToArray())
+                            //.GetNextFreeIds();
+                            .GetIDs()
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "string", 1, 70,true), ids);
                 }
                 //Golden rowa - lleyndel foot soldier, celebrant
                 {
@@ -2441,7 +2465,7 @@ namespace EldenRingCSVHelper
                             //.GetNextFreeIds();
                             .GetIDs()
                             ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Crystal Bud",12,200, true), ids);
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Crystal Bud",12,250, true), ids);
                 }
                 //gold firefly - bear, rune bear
                 {
@@ -2607,7 +2631,7 @@ namespace EldenRingCSVHelper
 
                     new LotItem(good,"String",0,160).addKW("[Large Demi-Human]"),
 
-                    new LotItem(good,"Root Resin",0, 400).addKW("[Skeleton]").addKW("[Skeletal]").addKW("[Guardian]"),
+                    new LotItem(good,"Root Resin",0, 350).addKW("[Skeleton]").addKW("[Skeletal]").addKW("[Guardian]"),
 
                     new LotItem(good,"Furnace Visage",0, 200),
                     new LotItem(good,"Scorpion Liver",0,200),
@@ -2627,7 +2651,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Nectarblood Burgeon",1),
                     new LotItem(good,"Empyrean-Blood Burgeon",1),
 
-                    new LotItem(good,"Root Resin",4).addKW("[Skeleton]").addKW("[Skeletal]"),
+                    new LotItem(good,"Root Resin",2).addKW("[Skeleton]").addKW("[Skeletal]"),
 
                     //new LotItem(good,"Bloodrose",4).addKW("[Sanguine Noble]"),
 
@@ -2668,6 +2692,9 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"String",6,200).addKW("[Demi-Human Beastman]"),
                     new LotItem(good,"String",7,50).addKW("[Demi-Human Beastman]"),
 
+                    new LotItem(good,"String",1,40).addKW("Foot Soldier]"),
+                    new LotItem(good,"String",2,65).addKW("Foot Soldier]"),
+                    new LotItem(good,"String",3,25).addKW("Foot Soldier]"),
 
                     new LotItem(good,"Thin Beast Bones",1,350).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
                     new LotItem(good,"Thin Beast Bones",2,300).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Deer"),
@@ -7707,11 +7734,30 @@ namespace EldenRingCSVHelper
                 int oldLineItemId = stoneLine.GetFieldAsInt(lotItemId01);
                 string oldItemName = EquipParamGoods.GetLineWithId(oldLineItemId).name;
                 int newItemId = -1;
+
+                if (SmithingStones.ItemIDsDict.ContainsKey(itemID))
+                {
+                    curLevel = SmithingStones.ItemIDsDict[itemID];
+                    if (curLevel == 9)
+                        isAncient = true;
+                }
+                else if (SmithingStones.Somber.ItemIDsDict.ContainsKey(itemID))
+                {
+                    curLevel = SmithingStones.Somber.ItemIDsDict[itemID];
+                    if (curLevel == 10)
+                        isAncient = true;
+                }
+                else
+                    continue;
+
+                Random rand = new Random(stoneLine.id_int);    //seed is line id for consistency.
+
                 if (teardrop)
                 {
                     newItemId = 10070;
                      //itemID - lost ashes of war
-                    stoneLine.SetField("lotItemCategory01", 1);   //category - good
+                    stoneLine.SetField(lotItemCategory01, 1);   //category - good
+                    stoneLine.SetField(lotItemNum01, Math.Max(2, (int)( (rand.NextDouble(1) - 1.4) + (curLevel/2.5) ));
                 }
                 else
                 {
@@ -7725,20 +7771,7 @@ namespace EldenRingCSVHelper
 
                     bool isAncient = false;
 
-                    if (SmithingStones.ItemIDsDict.ContainsKey(itemID))
-                    {
-                        curLevel = SmithingStones.ItemIDsDict[itemID];
-                        if (curLevel == 9)
-                            isAncient = true;
-                    }
-                    else if (SmithingStones.Somber.ItemIDsDict.ContainsKey(itemID))
-                    {
-                        curLevel = SmithingStones.Somber.ItemIDsDict[itemID];
-                        if (curLevel == 10)
-                            isAncient = true;
-                    }
-                    else
-                        continue;
+                    
 
                     if (isAncient)
                         continue;
@@ -7788,7 +7821,7 @@ namespace EldenRingCSVHelper
                     int runeLevel = -1;
                     bool turnToSmithing = false;
 
-                    Random rand = new Random(stoneLine.id_int);    //seed is line id for consistency.
+                    
 
                     if (canTransformItem)
                     {
