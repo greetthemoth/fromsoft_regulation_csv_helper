@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace EldenRingCSVHelper
@@ -33,7 +34,7 @@ namespace EldenRingCSVHelper
             var DropMultsToWrite = new float[]
             {
                 1,
-                1.5f,2f,3f,5f
+                //1.5f,2f,3f,5f
             };
 
             /*exportDirectory = @"C:\CODING OUTPUT\CSV\Individual Options (slower)\RuneDrops (import first)";
@@ -52,33 +53,36 @@ namespace EldenRingCSVHelper
 
                 string individual_RuneDropsDirectory = "";
                 var individual_MaterialDropsDirectory = "";
-                for (int i = 0; i < DropMultsToWrite.Length && (MATERIAL_DROP_MULT_OPTIONS || i == 0); i++)
+                if (false)
                 {
-                    RunSettings.Write_directory = exportDirectory + @"\MaterialDrops";
-                    string multString = "";
-                    if (MATERIAL_DROP_MULT_OPTIONS)
+                    for (int i = 0; i < DropMultsToWrite.Length && (MATERIAL_DROP_MULT_OPTIONS || i == 0); i++)
                     {
-                        multString = "x" + DropMultsToWrite[i];
-                        string multDirString = @"\MaterialDrops\" + multString + @" Mats";
-                        if (DropMultsToWrite[i] == 1)
+                        RunSettings.Write_directory = exportDirectory + @"\MaterialDrops";
+                        string multString = "";
+                        if (MATERIAL_DROP_MULT_OPTIONS)
                         {
-                            //multDirString += "(recommended)";
-                            //multDirString += "";//"(recommended)";
-                            multDirString = @"\MaterialDrops\Default";
-                            multString = "";
-                            individual_MaterialDropsDirectory = exportDirectory + multDirString;
+                            multString = "x" + DropMultsToWrite[i];
+                            string multDirString = @"\MaterialDrops\" + multString + @" Mats";
+                            if (DropMultsToWrite[i] == 1)
+                            {
+                                //multDirString += "(recommended)";
+                                //multDirString += "";//"(recommended)";
+                                multDirString = @"\MaterialDrops\Default";
+                                multString = "";
+                                individual_MaterialDropsDirectory = exportDirectory + multDirString;
+                            }
+                            else if (DropMultsToWrite[i] == 1.5f)
+                                multDirString += "";
+                            RunSettings.Write_directory = exportDirectory + multDirString;
                         }
-                        else if (DropMultsToWrite[i] == 1.5f)
-                            multDirString += "";
-                        RunSettings.Write_directory = exportDirectory + multDirString;
+                        ChangeKeyword = "!Material Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondMatDrops = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
+                        enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
+                        Keyword.IfModifiedSet_ON = false;
+                        enemyDrops_MoreSmithingStoneDrops(false, false, 1);
+                        Keyword.IfModifiedSet_ON = true;
+                        ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops", WriteCondMatDrops);
+                        ParamFile.RevertAll(true);
                     }
-                    ChangeKeyword = "!Material Drops!"; Keyword.IfModifiedSet = new Keyword(ChangeKeyword, 0, true); var WriteCondMatDrops = new Condition.OneKeywordPassesCondition(new KeywordCondition.Is(ChangeKeyword));
-                    enemyDrops_IncreasedMaterialDrops(DropMultsToWrite[i]);
-                    Keyword.IfModifiedSet_ON = false;
-                    enemyDrops_MoreSmithingStoneDrops(false, false, 1);
-                    Keyword.IfModifiedSet_ON = true;
-                    ParamFile.WriteModifiedFiles("", "__" + multString + "MatDrops", WriteCondMatDrops);
-                    ParamFile.RevertAll(true);
                 }
 
                 //FirstTImeEquipDrop
@@ -2571,11 +2575,8 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Four-Toed Fowl Foot",0, 125),
                     new LotItem(good,"Trina's Lily",0,300),
                     new LotItem(good,"Miquella's Lily",0,300),
-                    new LotItem(good,"Nectarblood Burgeon",300),
                     new LotItem(good,"Beast Liver",0,200),
-                    new LotItem(good,"Scorpion Liver",0,200),
                     new LotItem(good,"Turtle Neck Meat",0,200),
-                    new LotItem(good,"Furnace Visage",0, 200),
 
                     new LotItem(good,"Stormhawk Feather",0,200).addKW("[Warhawk]"),
                     new LotItem(good,"Stormhawk Feather",0,250).addKW(""),
@@ -2583,6 +2584,7 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Flight Pinion",0,250).addKW("[Warhawk]"),
 
                     new LotItem(good,"Land Octopus Ovary",0, 200),
+
 
                     new LotItem(good,"Thin Beast Bones",0,100).addKW("[Goat]").addKW("[Rabbitgaroo]").addKW("Wolf]"),
                     new LotItem(good,"Thin Beast Bones",0,150),
@@ -2604,19 +2606,28 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Old Fang",0,200),
 
                     new LotItem(good,"String",0,160).addKW("[Large Demi-Human]"),
+
+                    new LotItem(good,"Root Resin",0, 400).addKW("[Skeleton]").addKW("[Skeletal]").addKW("[Guardian]"),
+
+                    new LotItem(good,"Furnace Visage",0, 200),
+                    new LotItem(good,"Scorpion Liver",0,200),
+                    new LotItem(good,"Nectarblood Burgeon",0,300),
                 }).ToList();
 
                 materials_to_set_max = materials_to_set_max.Concat(new LotItem[] {
                     new LotItem(good,"Four-Toed Fowl Foot",2), //
                     new LotItem(good,"Trina's Lily",1), //maintain rarity
-                    new LotItem(good,"Nectarblood Burgeon",1),
-                    new LotItem(good,"Empyrean-Blood Burgeon",1),
                     new LotItem(good,"Beast Liver",1),
-                    new LotItem(good,"Scorpion Liver",1),
                     new LotItem(good,"Turtle Neck Meat",1),
                     new LotItem(good,"Great Dragonfly Head",1),
-                    new LotItem(good,"Furnace Visage",1),
                     new LotItem(good,"Yellow Ember",2),
+
+                    new LotItem(good,"Scorpion Liver",1),
+                    new LotItem(good,"Furnace Visage",1),
+                    new LotItem(good,"Nectarblood Burgeon",1),
+                    new LotItem(good,"Empyrean-Blood Burgeon",1),
+
+                    new LotItem(good,"Root Resin",4).addKW("[Skeleton]").addKW("[Skeletal]"),
 
                     //new LotItem(good,"Bloodrose",4).addKW("[Sanguine Noble]"),
 
@@ -2635,13 +2646,16 @@ namespace EldenRingCSVHelper
 
                     new LotItem(good,"Hefty Beast Bone",3).addKW("[Giant Putrid Flesh]"),
                     new LotItem(good,"Hefty Beast Bone",1).addKW("[Small Putrid Flesh]"),
+
                 }).ToList();
 
                 setLots = setLots.Concat(new LotItem[]
                 {
+
                     new LotItem(good,"Slumbering Egg",1,70).addKW("[Owl]").addKW("%"),
                     new LotItem(good,"Slumbering Egg",2,22).addKW("[Owl]").addKW("%"),
                     new LotItem(good,"Slumbering Egg",3,8).addKW("[Owl]").addKW("%"),
+
 
                     new LotItem(good,"String",1,15).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
                     new LotItem(good,"String",2,40).addKW("[Demi-Human]").addKW("[Large Demi-Human]").addKW("[Demi-Human Shaman]"),
@@ -2667,7 +2681,10 @@ namespace EldenRingCSVHelper
                     new LotItem(good,"Thin Beast Bones",1,20).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",2,30).addKW("").addKW("%"),
                     new LotItem(good,"Thin Beast Bones",3,40).addKW("").addKW("%"),
-                    new LotItem(good,"Thin Beast Bones",4,10).addKW("").addKW("%"), 
+                    new LotItem(good,"Thin Beast Bones",4,10).addKW("").addKW("%"),
+
+                    
+
 
                     new LotItem(good,"Stormhawk Feather",1,10).addKW("[Warhawk]").addKW("%"),
                     new LotItem(good,"Stormhawk Feather",2,30).addKW("[Warhawk]").addKW("%"),
@@ -3698,10 +3715,11 @@ namespace EldenRingCSVHelper
                     
                     "0 Dragonfly",
                     "50 ###8 -0.5 > & x4xxx %0.7 sp0.5 Flying Dragon (Small)",
-                    "100 & +1 x4xx $$$$ ###8 sp0.15 sss-0.7 Dragon",
+                    
                     "100 & x4xx $$$$ #3 Glintstone Dragon Smarag",
                     "100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula",
                     "100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau)",
+                    "100 & x4xx +1 $$$$ ###8 sp0.15 sss-0.7 Dragon",
 
                     "15 ###8 %0.70 +1 ssp1 "+x2Chance+" Ancestral Follower",
 
@@ -3808,6 +3826,8 @@ namespace EldenRingCSVHelper
                     "15 ###9 %0.85 }0.85 & Giant Wormface",
                     "7  ###9 %0.85 }0.85 & Wormface",
 
+                    "9 $ -1 ###9 %0.85 Cemetery Shade",
+
                 };
                 bothKeywords = new string[]{
 
@@ -3880,7 +3900,6 @@ namespace EldenRingCSVHelper
                     "100 ###9 +1 sss-1 /20 $$$ Erdtree Burial Watchdog",
 
                     "20 ###9 > $$$$$$$$-0.7 /10"+x3ChanceLevelSpread+" High Page",
-
                 };
 
                 runeKeywords = new string[]{
@@ -4069,7 +4088,7 @@ namespace EldenRingCSVHelper
                     keywordOverrideIDsDict.Add(45021922, "SS 100 & x4xx $$$$ #8 sss-0.8 Glintstone Dragon Adula (Moonlight Altar Override)");
                     keywordOverrideIDsDict.Add(45020022, "SS 100 & x4xx $$$$ #7 sss-0.7 Glintstone Dragon (Moonlight Plateau Override)");
 
-                    keywordOverrideIDsDict.Add(46300912, "SS 100 & x4xx $$$$ #7 sss-0.7 Runebear (Moonlight Plateau Override)");
+                    keywordOverrideIDsDict.Add(46300912, "GRUNE 100 & x4xx $$$$ #7 sss-0.7 Runebear (Earthbore Cave Override)");
 
                     //keywordOverrideIDsDict.Add(35700028, "SSS 100 #8 Godskin Noble (Liurnia Divine Tower Override)");
 
@@ -4241,7 +4260,9 @@ namespace EldenRingCSVHelper
                             if (isSmithing)
                                 newKeywordStartingIndex += 2;
                             if (isSomber)
-                                newKeywordStartingIndex += 3;
+                                    newKeywordStartingIndex += 3;
+                            if (isRune)
+                                newKeywordStartingIndex += 5;
                             normalizedKeyword = keyword.Remove(0, newKeywordStartingIndex);
                         }
                         else
@@ -5496,7 +5517,7 @@ namespace EldenRingCSVHelper
                     bool FTD_OnlyHighestX = firstTimeDropStyle == 3 || firstTimeDropStyle == 4 || firstTimeDropStyle == 5 || firstTimeDropStyle == 6 || firstTimeDropStyle == 8;
                     bool FTD_OnlyFirstType = firstTimeDropStyle == 5 || firstTimeDropStyle == 8;
                     bool FTD_OnlySomberType = firstTimeDropStyle == 7;
-                    bool FTD_DropMultiple = firstTimeDropStyle == 5 || firstTimeDropStyle == 6; //$$$$
+                    bool FTD_DropMultiple = firstTimeDropStyle == 5 || firstTimeDropStyle == 6; //$$$$$
                     bool FTD_OnlyHighestLevel = firstTimeDropStyle == 4 || firstTimeDropStyle == 7 || firstTimeDropStyle == 8 || firstTimeDropStyle == 9;
                     bool FTD_Dropx1 = firstTimeDropStyle == 9;
                     bool FTD_AvoidDropx1 = firstTimeDropStyle > 1;   //because the other system didnt work so fuck it.
@@ -6261,6 +6282,8 @@ namespace EldenRingCSVHelper
                                                   //    curAdjustedLevel = (int)(curAdjustedLevel + 0.7f);
 
                         int curLevelCasscade = levelCasscade;
+                        if (npcID == 25000014)
+                            Util.p();
 
                         if (treatAsBoss || currentlyFirstDropGuarentee)
                         {
@@ -6328,12 +6351,7 @@ namespace EldenRingCSVHelper
                             typeIndex = 1;
 
                         int firstTypeIndex = -1;
-                        if (dropSmithing)
-                            firstTypeIndex = 0;
-                        if (dropSomber)
-                            firstTypeIndex = 1;
-                        if (dropRune)
-                            firstTypeIndex = 2;
+                        
 
 
                         for (; typeIndex <= 2; typeIndex++)
@@ -6348,8 +6366,10 @@ namespace EldenRingCSVHelper
                                 continue;
                             float curTypeAdjustedLevel = curAdjustedLevel;
 
+                            if(firstTypeIndex == -1)
+                                firstTypeIndex = typeIndex;
 
-                            
+
 
                             if (typeIndex == 1)
                             {
@@ -6400,15 +6420,24 @@ namespace EldenRingCSVHelper
 
                             if (curTypeAdjustedLevel % 1 != 0)
                                 isDecimalLevel = true;
-                            
+
                             int curTypeLevelCasscade = curLevelCasscade;
+
+                            if (!adaptForDLC && (typeIndex == 1 && firstTypeIndex != 1 && !FTD_OnlySomberType) && !useSingleLine && curLevelCasscade > 0 && (treatAsBoss || currentlyFirstDropGuarentee))
+                            {
+                                curTypeLevelCasscade = 0; //sombers wont casscade on nondlc- boss drops if it also drops smithing stones maybe make it an option? //this is tailored specifically for the crucible knights
+                            }
+
+
                             int Xasscade = XasscadeDict[keyword];
 
-                            if (isDecimalLevel) {
+                            if (isDecimalLevel)
+                            {
                                 if (isForceBossDisplay || treatAsBoss || currentlyFirstDropGuarentee) //rounds to start level
                                 {
                                     curTypeAdjustedLevel = (int)(curTypeAdjustedLevel + 0.65f);
                                     isDecimalLevel = false;
+
                                 }
                                 else if (typeIndex == 1) {
                                     if(curTypeAdjustedLevel % 1 < 0.225f || curTypeAdjustedLevel % 1 > 0.775f)

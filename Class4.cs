@@ -1445,7 +1445,8 @@ namespace EldenRingCSVHelper
                 _bossOrMiniBossToItemLotMapDict.Add(35500930, 1040530010);  //Sanguine Noble (Bloody Helice Drop)
                 
                 _bossOrMiniBossToItemLotMapDict.Add(46300912, 20310);  //Runebear (spelldrake talisman drop)
-
+                _bossOrMiniBossToItemLotMapDict.Add(34510912, 20600);  //misbegotten (rusted anchor drop)
+                _bossOrMiniBossToItemLotMapDict.Add(34600913, 10800);  //lionine misbegotten (grafted blade greatsword)
 
 
             }
