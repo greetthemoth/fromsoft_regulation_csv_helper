@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace EldenRingCSVHelper
@@ -403,6 +404,13 @@ namespace EldenRingCSVHelper
             }
             return -1;
         }
+        public static string GetFirstNonEmptyItemName(Line line)
+        {
+            int li = GetFirstNonEmptyItemLotIndex(line);
+            var lot = Get(line, li);
+            return lot.CategoryParamFile.GetLineWithId(lot.id).name;
+        }
+
         public static int GetEmptyChanceTotal(Line line)
         {
             int total = 0;
@@ -1344,7 +1352,7 @@ namespace EldenRingCSVHelper
                 _bossOrMiniBossToItemLotMapDict.Add(71000030, 20080);    //Ancient Hero of Zamor (Sainted Hero's Grave)
 
                 _bossOrMiniBossToItemLotMapDict.Add(31500010, 1043370400);    //Night's Cavalry (Repeating Thrust)
-                _bossOrMiniBossToItemLotMapDict.Add(31500042, 1052410100);    //Night's Cavalry (BHS Drop)
+                _bossOrMiniBossToItemLotMapDict.Add(31500042, 1052410100);    //Night's Cavalry (Bloodhound's Step step Drop)
                 _bossOrMiniBossToItemLotMapDict.Add(31501040, 1049370100);    //Night's Cavalry (Poison Moth Flight Drop)
                 _bossOrMiniBossToItemLotMapDict.Add(31500052, 1048550710);    //Night's Cavalry (Night's Cavalry Set + Ancient  Drop) Duo
                 _bossOrMiniBossToItemLotMapDict.Add(31501052, 1048550710);    //Night's Cavalry (Night's Cavalry Set + Ancient  Drop) Duo
@@ -1449,7 +1457,95 @@ namespace EldenRingCSVHelper
                 _bossOrMiniBossToItemLotMapDict.Add(34600913, 10800);  //lionine misbegotten (grafted blade greatsword)
 
 
+                //added by system
+                BossOrMiniBossToItemLotMapDict.Add(21300534, 10040);    //Morgott, the Omen King(Remembrance of the Omen King drop)
+                BossOrMiniBossToItemLotMapDict.Add(47210070, 10070);    //Hoarah Loux(Remembrance of Hoarah Loux drop)
+                BossOrMiniBossToItemLotMapDict.Add(21403050, 10740);    //Fell Twin(Omenkiller Rollo drop)
+                BossOrMiniBossToItemLotMapDict.Add(21403150, 10740);    //Fell Twin(Omenkiller Rollo drop)
+                BossOrMiniBossToItemLotMapDict.Add(71000030, 20080);    //Ancient Hero of Zamor (Altus Plateau) - Sainted Hero's Grave [Boss](Ancient Dragon Knight Kristoff drop)
+                BossOrMiniBossToItemLotMapDict.Add(31500010, 1043370400);    //Night's Cavalry (Limgrave Boss)(Ash of War: Repeating Thrust drop)
+                BossOrMiniBossToItemLotMapDict.Add(31500042, 1052410100);    //Night's Cavalry(Ash of War: Bloodhound's Step drop)
+                BossOrMiniBossToItemLotMapDict.Add(31501040, 1049370100);    //Night's Cavalry(Ash of War: Poison Moth Flight drop)
+                BossOrMiniBossToItemLotMapDict.Add(31500052, 1048550710);    //Night's Cavalry (Glaive)(Night's Cavalry Helm drop)
+                BossOrMiniBossToItemLotMapDict.Add(31501052, 1048550710);    //Night's Cavalry (Flail)(Night's Cavalry Helm drop)
+                BossOrMiniBossToItemLotMapDict.Add(31500050, 1048510700);    //Night's Cavalry(Ash of War: Phantom Slash drop)
+                BossOrMiniBossToItemLotMapDict.Add(31500020, 1036480400);    //Night's Cavalry(Ash of War: Giant Hunt drop)
+                BossOrMiniBossToItemLotMapDict.Add(31501030, 1039510200);    //Night's Cavalry(Ash of War: Shared Order drop)
+                BossOrMiniBossToItemLotMapDict.Add(31501012, 1044320410);    //Night's Cavalry (Weeping Peninsula Boss)(Ash of War: Barricade Shield drop)
+                BossOrMiniBossToItemLotMapDict.Add(25000010, 30120);    //Crucible Knight (Limgrave Evergaol Boss)([Incantation] Aspects of the Crucible: Tail drop)
+                BossOrMiniBossToItemLotMapDict.Add(25000014, 10001295);    //Crucible Knight([Incantation] Aspects of the Crucible: Horns drop)
+                BossOrMiniBossToItemLotMapDict.Add(25000165, 12020435);    //Crucible Knight(Crucible Hornshield drop)
+                BossOrMiniBossToItemLotMapDict.Add(25009138, 16000950);    //Tanith's Knight([Incantation] Aspects of the Crucible: Breath drop)
+                BossOrMiniBossToItemLotMapDict.Add(41300012, 1043340400);    //Demi-Human Queen(Demi-Human Queen's Staff drop)
+                BossOrMiniBossToItemLotMapDict.Add(41301030, 1038510050);    //Demi-Human Queen Gilika(Ritual Sword Talisman drop)
+                BossOrMiniBossToItemLotMapDict.Add(41301932, 20400);    //Demi-Human Queen Margot(Jar Cannon drop)
+                BossOrMiniBossToItemLotMapDict.Add(41300032, 30395);    //Demi-Human Queen Maggie(Memory Stone drop)
+                BossOrMiniBossToItemLotMapDict.Add(42700014, 10001085);    //Elder Lion (Stormveil Castle)(Somber Smithing Stone [1] drop)
+                BossOrMiniBossToItemLotMapDict.Add(42700040, 1047380700);    //Elder Lion(Ash of War: Lion's Claw drop)
+                BossOrMiniBossToItemLotMapDict.Add(42700041, 1051360700);    //Elder Lion(Somber Smithing Stone [4] drop)
+                BossOrMiniBossToItemLotMapDict.Add(42700034, 11000195);    //Elder Lion  (Leyndell- Royal Capital)(Somber Smithing Stone [6] drop)
+                BossOrMiniBossToItemLotMapDict.Add(42700030, 11000185);    //Elder Lion(Somber Smithing Stone [6] drop)
+                BossOrMiniBossToItemLotMapDict.Add(42701051, 1051570800);    //Elder Lion(Somber Smithing Stone [7] drop)
+                BossOrMiniBossToItemLotMapDict.Add(32500072, 13002095);    //Draconic Tree Sentinel (Farum Azula)(Malformed Dragon Helm drop)
+                BossOrMiniBossToItemLotMapDict.Add(32500033, 30315);    //Draconic Tree Sentinel (Capital Outskirts)(Dragon Greatclaw drop)
+                BossOrMiniBossToItemLotMapDict.Add(49100032, 16002000);    //Magma Wyrm (Lava Lake Boss)(Dragon Heart drop)
+                BossOrMiniBossToItemLotMapDict.Add(49100038, 30390);    //Magma Wyrm (Volcano Manor)(Dragon Heart drop)
+                BossOrMiniBossToItemLotMapDict.Add(32510030, 30335);    //Tree Sentinel (Altus Plateau)(Erdtree Greatshield drop)
+                BossOrMiniBossToItemLotMapDict.Add(32511030, 30335);    //Tree Sentinel - Torch (Altus Plateau)(Erdtree Greatshield drop)
+                BossOrMiniBossToItemLotMapDict.Add(33001940, 1049390800);    //Nox Monk (Boss)(Nox Flowing Sword drop)
+                BossOrMiniBossToItemLotMapDict.Add(33000940, 1049390800);    //Nox Swordstress (Boss)(Nox Flowing Sword drop)
+                BossOrMiniBossToItemLotMapDict.Add(31000010, 1042380410);    //Bell Bearing Hunter (Limgrave)(Bone Peddler's Bell Bearing drop)
+                BossOrMiniBossToItemLotMapDict.Add(31000020, 1037460400);    //Bell Bearing Hunter(Meat Peddler's Bell Bearing drop)
+                BossOrMiniBossToItemLotMapDict.Add(31000033, 1043530400);    //Bell Bearing Hunter(Medicine Peddler's Bell Bearing drop)
+                BossOrMiniBossToItemLotMapDict.Add(31000042, 1048410800);    //Bell Bearing Hunter(Gravity Stone Peddler's Bell Bearing drop)
+                BossOrMiniBossToItemLotMapDict.Add(71000012, 1042330100);    //Ancient Hero of Zamor (Weeping Peninsula) - Weeping Evergaol [Boss](Radagon's Scarseal drop)
+                BossOrMiniBossToItemLotMapDict.Add(49801052, 1048570700);    //Death Rite Bird([Sorcery] Explosive Ghostflame drop)
+                BossOrMiniBossToItemLotMapDict.Add(49801040, 1049370110);    //Death Rite Bird(Death's Poker drop)
+                BossOrMiniBossToItemLotMapDict.Add(49801020, 1036450400);    //Death Rite Bird([Sorcery] Ancient Death Rancor drop)
+                BossOrMiniBossToItemLotMapDict.Add(49800020, 1037420400);    //Death Bird (Liurnia)(Red-Feathered Branchsword drop)
+                BossOrMiniBossToItemLotMapDict.Add(49800033, 1044530300);    //Death Bird (Altus)(Twinbird Kite Shield drop)
+                BossOrMiniBossToItemLotMapDict.Add(49800012, 1044320400);    //Death Bird (Weeping Peninsula)(Sacrificial Axe drop)
+                BossOrMiniBossToItemLotMapDict.Add(49800010, 1042380400);    //Death Bird (Limgrave)(Blue-Feathered Branchsword drop)
+                BossOrMiniBossToItemLotMapDict.Add(48100150, 30525);    //Erdtree Avatar (Giants Mountaintops)(Cerulean Crystal Tear drop)
+                BossOrMiniBossToItemLotMapDict.Add(47700033, 1042510900);    //Gargoyle (Capital Outskirts)(Gargoyle's Great Axe drop)
+                BossOrMiniBossToItemLotMapDict.Add(47700250, 30505);    //Black Blade Kindred (Forbidden Lands)(Gargoyle's Black Blades drop)
+                BossOrMiniBossToItemLotMapDict.Add(47701242, 30425);    //Black Blade Kindred (Dragonbarrow - Bestial Sanctum)(Gargoyle's Blackblade drop)
+                BossOrMiniBossToItemLotMapDict.Add(47702034, 11001187);    //Ruined Gargoyle (Leyndell - Royal Capital)(Gargoyle's Halberd drop)
+                BossOrMiniBossToItemLotMapDict.Add(47701165, 10100);    //Valiant Gargoyle (Nokron)(Gargoyle's Greatsword drop)
+                BossOrMiniBossToItemLotMapDict.Add(47700165, 10100);    //Valiant Gargoyle (Twinblade) (Nokron)(Gargoyle's Greatsword drop)
+                BossOrMiniBossToItemLotMapDict.Add(31811032, 20090);    //Red Wolf of the Champion(Bloodhound Knight Floh drop)
+                BossOrMiniBossToItemLotMapDict.Add(25001066, 12030950);    //Crucible Knight Siluria(Siluria's Tree drop)
+                BossOrMiniBossToItemLotMapDict.Add(44800912, 20300);    //Miranda Blossom(Viridian Amber Medallion drop)
+                BossOrMiniBossToItemLotMapDict.Add(48200930, 20410);    //Omenkiller (Boss Village)(Great Omenkiller Cleaver drop)
+                BossOrMiniBossToItemLotMapDict.Add(44800930, 20410);    //Miranda the Blighted Bloom(Great Omenkiller Cleaver drop)
+                BossOrMiniBossToItemLotMapDict.Add(523290066, 10350);    //Lionel the Lionhearted (Fia's Champions Boss)([Sorcery] Fia's Mist drop)
+                BossOrMiniBossToItemLotMapDict.Add(47500030, 1039500100);    //Godefroy the Grafted (Altus)(Godfrey Icon drop)
+                BossOrMiniBossToItemLotMapDict.Add(47200134, 101100);    //Godfrey- First Elden Lord (Phantom)(Talisman Pouch drop)
+                BossOrMiniBossToItemLotMapDict.Add(35600042, 34110400);    //Godskin Apostle(Godskin Noble Hood drop)
+                BossOrMiniBossToItemLotMapDict.Add(37040940, 1049390850);    //Battlemage Hugues (Boss)(Battlemage Hugues drop)
+                BossOrMiniBossToItemLotMapDict.Add(40200920, 1034480100);    //Royal Revenant (Boss)(Frozen Needle drop)
+                BossOrMiniBossToItemLotMapDict.Add(35500930, 1040530010);    //Sanguine Noble (Boss)(Bloody Helice drop)
+                BossOrMiniBossToItemLotMapDict.Add(46300912, 20310);    //Runebear (Boss)(Spelldrake Talisman drop)
+                BossOrMiniBossToItemLotMapDict.Add(34510912, 20600);    //Scaly Misbegotten (Morne Tunnel Boss)(Rusted Anchor drop)
+                BossOrMiniBossToItemLotMapDict.Add(34600913, 10800);    //Leonine Misbegotten (Castle Morne Boss)(Grafted Blade Greatsword drop)
+                BossOrMiniBossToItemLotMapDict.Add(21300014, 10090);    //Margit, the Fell Omen([Incantation] Frozen Lightning Spear drop)
+                BossOrMiniBossToItemLotMapDict.Add(47500014, 10190);    //Godrick the Grafted (Stormveil Castle)([Sorcery] Loretta's Mastery drop)
+                BossOrMiniBossToItemLotMapDict.Add(46900008, 10250);    //Grafted Scion (Boss)([Incantation] Bloodflame Talons drop)
+                BossOrMiniBossToItemLotMapDict.Add(523240070, 10440);    //Sir Gideon Ofnir, the All-Knowing([Incantation] Aspects of the Crucible: Thorns drop)
+                BossOrMiniBossToItemLotMapDict.Add(47200070, 10810);    //Godfrey- First Elden Lord([Sorcery] Loretta's Greatbow drop)
+                BossOrMiniBossToItemLotMapDict.Add(46500960, 20380);    //Dragonkin Soldier of Nokstella Healthbar (Boss)([Sorcery] Crystal Release drop)
+                BossOrMiniBossToItemLotMapDict.Add(46500262, 20460);    //Dragonkin Soldier (Lake of Rot)([Sorcery] Crystal Torrent drop)
+                BossOrMiniBossToItemLotMapDict.Add(526100965, 20680);    //Mimic Tear([Sorcery] Meteorite of Astel drop)
+                BossOrMiniBossToItemLotMapDict.Add(46500265, 30245);    //Dragonkin Soldier (Nokron)([Incantation] Flame of the Fell God drop)
+                BossOrMiniBossToItemLotMapDict.Add(523610066, 30250);    //Fia's Champion 1([Sorcery] Greatblade Phalanx drop)
+                BossOrMiniBossToItemLotMapDict.Add(523250066, 30255);    //Sorcerer Rogier (Fia's Champions Boss)([Sorcery] Meteorite drop)
+                BossOrMiniBossToItemLotMapDict.Add(45110066, 30300);    //Lichdragon Fortissax([Incantation] Lansseax's Glaive drop)
+                BossOrMiniBossToItemLotMapDict.Add(46200062, 30515);    //Astel, Stars of Darkness([Incantation] Vyke's Dragonbolt drop)
+                BossOrMiniBossToItemLotMapDict.Add(48000068, 30910);    //Mohg, Lord of Blood([Incantation] Roar of Rugalea drop)
+                BossOrMiniBossToItemLotMapDict.Add(46700964, 30940);    //Ancestor Spirit (Nonregal)([Incantation] Divine Beast Tornado drop)
+                BossOrMiniBossToItemLotMapDict.Add(46700065, 30960);    //Ancestor Spirit (Regal)([Sorcery] Gravitational Missile drop)
             }
+            
         }
         //Bosses^^^^^^^^^^^^^^^
         //Enemies vvvvvvvvvvvv
@@ -1926,7 +2022,7 @@ namespace EldenRingCSVHelper
                         npcLine.vanillaLine.addKeyword(k);
                     }
                 }
-                const bool debugAssignMapLots = false;
+                const bool debugAssignMapLots = true;
                 //added new assigned itemlotmaps to main dict
                 foreach (var lineKey in ItemLotMapToBossOrMiniBoss.Keys)
                 {
@@ -1957,95 +2053,112 @@ namespace EldenRingCSVHelper
                         var lotLine = Program.ItemLotParam_map.GetLineWithId(lotId);
                         string npcName = npcLine._idName;
                         string lotName = lotLine._idName;
-                        string addLine = "BossOrMiniBossToItemLotMapDict.Add(" + npcLine.id + ", " + lotLine.id + ");    //" + npcLine.name;
-                        Util.println(npcLine.id + " - " + lotLine.id + "  score: " + score + "  " + scoreRating + "\n" + addLine + "\n" + npcLine.name + "\n   " + data + "\n   " + lotLine.name + "\n");
+                        string addLine = "BossOrMiniBossToItemLotMapDict.Add(" + npcLine.id + ", " + lotLine.id + ");    //" + npcLine.name + "("+LotItem.GetFirstNonEmptyItemName(lotLine)+" drop)";
+                        Util.println(addLine);
+                        //Util.println(npcLine.id + " - " + lotLine.id + "  score: " + score + "  " + scoreRating + "\n" + addLine + "\n" + npcLine.name + "\n   " + data + "\n   " + lotLine.name + "\n");
                     }
                 }
 
-
-                //add remaining unassigned bosses (duo bosses)to maindict
-                foreach (var id in BossOrMiniBossIds)
+                if (false) //these creates fualties at this point, not good.
                 {
-                    if (!BossOrMiniBossToItemLotMapDict.Keys.Contains(id))
+
+                    var newBossOrMiniBossToItemLotMapDict = new Dictionary<int, int>();
+                    //add remaining unassigned bosses (duo bosses)to maindict
+                    foreach (var id in BossOrMiniBossIds)
                     {
-                        var npcLine = Program.NpcParam.GetLineWithId(id);
-                        var idName = npcLine._idName;
-                        var data = BossOrMiniBossToDataDict[id];
-                        var location = BossOrMiniBossToDataDict[id];
-                        location = location.Remove(location.IndexOf(")"));
-                        if (debugAssignMapLots)
+                        if (!BossOrMiniBossToItemLotMapDict.Keys.Contains(id))
                         {
-                            Util.println("DID NOT ASSIGN:   " + idName);
-                            Util.println("    My Data:          " + data);
-                        }
-
-                        bool foundOther = false;
-                        string foundOtherData = "";
-                        int foundItemLotId = -1;
-                        int curScore = 0;
-
-                        foreach (var key in ItemLotMapToAssignedDataDict.Keys)
-                        {
-                            var otherData = ItemLotMapToAssignedDataDict[key];
-                            var otherLocation = ItemLotMapToAssignedDataDict[key];
-                            otherLocation = otherLocation.Remove(otherLocation.IndexOf(")"));
-
-                            var otherId = ItemLotMapToBossOrMiniBoss[key];
-                            if (otherId == id)
-                                continue;
-                            //if (otherId == 47210070)
-                            //    Util.p();
-                            if (location == otherLocation)
+                            var npcLine = Program.NpcParam.GetLineWithId(id);
+                            var idName = npcLine._idName;
+                            var data = BossOrMiniBossToDataDict[id];
+                            var location = BossOrMiniBossToDataDict[id];
+                            location = location.Remove(location.IndexOf(")"));
+                            if (debugAssignMapLots)
                             {
-                                //if (id == 47200070)
-                                //   Util.p();
+                                Util.println("DID NOT ASSIGN:   " + idName);
+                                Util.println("    My Data:          " + data);
+                            }
 
-                                int prevScore = curScore;
-                                if (curScore < 10)
+                            bool foundOther = false;
+                            string foundOtherData = "";
+                            int foundItemLotId = -1;
+                            int curScore = 0;
+
+                            foreach (var key in ItemLotMapToAssignedDataDict.Keys)
+                            {
+                                var otherData = ItemLotMapToAssignedDataDict[key];
+                                var otherLocation = ItemLotMapToAssignedDataDict[key];
+                                otherLocation = otherLocation.Remove(otherLocation.IndexOf(")"));
+
+                                var otherId = ItemLotMapToBossOrMiniBoss[key];
+                                if (otherId == id)
+                                    continue;
+                                //if (otherId == 47210070)
+                                //    Util.p();
+                                if (location == otherLocation)
                                 {
-                                    curScore = 10;
-                                }
-                                {
-                                    string first3Dig = id.ToString().Remove(3);
-                                    string other_first3Dig = otherId.ToString().Remove(3);
-                                    if (curScore < 20 && first3Dig == other_first3Dig)
+                                    //if (id == 47200070)
+                                    //   Util.p();
+
+                                    int prevScore = curScore;
+                                    if (curScore < 10)
                                     {
-                                        curScore = 20;
+                                        curScore = 10;
+                                    }
+                                    {
+                                        string first3Dig = id.ToString().Remove(3);
+                                        string other_first3Dig = otherId.ToString().Remove(3);
+                                        if (curScore < 20 && first3Dig == other_first3Dig)
+                                        {
+                                            curScore = 20;
+                                        }
+
                                     }
 
-                                }
-
-                                if (prevScore < curScore)
-                                {
-                                    foundOther = true;
-                                    foundItemLotId = otherId;
-                                    foundItemLotId = key;
-                                    foundOtherData = otherData;
-                                    if (prevScore == 0)
-                                        BossOrMiniBossToItemLotMapDict.Add(id, key);
-                                    else
-                                        BossOrMiniBossToItemLotMapDict[id] = key;
+                                    if (prevScore < curScore)
+                                    {
+                                        foundOther = true;
+                                        foundItemLotId = otherId;
+                                        foundItemLotId = key;
+                                        foundOtherData = otherData;
+                                        if (prevScore == 0)
+                                        {
+                                            BossOrMiniBossToItemLotMapDict.Add(id, key);
+                                            newBossOrMiniBossToItemLotMapDict.Add(id, key);
+                                        }
+                                        else
+                                        {
+                                            BossOrMiniBossToItemLotMapDict[id] = key;
+                                            newBossOrMiniBossToItemLotMapDict[id] = key;
+                                        }
+                                    }
                                 }
                             }
+                            if (foundOther && debugAssignMapLots)
+                            {
+                                Util.println("    Other Data:       " + foundOtherData);
+                                Util.println("  ALLY FOUND BossOrMiniBossToItemLotMapDict.Add(" + id + ", " + foundItemLotId + ");    //" + npcLine.name);
+                            }
+                            if (debugAssignMapLots)
+                                Util.println();
                         }
-                        if (foundOther && debugAssignMapLots)
-                        {
-                            Util.println("    Other Data:       " + foundOtherData);
-                            Util.println("  ALLY FOUND BossOrMiniBossToItemLotMapDict.Add(" + id + ", " + foundItemLotId + ");    //" + npcLine.name);
-                        }
-                        if (debugAssignMapLots)
-                            Util.println();
                     }
-                }
 
-                //debug: unassigned itemlotmap lines
-                if (debugAssignMapLots)
-                {
-                    foreach (var itemlotline in BossItemLotMapLines)
+                    foreach (int key in newBossOrMiniBossToItemLotMapDict.Keys)
                     {
-                        if (!ItemLotMapToBossOrMiniBoss.Keys.Contains(itemlotline.id_int))
+                        Util.println("     BossOrMiniBossToItemLotMapDict.Add(" + key + ", " + newBossOrMiniBossToItemLotMapDict[key] + ");    //" + Program.NpcParam.GetLineWithId(key).name + " (" + LotItem.GetFirstNonEmptyItemName(Program.ItemLotParam_map.GetLineWithId(newBossOrMiniBossToItemLotMapDict[key])) + " drop)");
+
+                    }
+
+                    //debug: unassigned itemlotmap lines
+                    if (debugAssignMapLots)
+                    {
+                        foreach (var itemlotline in BossItemLotMapLines)
                         {
-                            Util.println("DID NOT FIND:   " + itemlotline._idName);
+                            if (!ItemLotMapToBossOrMiniBoss.Keys.Contains(itemlotline.id_int))
+                            {
+                                Util.println("DID NOT FIND:   " + itemlotline._idName);
+                            }
                         }
                     }
                 }

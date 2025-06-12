@@ -2403,31 +2403,7 @@ namespace EldenRingCSVHelper
                        Concat(ItemLotParam_map.GetLinesOnCondition(new Condition.FieldIs(LotItem.categoryFIs[0], LotItem.Category.Good).AND(new Condition.FieldIs(LotItem.idFIs[0], Ids))));
                     NonMaterialLinesToInclude = NonMaterialLinesToInclude.Concat(lines).ToList();
                 }
-                //root resin - skeletons - erdtree guardan
-                {
-                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
-                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName(new string[] { "Skeleton", "Guardian" }))
-                        .AND(new Condition.HasInName(new string[] { "Giant Skeleton Torso", "Guardian Golem", "Flame Guardian", "Chief Guardian Arghanthy" }).IsFalse)
-                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }),true)))
-                        ).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
-                            //.GetNextFreeIds();
-                            .GetIDs()
-                            ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 70,true), ids);
-                }
-                //string - foot soldiers
-                {
-                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
-                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName(new string[] { "Foot Soldier"}))
-                        ).GetIntFields(itemLotId_enemy).Distinct().ToArray())
-                            //.GetNextFreeIds();
-                            .GetIDs()
-                            ;
-                    lotItemToLineIDsDict.Add(new LotItem(good, "string", 1, 70,true), ids);
-                }
+                
                 //Golden rowa - lleyndel foot soldier, celebrant
                 {
                     var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
@@ -2474,18 +2450,43 @@ namespace EldenRingCSVHelper
                     {
                         var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
                         new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
-                        .AND(new Condition.HasInName(names[i])
+                        .AND(new Condition.HasInName(names[i]))
                         .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
-                            .AND(new KeywordCondition.Contains(new string[] { "Mistwood" }),true)))
-                        ))).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
+                            .AND(new KeywordCondition.Contains(new string[] { "Mistwood" }), true)))
+                        )).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
                             //.GetNextFreeIds();
                             .GetIDs()
                             ;
                         if (names[i] == "Runebear")
                             lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 7, 150), ids);
-                        else if(names[i] == "Bear")
+                        else if (names[i] == "Bear")
                             lotItemToLineIDsDict.Add(new LotItem(good, "Gold Firefly", 2, 150), ids);
                     }
+                }
+                //root resin - skeletons - erdtree guardan
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Skeleton", "Guardian" }))
+                        .AND(new Condition.HasInName(new string[] { "Giant Skeleton Torso", "Guardian Golem", "Flame Guardian", "Chief Guardian Arghanthy" }).IsFalse)
+                        .AND(new Condition.OneKeywordPassesCondition(new KeywordCondition.StartsWith("location:")
+                            .AND(new KeywordCondition.Contains(new string[] { "Catacombs", "Hero's Grave", "Cave" }), true)))
+                        )).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
+                            //.GetNextFreeIds();
+                            .GetIDs()
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "Root Resin", 1, 70, true), ids);
+                }
+                //string - foot soldiers
+                {
+                    var ids = ((Lines)ItemLotParam_enemy.GetLinesWithId(((Lines)NpcParam.vanillaParamFile.GetLinesOnCondition(
+                        new Condition.FloatFieldBetween(itemLotId_enemy, -1, 0, true).IsFalse
+                        .AND(new Condition.HasInName(new string[] { "Foot Soldier" }))
+                        )).GetIntFields(itemLotId_enemy).Distinct().ToArray()))
+                            //.GetNextFreeIds();
+                            .GetIDs()
+                            ;
+                    lotItemToLineIDsDict.Add(new LotItem(good, "String", 1, 70, true), ids);
                 }
                 //cave moss - demihumans (inside caves), highwayman?
                 {
@@ -7735,6 +7736,10 @@ namespace EldenRingCSVHelper
                 string oldItemName = EquipParamGoods.GetLineWithId(oldLineItemId).name;
                 int newItemId = -1;
 
+                int itemID = int.Parse(stoneLine.GetField(lotItemId01));
+                int curLevel = 0;
+                bool isAncient = false;
+
                 if (SmithingStones.ItemIDsDict.ContainsKey(itemID))
                 {
                     curLevel = SmithingStones.ItemIDsDict[itemID];
@@ -7756,8 +7761,8 @@ namespace EldenRingCSVHelper
                 {
                     newItemId = 10070;
                      //itemID - lost ashes of war
-                    stoneLine.SetField(lotItemCategory01, 1);   //category - good
-                    stoneLine.SetField(lotItemNum01, Math.Max(2, (int)( (rand.NextDouble(1) - 1.4) + (curLevel/2.5) ));
+                    stoneLine.SetField("lotItemCategory01", 1);   //category - good
+                    stoneLine.SetField("lotItemNum01", Math.Max(2, (int)( (rand.NextDouble() - 1.4) + (curLevel/2.5) ) ) );
                 }
                 else
                 {
@@ -7765,11 +7770,7 @@ namespace EldenRingCSVHelper
                         continue;
 
                     bool isSomber = isSomberSmithingStone.Pass(stoneLine);
-
-                    int itemID = int.Parse(stoneLine.GetField(lotItemId01));
-                    int curLevel = 0;
-
-                    bool isAncient = false;
+                    
 
                     
 
